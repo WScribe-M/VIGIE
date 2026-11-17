@@ -61,4 +61,5 @@ server/
 - [docs/cadrage.md](docs/cadrage.md) : besoin, rôles, fonctionnalités, architecture et décisions prises.
 - [CONTRIBUTING.md](CONTRIBUTING.md) : **à lire avant de coder** — workflow Jira/Kanban, convention Git, pull requests, Definition of Done, conventions de code.
 - [AGENTS.md](AGENTS.md) : instructions à donner à un assistant IA.
+- [IA/rapport-ia.md](IA/rapport-ia.md) : rapport d'utilisation de l'IA (dossier, partie 4).
 - Backlog et tableau Kanban : [Jira — projet VIGIE](https://matheagaveriaux.atlassian.net/jira/software/projects/VIGIE/boards/1)

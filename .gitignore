@@ -25,3 +25,7 @@ npm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Journal brut des prompts IA : enregistré en local par un hook, jamais publié
+# (relu puis joint au dossier en annexe à la fin du projet)
+IA/prompts.md
