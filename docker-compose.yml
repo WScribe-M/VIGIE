@@ -1,0 +1,13 @@
+# Base MongoDB de développement : npm run db
+services:
+  mongo:
+    image: mongo:7
+    container_name: vigie-mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - vigie-mongo-data:/data/db
+    restart: unless-stopped
+
+volumes:
+  vigie-mongo-data:

@@ -14,11 +14,40 @@ Mini projet M2 — LaManu.
 
 ## Installation
 
-> À compléter au fil de l'initialisation (VIGIE-36).
+Prérequis : **Node.js 22** ou plus, et **MongoDB** (installé en local, ou via Docker avec `npm run db`).
 
-1. Copier `.env.example` en `.env` et renseigner les valeurs.
-2. Installer les dépendances : `npm install`.
-3. Charger les données de démonstration : `npm run seed` (VIGIE-23).
+```bash
+npm install          # installe le client et le serveur (workspaces npm)
+cp .env.example .env # puis renseigner les valeurs, en particulier JWT_SECRET
+npm run db           # optionnel : lance MongoDB dans Docker
+npm run dev          # lance l'API (port 3000) et le client (port 5173)
+```
+
+Ouvrir http://localhost:5173 : la page affiche l'état de l'API et de la base de données.
+
+Données de démonstration : `npm run seed` (à venir, VIGIE-23).
+
+### Scripts
+
+| Commande         | Rôle                                                          |
+| ---------------- | ------------------------------------------------------------- |
+| `npm run dev`    | API et client en mode développement, rechargement automatique |
+| `npm run db`     | MongoDB dans Docker (`docker-compose.yml`)                    |
+| `npm run build`  | build de production du client                                 |
+| `npm start`      | démarre l'API                                                 |
+| `npm run lint`   | ESLint sur tout le projet                                     |
+| `npm run format` | formate le code avec Prettier                                 |
+
+## Structure
+
+```
+client/              React (Vite) — appels /api relayés vers l'API en développement
+server/
+  src/config/        variables d'environnement et connexion MongoDB
+  src/models/        modèles Mongoose : User, Service, Ticket, Notification
+  src/app.js         application Express (routes, erreurs)
+  src/index.js       démarrage : connexion à la base puis écoute
+```
 
 ## Organisation du travail
 
