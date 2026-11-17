@@ -25,7 +25,7 @@ React (Vite) dans `client/`, Node.js 22 / Express 5 et Mongoose 9 dans `server/`
 - **Visibilité des tickets** : toujours passer par `filtreTicketsVisibles` et `peutVoirTicket` (`server/src/services/visibiliteService.js`).
 - **Tests** : `node:test`, fichiers `*.test.js` à côté du code. Tester en priorité les règles métier (matrice de priorité, SLA en heures ouvrées, transitions de statut, prise en charge atomique, visibilité).
 - **Style** : le code doit passer `npm run lint` et `npm run format:check`. Commentaires en français, qui expliquent le pourquoi.
-- **Git** : branche `VIGIE-<n>-description`, commits préfixés `VIGIE-<n>`, pull request obligatoire (pas de push sur `main`).
+- **Git** : branche `VIGIE-<n>-description`, commits préfixés `VIGIE-<n>`, pull request obligatoire (pas de push sur `main`), fusion en « Squash and merge » (un commit par story, titre de la PR = message).
 
 ## Règles métier à ne pas réinventer
 

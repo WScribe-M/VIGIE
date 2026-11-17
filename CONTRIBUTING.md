@@ -35,7 +35,16 @@ git push -u origin VIGIE-12-socket-auth
 1. Ouvrir la PR avec le titre `VIGIE-<n> Description`. Le modèle s'affiche : le remplir et cocher la DoD honnêtement.
 2. Passer le ticket en **Revue en cours** dans Jira.
 3. Une autre personne relit : critères d'acceptation, DoD, lisibilité, sécurité.
-4. Après approbation, fusionner, supprimer la branche, puis passer le ticket en **Terminé**.
+4. Après approbation, fusionner avec **« Squash and merge »**, supprimer la branche, puis passer le ticket en **Terminé**.
+
+### Squash des commits
+
+On fusionne **toujours** avec « Squash and merge » : tous les commits de la branche deviennent **un seul commit sur `main`**.
+
+- `main` garde un historique lisible : un commit par story, facile à relire et à annuler si besoin.
+- Le message du commit final est le **titre de la PR** (`VIGIE-12 Connexion Socket.io authentifiée et rooms`) : vérifier qu'il contient la clé du ticket avant de valider.
+- Sur sa branche, on peut commiter autant qu'on veut (« wip », « correction relecture »…) : inutile de nettoyer l'historique soi-même, le squash s'en charge.
+- Après un squash, la branche ne doit plus servir : on en recrée une nouvelle depuis `main` à jour pour la story suivante.
 
 Relire vite fait partie du travail : une PR qui attend bloque peut-être d'autres stories.
 
