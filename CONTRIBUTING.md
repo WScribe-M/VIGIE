@@ -82,7 +82,14 @@ Règle principale : **la logique métier va dans `services/`**. Un controller ne
 - Codes HTTP : `400` données invalides, `401` non connecté, `403` interdit, `404` introuvable, `409` conflit (ticket déjà pris, version périmée).
 - Erreurs au format `{ "message": "…" }`. Ne jamais renvoyer une pile d'erreur ou un détail technique au client.
 - Dans un service, signaler une erreur métier avec `throw new ErreurHttp(404, 'Ticket introuvable')` (`utils/ErreurHttp.js`) : le gestionnaire d'erreurs de `app.js` renvoie le bon code.
-- **Toutes les routes `/api` branchées dans `app.js` après la ligne `authentifier` sont protégées automatiquement** : jeton obligatoire (401), et le `LECTEUR` ne peut que lire (403). Seules `/api/health` et `/api/auth/connexion` sont publiques.
+- **Déclarer chaque nouvelle route dans `ROUTES_PROTEGEES` (`app.js`)** : elle est alors protégée automatiquement, avec jeton obligatoire (401) et `LECTEUR` en lecture seule (403). Seules `/api/health` et `/api/auth/connexion` sont publiques ; une adresse inconnue répond 404.
+
+```js
+const ROUTES_PROTEGEES = {
+  '/services': serviceRoutes, // → /api/services
+};
+```
+
 - Pour restreindre une route à certains rôles, ajouter `autoriser` (`middlewares/auth.js`) :
 
 ```js
