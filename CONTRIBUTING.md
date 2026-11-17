@@ -64,6 +64,7 @@ server/src/
   middlewares/   authentification, contrôle des rôles, gestion des erreurs
   models/        modèles Mongoose et valeurs autorisées (constantes.js)
   config/        variables d'environnement, connexion à la base
+  utils/         outils transverses (ErreurHttp)
 ```
 
 Règle principale : **la logique métier va dans `services/`**. Un controller ne contient pas de règle métier, un service ne connaît pas `req` ni `res`.
@@ -80,6 +81,15 @@ Règle principale : **la logique métier va dans `services/`**. Un controller ne
 - **Toute modification passe par l'API REST** (validation, droits, historique), puis le serveur émet l'événement Socket.io. Le client n'envoie par Socket.io que des événements sans effet durable (rejoindre un ticket, « en train d'écrire… »).
 - Codes HTTP : `400` données invalides, `401` non connecté, `403` interdit, `404` introuvable, `409` conflit (ticket déjà pris, version périmée).
 - Erreurs au format `{ "message": "…" }`. Ne jamais renvoyer une pile d'erreur ou un détail technique au client.
+- Dans un service, signaler une erreur métier avec `throw new ErreurHttp(404, 'Ticket introuvable')` (`utils/ErreurHttp.js`) : le gestionnaire d'erreurs de `app.js` renvoie le bon code.
+- Protéger une route avec les middlewares de `middlewares/auth.js` :
+
+```js
+router.get('/', authentifier, lister); // tout utilisateur connecté
+router.post('/', authentifier, autoriser('ADMIN'), creer); // ADMIN uniquement
+```
+
+`authentifier` remplit `req.utilisateur = { id, role }` à partir du jeton. `interdireEcritureLecteur` refuse toute écriture au `LECTEUR`.
 
 ### Sécurité (non négociable)
 
