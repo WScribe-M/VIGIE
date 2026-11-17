@@ -1,0 +1,106 @@
+# Contribuer à VIGIE
+
+Ce guide est la référence de l'équipe : comment on choisit une tâche, comment on code, comment on livre.
+Le contexte métier et les décisions sont dans [docs/cadrage.md](docs/cadrage.md).
+
+## 1. Choisir une story (Kanban)
+
+Backlog et tableau : [Jira — projet VIGIE](https://matheagaveriaux.atlassian.net/jira/software/projects/VIGIE/boards/1)
+
+1. Prendre **la première story en partant du haut** dont tous les tickets « **est bloqué par** » sont **Terminés** (section _Tickets liés_ du ticket).
+2. Se l'**assigner** et la passer **En cours**.
+3. **Une seule story en cours par personne.** On termine avant d'en commencer une autre.
+4. Lire la description en entier : récit utilisateur, **critères d'acceptation**, notes techniques.
+
+Priorités : `Must` (indispensable) → `Should` (prévu) → `Could` (si le temps le permet).
+En cas de manque de temps, on abandonne dans cet ordre : satisfaction (VIGIE-25), présence (VIGIE-17), « en train d'écrire… » (VIGIE-13).
+
+## 2. Git
+
+**La clé du ticket est partout** : c'est ce qui relie le code au ticket dans Jira.
+
+```bash
+git checkout main && git pull
+git checkout -b VIGIE-12-socket-auth          # VIGIE-<n>-description-courte
+git commit -m "VIGIE-12 Middleware JWT sur le handshake Socket.io"
+git push -u origin VIGIE-12-socket-auth
+```
+
+- Une branche par story, toujours créée depuis un `main` à jour.
+- Messages de commit en français, à l'impératif ou descriptifs, préfixés par la clé.
+- `main` est protégée : **jamais de push direct**, uniquement des pull requests.
+
+## 3. Pull request et relecture
+
+1. Ouvrir la PR avec le titre `VIGIE-<n> Description`. Le modèle s'affiche : le remplir et cocher la DoD honnêtement.
+2. Passer le ticket en **Revue en cours** dans Jira.
+3. Une autre personne relit : critères d'acceptation, DoD, lisibilité, sécurité.
+4. Après approbation, fusionner, supprimer la branche, puis passer le ticket en **Terminé**.
+
+Relire vite fait partie du travail : une PR qui attend bloque peut-être d'autres stories.
+
+## 4. Definition of Done
+
+Une story est terminée seulement si :
+
+- le code est relu par au moins une autre personne via une pull request ;
+- la branche est fusionnée sur `main` et l'application démarre sans erreur ;
+- tous les critères d'acceptation de la story sont vérifiés ;
+- les règles critiques sont couvertes par des tests (matrice de priorité, prise en charge atomique, règles de visibilité) ;
+- les droits sont contrôlés côté serveur, pas seulement dans l'interface ;
+- aucun secret (mot de passe, clé, `.env`) n'est commité ;
+- la fonctionnalité est démontrable avec les données du seed ;
+- le README est à jour si l'installation ou la configuration a changé.
+
+## 5. Conventions de code
+
+### Organisation du serveur
+
+```
+server/src/
+  routes/        déclaration des routes Express, rien d'autre
+  controllers/   lit la requête, appelle un service, renvoie la réponse HTTP
+  services/      logique métier (priorité, SLA, transitions…), sans Express, testable seule
+  middlewares/   authentification, contrôle des rôles, gestion des erreurs
+  models/        modèles Mongoose et valeurs autorisées (constantes.js)
+  config/        variables d'environnement, connexion à la base
+```
+
+Règle principale : **la logique métier va dans `services/`**. Un controller ne contient pas de règle métier, un service ne connaît pas `req` ni `res`.
+
+### Nommage
+
+- **Métier en français**, comme dans le cadrage : `demandeur`, `technicien`, `prioriteFinale`, `echeanceSla`, `calculerPriorite()`.
+- Valeurs autorisées en **MAJUSCULES**, définies une seule fois dans `server/src/models/constantes.js` : `NOUVEAU`, `EN_COURS`, `CRITIQUE`… Ne jamais réécrire ces chaînes à la main ailleurs : importer la constante.
+- Fichiers : modèles en `PascalCase.js` (`Ticket.js`), le reste en `camelCase.js` (`ticketService.js`), composants React en `PascalCase.jsx`.
+
+### API
+
+- Routes préfixées par `/api`, au pluriel : `GET /api/tickets`, `POST /api/tickets/:id/commentaires`.
+- **Toute modification passe par l'API REST** (validation, droits, historique), puis le serveur émet l'événement Socket.io. Le client n'envoie par Socket.io que des événements sans effet durable (rejoindre un ticket, « en train d'écrire… »).
+- Codes HTTP : `400` données invalides, `401` non connecté, `403` interdit, `404` introuvable, `409` conflit (ticket déjà pris, version périmée).
+- Erreurs au format `{ "message": "…" }`. Ne jamais renvoyer une pile d'erreur ou un détail technique au client.
+
+### Sécurité (non négociable)
+
+- **Droits et visibilité vérifiés côté serveur**, à chaque route. Masquer un bouton dans l'interface ne protège rien.
+- Identité et rôle lus **dans le jeton JWT**, jamais dans le corps de la requête.
+- Mots de passe hachés avec **bcrypt** (coût `BCRYPT_COST`, 10 à 12), jamais renvoyés par l'API.
+- Toute configuration passe par `.env` (modèle : `.env.example`). Le `.env` n'est jamais commité.
+- Chaque changement de statut, d'assignation, de priorité ou de domaine ajoute une entrée dans `historique`.
+
+### Tests
+
+- Outil : le module natif `node:test` (aucune dépendance). Lancer : `npm test`.
+- Fichiers `*.test.js` à côté du code testé, par exemple `services/priorite.test.js`.
+- À tester en priorité : la matrice de priorité, le calcul SLA en heures ouvrées, les transitions de statut, la prise en charge atomique, les règles de visibilité.
+
+### Style
+
+- Prettier et ESLint décident : lancer `npm run format` et `npm run lint` avant de pousser.
+- Commentaires en français, pour expliquer **pourquoi** (une règle du cadrage, un choix technique), pas ce que fait la ligne.
+
+## 6. Utiliser un assistant IA
+
+C'est autorisé, à condition de rester responsable du code produit : on le comprend, on le relit, on le teste.
+Donner à l'assistant [AGENTS.md](AGENTS.md) et la description de la story Jira au début de la conversation.
