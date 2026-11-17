@@ -1,0 +1,27 @@
+# Dépendances
+node_modules/
+
+# Variables d'environnement (ne jamais commiter de secrets)
+.env
+.env.*
+!.env.example
+
+# Fichiers déposés par les utilisateurs (pièces jointes)
+uploads/
+
+# Builds
+dist/
+build/
+coverage/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Éditeurs et système
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
