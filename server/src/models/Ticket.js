@@ -68,6 +68,9 @@ const ticketSchema = new mongoose.Schema(
     niveauAlerteSla: { type: String, enum: NIVEAUX_ALERTE_SLA, default: 'AUCUNE' },
     // Délai de prise en charge sans relire l'historique (statistiques, VIGIE-41)
     datePriseEnCharge: { type: Date, default: null },
+    // Jalon « Vu par le support » de la frise : première ouverture par un GESTIONNAIRE.
+    // Posé une seule fois, par un updateOne conditionnel ({ _id, vuParSupportLe: null }).
+    vuParSupportLe: { type: Date, default: null },
     // Remplie au passage à TERMINE ou ABANDONNE, remise à null à la réouverture
     dateCloture: { type: Date, default: null },
     nbReouvertures: { type: Number, default: 0 },
@@ -98,7 +101,7 @@ ticketSchema.pre('validate', function () {
   }
 });
 
-// Index choisis à partir des requêtes de l'application (cadrage 9.10).
+// Index choisis à partir des requêtes de l'application (cadrage 9.11).
 // Ordre des champs : égalité, puis tri, puis intervalle.
 
 // Recherche et suggestions de doublons, en français (racines des mots, mots vides ignorés)

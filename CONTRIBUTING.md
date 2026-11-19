@@ -114,7 +114,7 @@ router.post('/', autoriser('ADMIN'), creer); // ADMIN uniquement
 
 ### Requêtes MongoDB
 
-Le schéma et les index ont été conçus à partir des requêtes de l'application (cadrage 9.10). Pour qu'ils servent :
+Le schéma et les index ont été conçus à partir des requêtes de l'application (cadrage 9.11). Pour qu'ils servent :
 
 - **Listes** : ne charger que les champs affichés, avec `.select(...)` et `.lean()`. Un ticket embarque commentaires et historique : sans projection, une liste transporte des documents entiers.
 - **`populate`** : toujours limité aux champs utiles, par exemple `.populate('demandeur', 'nom prenom')`.

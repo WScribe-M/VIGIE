@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { Notification } from './Notification.js';
 import { Ticket } from './Ticket.js';
 
-// Validation sans base de données : on vérifie le schéma conçu à partir des requêtes (cadrage 9.10)
+// Validation sans base de données : on vérifie le schéma conçu à partir des requêtes (cadrage 9.11)
 
 function ticketValide(champs = {}) {
   const id = () => new mongoose.Types.ObjectId();
@@ -53,6 +53,7 @@ describe('schéma Ticket', () => {
     assert.equal(ticket.niveauAlerteSla, 'AUCUNE');
     assert.equal(ticket.dateCloture, null);
     assert.equal(ticket.datePriseEnCharge, null);
+    assert.equal(ticket.vuParSupportLe, null);
     assert.equal(ticket.derniereRelance, null);
   });
 

@@ -180,7 +180,7 @@ Deux fonctionnalités `Could` (lot 4), ajoutées pour répondre plus finement à
 
 - Sur un ticket `NOUVEAU`, le demandeur et les suiveurs voient leur **position dans la file** : un simple nombre, dans l'ordre de « Ma file » (`prioriteFinale` décroissante, puis `echeanceSla` croissante). Aucune information sur les autres tickets n'est exposée.
 - **Estimation de prise en charge** en fourchette : 25e à 75e percentile du délai de prise en charge (en heures ouvrées) des tickets de même priorité sur **90 jours**. Rien n'est affiché sous **10 tickets** comparables. C'est une estimation, pas un engagement : l'engagement reste l'échéance SLA.
-- **Jalons** : Reçu → Vu par le support → Pris en charge → En cours → Terminé. « Vu par le support » est posé une seule fois, à la première ouverture par un `GESTIONNAIRE`.
+- **Jalons** : Reçu → Vu par le support → Pris en charge → Terminé (« Pris en charge » et « En cours » arrivent au même instant, d'où 4 étapes). « Vu par le support » est posé une seule fois, à la première ouverture par un `GESTIONNAIRE`. Décision du 19/11 : la frise est codée **avec la fiche ticket (VIGIE-7)**, même si VIGIE-41 n'est pas faite ; elle remplace les 3 étapes des maquettes. VIGIE-41 garde la position dans la file et l'estimation. À la création, l'écran de confirmation affiche l'**échéance SLA** (« Résolution prévue avant le 20/11 à 11 h »), jamais un délai fixe comme le « sous 30 min » des maquettes : ce serait une promesse sans fondement (un ticket critique a 4 h de SLA).
 - Mise à jour en direct quand la file change.
 
 **Panne collective (VIGIE-42)** : « une même panne signalée par plusieurs personnes ne génère pas autant de tickets ». Complète VIGIE-15 (doublons par titre) par une détection par service et par volume, avant même la saisie du titre.
@@ -206,12 +206,13 @@ Décisions :
 
 Hors périmètre : le RAG lui-même (vecteurs d'embedding, MongoDB Atlas Vector Search, appel à une IA). Il est présenté comme évolution dans le dossier technique : les vecteurs pourraient être stockés dans la collection `tickets`, sans nouvelle base.
 
-### 9.10 Schéma conçu à partir des requêtes (VIGIE-45)
+### 9.11 Schéma conçu à partir des requêtes (VIGIE-45)
 
 En MongoDB, on modélise pour les requêtes : chaque requête de l'application (écran, story, fréquence, filtre, tri) a été confrontée au schéma. Décisions validées en équipe :
 
 - **Tri par priorité** sur un champ numérique `rangPriorite` (1 à 4), recalculé depuis `prioriteFinale` : le texte se triait par ordre alphabétique.
 - **Numéro lisible** `numero`, affiché VIG-0042, attribué par un compteur atomique (collection `compteurs`) ; la recherche « par ticket » l'accepte.
+- **Frise de suivi** (section 9.8) : champ `vuParSupportLe`, posé à la première ouverture par un `GESTIONNAIRE` ; en attente du demandeur, la frise reste sur « Pris en charge » avec la mention « En attente de votre réponse » ; un ticket abandonné n'a pas de frise mais un message avec le motif.
 - **Champs de suivi** : `dateStatut` (entrée dans le statut actuel) et `derniereRelance` pour les relances, `datePriseEnCharge` pour les statistiques et l'estimation, `niveauAlerteSla` (`AUCUNE`, `ORANGE`, `ROUGE`) pour n'alerter qu'au changement de niveau.
 - **`dateCloture`** : remplie au passage à `TERMINE` ou `ABANDONNE`, remise à `null` à la réouverture ; le délai de contestation de 15 jours part de la dernière clôture. Le temps de résolution des statistiques ne compte que les tickets `TERMINE`.
 - **Index** : `suiveurs` et `enCopie` (sinon le filtre de visibilité d'un `CLIENT` parcourt toute la collection), « Ma file » `{statut, rangPriorite, echeanceSla}`, tâche SLA `{statut, echeanceSla}`, tickets d'un technicien `{technicien, statut, echeanceSla}`, panne collective `{service, createdAt}`, index textuel **en français**.
