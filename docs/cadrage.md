@@ -37,19 +37,19 @@ Besoins :
 - **Création** : titre, description, service, pièces jointes, personnes en copie, et deux questions guidées à la place d'une priorité libre : **impact** et **urgence**.
 - **Statuts** (un sens unique chacun, pour des compteurs fiables) :
 
-| Statut                 | Sens                                                     |
-| ---------------------- | -------------------------------------------------------- |
-| `NOUVEAU`              | Pas encore pris en charge                                |
-| `EN_COURS`             | Un gestionnaire travaille dessus                         |
-| `EN_ATTENTE_DEMANDEUR` | On attend une réponse du demandeur ; **SLA suspendu**    |
-| `TERMINE`              | Solution apportée ; le demandeur peut toujours contester |
-| `ABANDONNE`            | Annulé ou doublon                                        |
+| Statut                 | Sens                                                             |
+| ---------------------- | ---------------------------------------------------------------- |
+| `NOUVEAU`              | Pas encore pris en charge                                        |
+| `EN_COURS`             | Un gestionnaire travaille dessus                                 |
+| `EN_ATTENTE_DEMANDEUR` | On attend une réponse du demandeur ; **SLA suspendu**            |
+| `TERMINE`              | Solution apportée ; le demandeur peut contester pendant 15 jours |
+| `ABANDONNE`            | Annulé ou doublon                                                |
 
 - **Catalogue de services** : le client choisit un service dans son vocabulaire (VPN, Messagerie, ERP, Imprimante, Poste de travail, « Autre / je ne sais pas »). Chaque service est lié par l'admin à un domaine technique (réseau, infrastructure, applicatif, base de données) : le domaine est déduit. Le technicien peut le corriger (tracé). « Autre » déclenche une qualification manuelle. Une seule équipe support.
 - **Priorité calculée** : déduite de l'impact et de l'urgence (matrice, section 9.1). Le gestionnaire peut la requalifier ; c'est tracé.
 - **Un seul technicien par ticket** : il s'assigne depuis « Ma file » ou le responsable DSI le lui attribue. La prise en charge est **atomique**.
 - **Doublons** : à la saisie du titre, suggestions de tickets ouverts similaires et bouton « Je suis aussi concerné » (rattache comme suiveur). Le gestionnaire peut marquer un ticket comme doublon d'un autre : il passe `ABANDONNE` avec un lien, et son demandeur devient suiveur du ticket principal.
-- **Réouverture** : après `TERMINE`, le demandeur peut contester sans limite de durée. Motif obligatoire, retour `EN_COURS` chez le même technicien, notifié, tracé, SLA recalculé, compteur de réouvertures incrémenté.
+- **Réouverture** : après `TERMINE`, le demandeur peut contester pendant **15 jours**. Motif obligatoire, retour `EN_COURS` chez le même technicien, notifié, tracé, SLA recalculé, compteur de réouvertures incrémenté. Passé ce délai, le bouton « Contester » n'est plus proposé et le client crée un nouveau ticket ; le ticket n'est pas verrouillé et le technicien peut toujours le rouvrir, avec un motif.
 - **Relances sans action automatique** : aucun ticket n'est jamais verrouillé, clôturé ou abandonné automatiquement. Relance après 3 jours (paramétrable) : réponse attendue (`EN_ATTENTE_DEMANDEUR`) ou invitation à confirmer, contester ou noter (`TERMINE`). Le technicien décide seul d'abandonner, avec un motif.
 - **Ticket pour le compte d'un tiers** : le technicien crée le ticket au nom d'un utilisateur, avec le canal d'origine (téléphone, e-mail, en direct). Le tiers devient le demandeur ; le technicien reste tracé comme créateur.
 - **Commentaires** visibles par le demandeur et la DSI.
@@ -170,3 +170,22 @@ Plan B si les titres sont jugés trop sensibles : service, statut, date et nombr
 - Monorepo `client/` (React + Vite) et `server/` (Express) avec workspaces npm.
 - Organisation du serveur : `routes/`, `controllers/`, `services/`, `middlewares/`, `models/`, `config/`.
 - Tests avec `node:test`.
+
+### 9.8 Suivi de la prise en charge et panne collective (VIGIE-41, VIGIE-42)
+
+Deux fonctionnalités `Could` (lot 4), ajoutées pour répondre plus finement à deux besoins de la section 1.
+
+**Suivi de la prise en charge (VIGIE-41)** : « chacun suit l'avancement d'une demande ». Un statut `NOUVEAU` qui dure ne dit rien au client, qui relance alors par téléphone ou par e-mail : exactement ce que VIGIE doit remplacer.
+
+- Sur un ticket `NOUVEAU`, le demandeur et les suiveurs voient leur **position dans la file** : un simple nombre, dans l'ordre de « Ma file » (`prioriteFinale` décroissante, puis `echeanceSla` croissante). Aucune information sur les autres tickets n'est exposée.
+- **Estimation de prise en charge** en fourchette : 25e à 75e percentile du délai de prise en charge (en heures ouvrées) des tickets de même priorité sur **90 jours**. Rien n'est affiché sous **10 tickets** comparables. C'est une estimation, pas un engagement : l'engagement reste l'échéance SLA.
+- **Jalons** : Reçu → Vu par le support → Pris en charge → En cours → Terminé. « Vu par le support » est posé une seule fois, à la première ouverture par un `GESTIONNAIRE`.
+- Mise à jour en direct quand la file change.
+
+**Panne collective (VIGIE-42)** : « une même panne signalée par plusieurs personnes ne génère pas autant de tickets ». Complète VIGIE-15 (doublons par titre) par une détection par service et par volume, avant même la saisie du titre.
+
+- Panne probable : au moins **5 tickets** ouverts sur un même service en **30 minutes** (`PANNE_SEUIL_TICKETS`, `PANNE_FENETRE_MINUTES`). Le service « Autre / je ne sais pas » est exclu.
+- Bandeau dans le formulaire de création avec « Je suis aussi concerné » (suiveur du ticket le plus ancien de la rafale). Il n'affiche que le **service, l'heure de début et le nombre de personnes concernées** et ne bloque pas la création d'un ticket.
+- Alerte en direct des gestionnaires (room `support`) ; les rattachements comptent dans les doublons évités.
+
+Les seuils (5 tickets en 30 min, 90 jours, 10 tickets minimum) sont des valeurs de départ, à ajuster avec les données du seed.
