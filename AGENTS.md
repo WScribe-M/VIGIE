@@ -30,6 +30,6 @@ React (Vite) dans `client/`, Node.js 22 / Express 5 et Mongoose 9 dans `server/`
 
 ## Règles métier à ne pas réinventer
 
-Elles sont détaillées dans `docs/cadrage.md` : matrice impact × urgence (9.1), SLA en heures ouvrées avec alerte à 75 % (9.2), affichage limité des suggestions de doublons (9.3), contraintes des pièces jointes (9.4), suivi de la prise en charge et panne collective (9.8). Ne pas improviser une autre règle : si un point n'est pas couvert, le signaler.
+Elles sont détaillées dans `docs/cadrage.md` : matrice impact × urgence (9.1), SLA en heures ouvrées avec alerte à 75 % (9.2), affichage limité des suggestions de doublons (9.3), contraintes des pièces jointes (9.4), suivi de la prise en charge et panne collective (9.8), résolution structurée et tickets homogènes (9.9). Ne pas improviser une autre règle : si un point n'est pas couvert, le signaler.
 
 Code pédagogique : privilégier une solution simple et lisible par une équipe junior plutôt qu'une abstraction.
