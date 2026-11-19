@@ -6,7 +6,17 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 
 export default [
-  { ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/coverage/**', 'uploads/**'] },
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/coverage/**',
+      'uploads/**',
+      // Maquettes du handoff : runtime généré par l'outil de design, ce n'est pas notre code
+      'design_handoff_vigie/**',
+    ],
+  },
 
   js.configs.recommended,
 

@@ -29,3 +29,7 @@ Thumbs.db
 # Journal brut des prompts IA : enregistré en local par un hook, jamais publié
 # (relu puis joint au dossier en annexe à la fin du projet)
 IA/prompts.md
+
+# Maquettes du handoff de design : source temporaire, gardée en local pendant le setup.
+# Leur contenu est transféré dans client/src/styles/ et docs/ecrans/, puis le dossier est supprimé.
+design_handoff_vigie/
