@@ -59,6 +59,7 @@ Une story est terminée seulement si :
 - les droits sont contrôlés côté serveur, pas seulement dans l'interface ;
 - aucun secret (mot de passe, clé, `.env`) n'est commité ;
 - la fonctionnalité est démontrable avec les données du seed ;
+- toute route ajoutée ou modifiée est décrite dans `server/docs/openapi.yaml` (visible sur `/api/docs`) ;
 - le README est à jour si l'installation ou la configuration a changé.
 
 ## 5. Conventions de code
@@ -91,7 +92,8 @@ Règle principale : **la logique métier va dans `services/`**. Un controller ne
 - Codes HTTP : `400` données invalides, `401` non connecté, `403` interdit, `404` introuvable, `409` conflit (ticket déjà pris, version périmée).
 - Erreurs au format `{ "message": "…" }`. Ne jamais renvoyer une pile d'erreur ou un détail technique au client.
 - Dans un service, signaler une erreur métier avec `throw new ErreurHttp(404, 'Ticket introuvable')` (`utils/ErreurHttp.js`) : le gestionnaire d'erreurs de `app.js` renvoie le bon code.
-- **Déclarer chaque nouvelle route dans `ROUTES_PROTEGEES` (`app.js`)** : elle est alors protégée automatiquement, avec jeton obligatoire (401) et `LECTEUR` en lecture seule (403). Seules `/api/health` et `/api/auth/connexion` sont publiques ; une adresse inconnue répond 404.
+- **Déclarer chaque nouvelle route dans `ROUTES_PROTEGEES` (`app.js`)** : elle est alors protégée automatiquement, avec jeton obligatoire (401) et `LECTEUR` en lecture seule (403). Seules `/api/health`, `/api/auth/connexion` et la documentation `/api/docs` sont publiques ; une adresse inconnue répond 404.
+- **Documenter chaque route dans `server/docs/openapi.yaml`**, dans la même PR. La documentation s'affiche sur `/api/docs` (Swagger UI) : bouton **Authorize** pour coller le jeton reçu à la connexion et tester les routes protégées. Réutiliser les éléments communs de `components` (`Erreur`, `NonAuthentifie`, `Interdit`, `Introuvable`). Le YAML ne peut pas importer `constantes.js` : recopier les valeurs autorisées à l'identique (un test vérifie les rôles ; en ajouter un pour chaque nouvelle liste).
 
 ```js
 const ROUTES_PROTEGEES = {
