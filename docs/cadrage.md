@@ -170,3 +170,22 @@ Plan B si les titres sont jugés trop sensibles : service, statut, date et nombr
 - Monorepo `client/` (React + Vite) et `server/` (Express) avec workspaces npm.
 - Organisation du serveur : `routes/`, `controllers/`, `services/`, `middlewares/`, `models/`, `config/`.
 - Tests avec `node:test`.
+
+### 9.8 Suivi de la prise en charge et panne collective (VIGIE-41, VIGIE-42)
+
+Deux fonctionnalités `Could` (lot 4), ajoutées pour répondre plus finement à deux besoins de la section 1.
+
+**Suivi de la prise en charge (VIGIE-41)** : « chacun suit l'avancement d'une demande ». Un statut `NOUVEAU` qui dure ne dit rien au client, qui relance alors par téléphone ou par e-mail : exactement ce que VIGIE doit remplacer.
+
+- Sur un ticket `NOUVEAU`, le demandeur et les suiveurs voient leur **position dans la file** : un simple nombre, dans l'ordre de « Ma file » (`prioriteFinale` décroissante, puis `echeanceSla` croissante). Aucune information sur les autres tickets n'est exposée.
+- **Estimation de prise en charge** en fourchette : 25e à 75e percentile du délai de prise en charge (en heures ouvrées) des tickets de même priorité sur **90 jours**. Rien n'est affiché sous **10 tickets** comparables. C'est une estimation, pas un engagement : l'engagement reste l'échéance SLA.
+- **Jalons** : Reçu → Vu par le support → Pris en charge → En cours → Terminé. « Vu par le support » est posé une seule fois, à la première ouverture par un `GESTIONNAIRE`.
+- Mise à jour en direct quand la file change.
+
+**Panne collective (VIGIE-42)** : « une même panne signalée par plusieurs personnes ne génère pas autant de tickets ». Complète VIGIE-15 (doublons par titre) par une détection par service et par volume, avant même la saisie du titre.
+
+- Panne probable : au moins **5 tickets** ouverts sur un même service en **30 minutes** (`PANNE_SEUIL_TICKETS`, `PANNE_FENETRE_MINUTES`). Le service « Autre / je ne sais pas » est exclu.
+- Bandeau dans le formulaire de création avec « Je suis aussi concerné » (suiveur du ticket le plus ancien de la rafale). Il n'affiche que le **service, l'heure de début et le nombre de personnes concernées** et ne bloque pas la création d'un ticket.
+- Alerte en direct des gestionnaires (room `support`) ; les rattachements comptent dans les doublons évités.
+
+Les seuils (5 tickets en 30 min, 90 jours, 10 tickets minimum) sont des valeurs de départ, à ajuster avec les données du seed.
