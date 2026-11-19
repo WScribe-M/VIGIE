@@ -5,7 +5,7 @@ Avant d'écrire du code, lire :
 
 - [docs/cadrage.md](docs/cadrage.md) : besoin, rôles, fonctionnalités, architecture et **décisions prises** (section 9) ;
 - [CONTRIBUTING.md](CONTRIBUTING.md) : workflow, conventions de code, Definition of Done ;
-- pour toute interface : [docs/design-system.md](docs/design-system.md) (quel style à quel moment) et la fiche de l'écran dans [docs/ecrans/](docs/ecrans/README.md).
+- pour toute interface : [docs/design-system.md](docs/design-system.md) (quel style à quel moment) et la fiche de l'écran, à retrouver soi-même par clé Jira, route ou nom dans l'index [docs/ecrans/README.md](docs/ecrans/README.md), puis ses captures.
 
 Chaque tâche correspond à une story Jira `VIGIE-<n>` : respecter ses **critères d'acceptation**, sans ajouter de fonctionnalité hors de la story.
 

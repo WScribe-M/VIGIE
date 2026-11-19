@@ -43,24 +43,28 @@ mot pour mot.
 
 ## Index
 
-| #   | Écran                                                        | Rôles                                 | Captures                                  |
-| --- | ------------------------------------------------------------ | ------------------------------------- | ----------------------------------------- |
-| 01  | [Connexion](01-connexion.md)                                 | tous                                  | `01-connexion-*`                          |
-| 02  | [Mes demandes](02-mes-demandes.md)                           | Client                                | `02-mes-demandes-*`                       |
-| 03  | [Créer un ticket](03-creer-un-ticket.md)                     | Client                                | `03-creer-un-ticket-*`                    |
-| 04  | [Créer un ticket pour un tiers](04-creer-pour-un-tiers.md)   | Gestionnaire, Administrateur          | `04-creer-un-ticket-pour-un-tiers`        |
-| 05  | [Fiche ticket Client](05-fiche-ticket-client.md)             | Client                                | `05-fiche-ticket-client-*`                |
-| 06  | [Fiche ticket Gestionnaire](06-fiche-ticket-gestionnaire.md) | Gestionnaire, Administrateur, Lecteur | `06-*`                                    |
-| 07  | [Ma file](07-ma-file.md)                                     | Gestionnaire, Administrateur          | `07-ma-file-*`                            |
-| 08  | [Tous les tickets](08-tous-les-tickets.md)                   | Gestionnaire, Administrateur, Lecteur | `08-tous-les-tickets-*`                   |
-| 09  | [Pilotage](09-pilotage.md)                                   | Gestionnaire, Administrateur, Lecteur | `09-pilotage-*`                           |
-| 10  | [État des services](10-etat-des-services.md)                 | tous                                  | `10-etat-des-services`                    |
-| 11  | [Notifications](11-notifications.md)                         | tous                                  | `11-notifications`                        |
-| 12  | [Administration](12-administration.md)                       | Administrateur                        | `12-*`                                    |
-| 13  | [Erreurs 403 et 404](13-erreurs.md)                          | tous                                  | `13-403`, `13-404`                        |
-| 14  | [Mobile 390 px](14-mobile.md)                                | Client                                | `14-mobile-*`                             |
-| —   | [Parcours interactifs](parcours.md)                          | Client, Gestionnaire                  | `parcours-*`                              |
-| —   | [Composants](composants.md)                                  | —                                     | `composants-03-*`, `identite-01-identite` |
+**Trouver la fiche d'une story** : chercher sa clé Jira dans la colonne « Stories », sinon l'écran par sa
+route ou son nom. Lire la fiche **avant de coder**, puis ses captures (`captures/`, avec l'outil de lecture
+d'images). Une story d'interface absente du tableau : trouver l'écran concerné et **ajouter sa clé ici**.
+
+| #   | Écran (fiche)                                                | Route                         | Stories                                                  | Rôles                                 |
+| --- | ------------------------------------------------------------ | ----------------------------- | -------------------------------------------------------- | ------------------------------------- |
+| 01  | [Connexion](01-connexion.md)                                 | `/connexion`                  | VIGIE-2                                                  | tous                                  |
+| 02  | [Mes demandes](02-mes-demandes.md)                           | `/mes-demandes`               | VIGIE-18                                                 | Client                                |
+| 03  | [Créer un ticket](03-creer-un-ticket.md)                     | `/tickets/nouveau` (proposée) | VIGIE-15 (doublons), VIGIE-35 (pièces jointes), VIGIE-42 | Client                                |
+| 04  | [Créer un ticket pour un tiers](04-creer-pour-un-tiers.md)   | `/tickets/nouveau` (proposée) | —                                                        | Gestionnaire, Administrateur          |
+| 05  | [Fiche ticket Client](05-fiche-ticket-client.md)             | `/tickets/:id` (proposée)     | VIGIE-41 (suivi), VIGIE-25 (satisfaction), VIGIE-13      | Client                                |
+| 06  | [Fiche ticket Gestionnaire](06-fiche-ticket-gestionnaire.md) | `/tickets/:id` (proposée)     | VIGIE-17 (présence), VIGIE-13 (« en train d'écrire… »)   | Gestionnaire, Administrateur, Lecteur |
+| 07  | [Ma file](07-ma-file.md)                                     | `/ma-file`                    | VIGIE-31                                                 | Gestionnaire, Administrateur          |
+| 08  | [Tous les tickets](08-tous-les-tickets.md)                   | `/tickets` (proposée)         | —                                                        | Gestionnaire, Administrateur, Lecteur |
+| 09  | [Pilotage](09-pilotage.md)                                   | `/pilotage`                   | VIGIE-32                                                 | Gestionnaire, Administrateur, Lecteur |
+| 10  | [État des services](10-etat-des-services.md)                 | `/services` (proposée)        | aucune (sans story, cadrage 9.9)                         | tous                                  |
+| 11  | [Notifications](11-notifications.md)                         | panneau de l'en-tête          | —                                                        | tous                                  |
+| 12  | [Administration](12-administration.md)                       | `/administration`             | VIGIE-37 (utilisateurs), VIGIE-4 (services)              | Administrateur                        |
+| 13  | [Erreurs 403 et 404](13-erreurs.md)                          | toute route                   | —                                                        | tous                                  |
+| 14  | [Mobile 390 px](14-mobile.md)                                | mêmes routes                  | —                                                        | Client                                |
+| —   | [Parcours interactifs](parcours.md)                          | —                             | —                                                        | Client, Gestionnaire                  |
+| —   | [Composants](composants.md)                                  | `/styleguide` (développement) | —                                                        | —                                     |
 
 ## Données de démonstration
 
