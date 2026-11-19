@@ -205,3 +205,16 @@ Décisions :
 - **Seed** (VIGIE-23) : causes et solutions réalistes pour les tickets terminés.
 
 Hors périmètre : le RAG lui-même (vecteurs d'embedding, MongoDB Atlas Vector Search, appel à une IA). Il est présenté comme évolution dans le dossier technique : les vecteurs pourraient être stockés dans la collection `tickets`, sans nouvelle base.
+
+### 9.10 Schéma conçu à partir des requêtes (VIGIE-45)
+
+En MongoDB, on modélise pour les requêtes : chaque requête de l'application (écran, story, fréquence, filtre, tri) a été confrontée au schéma. Décisions validées en équipe :
+
+- **Tri par priorité** sur un champ numérique `rangPriorite` (1 à 4), recalculé depuis `prioriteFinale` : le texte se triait par ordre alphabétique.
+- **Numéro lisible** `numero`, affiché VIG-0042, attribué par un compteur atomique (collection `compteurs`) ; la recherche « par ticket » l'accepte.
+- **Champs de suivi** : `dateStatut` (entrée dans le statut actuel) et `derniereRelance` pour les relances, `datePriseEnCharge` pour les statistiques et l'estimation, `niveauAlerteSla` (`AUCUNE`, `ORANGE`, `ROUGE`) pour n'alerter qu'au changement de niveau.
+- **`dateCloture`** : remplie au passage à `TERMINE` ou `ABANDONNE`, remise à `null` à la réouverture ; le délai de contestation de 15 jours part de la dernière clôture. Le temps de résolution des statistiques ne compte que les tickets `TERMINE`.
+- **Index** : `suiveurs` et `enCopie` (sinon le filtre de visibilité d'un `CLIENT` parcourt toute la collection), « Ma file » `{statut, rangPriorite, echeanceSla}`, tâche SLA `{statut, echeanceSla}`, tickets d'un technicien `{technicien, statut, echeanceSla}`, panne collective `{service, createdAt}`, index textuel **en français**.
+- **Notifications** lues supprimées après 90 jours (index TTL partiel) ; les non lues sont conservées.
+- Critères de VIGIE-4 liés au ticket (correction du domaine, « Autre » signalé dans « Ma file », file unique) reportés sur VIGIE-3. Gestionnaire : tickets similaires affichés sur la fiche (VIGIE-16).
+- Seuils de départ confirmés : 5 tickets en 30 minutes (VIGIE-42), 90 jours d'historique et 10 tickets minimum (VIGIE-41), 500 caractères pour la cause et la solution (VIGIE-44).
