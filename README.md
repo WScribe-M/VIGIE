@@ -51,6 +51,7 @@ server/
   src/controllers/   requête → service → réponse HTTP
   src/services/      logique métier, testable sans Express
   src/middlewares/   authentification, rôles, erreurs
+  src/utils/         outils transverses (ErreurHttp)
   src/models/        modèles Mongoose : User, Service, Ticket, Notification
   src/app.js         application Express (routes, erreurs)
   src/index.js       démarrage : connexion à la base puis écoute
