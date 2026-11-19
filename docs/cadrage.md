@@ -188,6 +188,7 @@ Deux fonctionnalités `Could` (lot 4), ajoutées pour répondre plus finement à
 - Panne probable : au moins **5 tickets** ouverts sur un même service en **30 minutes** (`PANNE_SEUIL_TICKETS`, `PANNE_FENETRE_MINUTES`). Le service « Autre / je ne sais pas » est exclu.
 - Bandeau dans le formulaire de création avec « Je suis aussi concerné » (suiveur du ticket le plus ancien de la rafale). Il n'affiche que le **service, l'heure de début et le nombre de personnes concernées** et ne bloque pas la création d'un ticket.
 - Alerte en direct des gestionnaires (room `support`) ; les rattachements comptent dans les doublons évités.
+- **Fusion avec « État des services »** (écran 10 du design, décision du 19/11) : la rafale alerte d'abord **les gestionnaires seulement**. Un gestionnaire confirme la panne et écrit un message public : le service passe à « Perturbé », le bandeau et la page « État des services » préviennent les clients. « Panne résolue » le remet à « Opérationnel ». La détection alerte, un humain décide : pas de fausse alerte côté client. VIGIE-42 passe à 8 points.
 
 Les seuils (5 tickets en 30 min, 90 jours, 10 tickets minimum) sont des valeurs de départ, à ajuster avec les données du seed.
 
