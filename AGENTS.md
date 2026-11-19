@@ -22,6 +22,7 @@ React (Vite) dans `client/`, Node.js 22 / Express 5 et Mongoose 9 dans `server/`
 - **Historique** : tout changement de statut, d'assignation, de priorité ou de domaine ajoute une entrée dans `ticket.historique`.
 - **Erreurs** : `400`, `401`, `403`, `404`, `409`, au format `{ "message": "…" }`, sans détail technique. Dans un service : `throw new ErreurHttp(status, message)` (`server/src/utils/ErreurHttp.js`).
 - **Authentification** : déclarer chaque nouvelle route dans `ROUTES_PROTEGEES` (`server/src/app.js`), qui ajoute automatiquement le jeton obligatoire et la lecture seule du LECTEUR ; ajouter `autoriser(...roles)` (`server/src/middlewares/auth.js`) pour restreindre à des rôles. L'utilisateur connecté est dans `req.utilisateur = { id, role }`. Ne pas réécrire ces middlewares.
+- **Documentation API** : décrire chaque route ajoutée ou modifiée dans `server/docs/openapi.yaml` (OpenAPI 3, affiché sur `/api/docs`), avec ses réponses d'erreur ; recopier les valeurs autorisées de `constantes.js` à l'identique.
 - **Visibilité des tickets** : toujours passer par `filtreTicketsVisibles` et `peutVoirTicket` (`server/src/services/visibiliteService.js`).
 - **Tests** : `node:test`, fichiers `*.test.js` à côté du code. Tester en priorité les règles métier (matrice de priorité, SLA en heures ouvrées, transitions de statut, prise en charge atomique, visibilité).
 - **Style** : le code doit passer `npm run lint` et `npm run format:check`. Commentaires en français, qui expliquent le pourquoi.

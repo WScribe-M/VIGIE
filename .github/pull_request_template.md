@@ -21,4 +21,5 @@ VIGIE-
 - [ ] Aucun secret (mot de passe, clé, `.env`) n'est commité
 - [ ] L'application démarre sans erreur après fusion avec `main`
 - [ ] La fonctionnalité est démontrable avec les données du seed
+- [ ] Les routes ajoutées ou modifiées sont décrites dans `server/docs/openapi.yaml`
 - [ ] Le README est à jour si l'installation ou la configuration a changé
