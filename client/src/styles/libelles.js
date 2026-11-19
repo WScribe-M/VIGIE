@@ -53,8 +53,9 @@ export const LIBELLES_DOMAINE = {
   A_QUALIFIER: 'À qualifier',
 };
 
+// « Vigie » : ticket créé par le demandeur lui-même dans l'application (09 Pilotage)
 export const LIBELLES_CANAL = {
-  APPLICATION: 'Application',
+  APPLICATION: 'Vigie',
   TELEPHONE: 'Téléphone',
   EMAIL: 'E-mail',
   DIRECT: 'Sur place',

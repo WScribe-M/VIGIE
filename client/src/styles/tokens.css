@@ -46,6 +46,10 @@
   --color-status-abandonne-fg: #574e46;
   --color-status-abandonne-bg: #e8e1d7;
   --color-status-abandonne-border: #c3b7a8;
+  /* Texte renforcé sur un fond de statut : bandeaux et messages de confirmation (04, 07, 08) */
+  --color-status-en-attente-strong: #7a1049; /* « Le support attend votre réponse » */
+  --color-status-en-cours-strong: #16388f; /* « Ticket rouvert » */
+  --color-status-termine-strong: #1f4d14; /* « Vous suivez maintenant INC-… » */
 
   /* Priorités : sans fond, sauf Critique en pastille pleine */
   --color-priority-basse: #6e645b;
@@ -74,6 +78,11 @@
   --color-danger-button: #b3261e;
   --color-danger-button-hover: #971f18;
   --color-danger-button-active: #7e1913;
+
+  /* Note de satisfaction : étoiles pleines (04, 07) ; étoile vide = neutral-400 sur blanc */
+  --color-rating-fg: #855c00;
+  --color-rating-bg: #fbf1d6;
+  --color-rating-border: #e8d29b;
 
   /* Graphiques : palette catégorielle, distincte des statuts */
   --color-chart-1: #1f5c68; /* Pétrole */
@@ -182,6 +191,8 @@
   --shadow-sm: 0 1px 2px rgba(42, 36, 32, 0.06), 0 4px 12px -6px rgba(42, 36, 32, 0.18);
   --shadow-md: 0 2px 4px rgba(42, 36, 32, 0.06), 0 12px 28px -12px rgba(42, 36, 32, 0.28);
   --shadow-lg: 0 4px 8px rgba(42, 36, 32, 0.06), 0 24px 56px -16px rgba(42, 36, 32, 0.4);
+  --shadow-segment: 0 1px 2px rgba(42, 36, 32, 0.08); /* segment actif « Confort / Dense » */
+  --shadow-fab: 0 8px 20px -8px rgba(31, 92, 104, 0.6); /* bouton « + » central du mobile */
 
   /* Focus clavier : jamais supprimé, jamais remplacé par un simple changement de couleur */
   --shadow-focus: 0 0 0 2px #faf6ef, 0 0 0 4px #2e7381; /* sur fond Lin */
