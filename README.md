@@ -27,6 +27,14 @@ MongoDB : **soit** installé en local (service Windows, port 27017), **soit** vi
 
 Ouvrir http://localhost:5173 : la page affiche l'état de l'API et de la base de données.
 
+Créer un compte (en attendant l'administration VIGIE-37 et le seed VIGIE-23) :
+
+```bash
+npm run utilisateur -- admin@vigie.local "MotDePasse123" ADMIN Prénom Nom
+```
+
+Rôles : `ADMIN`, `GESTIONNAIRE`, `CLIENT`, `LECTEUR`. Il n'y a pas d'inscription libre : les comptes sont créés par l'administrateur.
+
 Données de démonstration : `npm run seed` (à venir, VIGIE-23).
 
 ### Scripts
@@ -51,6 +59,7 @@ server/
   src/controllers/   requête → service → réponse HTTP
   src/services/      logique métier, testable sans Express
   src/middlewares/   authentification, rôles, erreurs
+  src/utils/         outils transverses (ErreurHttp)
   src/models/        modèles Mongoose : User, Service, Ticket, Notification
   src/app.js         application Express (routes, erreurs)
   src/index.js       démarrage : connexion à la base puis écoute
@@ -61,4 +70,5 @@ server/
 - [docs/cadrage.md](docs/cadrage.md) : besoin, rôles, fonctionnalités, architecture et décisions prises.
 - [CONTRIBUTING.md](CONTRIBUTING.md) : **à lire avant de coder** — workflow Jira/Kanban, convention Git, pull requests, Definition of Done, conventions de code.
 - [AGENTS.md](AGENTS.md) : instructions à donner à un assistant IA.
+- [IA/rapport-ia.md](IA/rapport-ia.md) : rapport d'utilisation de l'IA (dossier, partie 4).
 - Backlog et tableau Kanban : [Jira — projet VIGIE](https://matheagaveriaux.atlassian.net/jira/software/projects/VIGIE/boards/1)

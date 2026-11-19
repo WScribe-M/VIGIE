@@ -14,11 +14,17 @@ function requis(nom) {
   return valeur;
 }
 
+// Coût bcrypt imposé par le cadrage : entre 10 et 12
+const bcryptCost = Number(process.env.BCRYPT_COST ?? 12);
+if (!Number.isInteger(bcryptCost) || bcryptCost < 10 || bcryptCost > 12) {
+  throw new Error('BCRYPT_COST doit être un entier entre 10 et 12');
+}
+
 export const config = {
   port: Number(process.env.PORT ?? 3000),
   clientUrl: process.env.CLIENT_URL ?? 'http://localhost:5173',
   mongodbUri: requis('MONGODB_URI'),
   jwtSecret: requis('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '8h',
-  bcryptCost: Number(process.env.BCRYPT_COST ?? 12),
+  bcryptCost,
 };

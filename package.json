@@ -17,7 +17,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm test -w server"
+    "test": "npm test -w server",
+    "utilisateur": "npm run utilisateur -w server --"
   },
   "type": "module",
   "devDependencies": {

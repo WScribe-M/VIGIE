@@ -12,5 +12,60 @@
 
 body {
   margin: 0;
+}
+
+main {
   padding: 2rem;
+}
+
+.entete {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 2rem;
+  background: #1f2933;
+  color: #fff;
+}
+
+.entete nav {
+  display: flex;
+  flex: 1;
+  gap: 1rem;
+}
+
+.entete a {
+  color: #cbd2d9;
+  text-decoration: none;
+}
+
+.entete a.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.connexion {
+  max-width: 22rem;
+  margin: 4rem auto;
+}
+
+.connexion form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.connexion label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.connexion input {
+  padding: 0.5rem;
+  font: inherit;
+}
+
+.erreur {
+  margin: 0;
+  color: #b42318;
 }
