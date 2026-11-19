@@ -1,0 +1,204 @@
+/*
+ * Tokens du design system Vigie : la seule source des valeurs visuelles.
+ * Valeurs recopiées du handoff de design (v1, 17 nov. 2026), sans arrondi.
+ * Les composants n'utilisent que ces variables : aucune couleur codée en dur ailleurs.
+ * Prettier écrit les hexadécimaux en minuscules : la valeur est la même que dans le handoff.
+ */
+:root {
+  /* Marque — Pétrole */
+  --color-brand-50: #f1f7f7; /* sélection, carte ou ligne choisie */
+  --color-brand-100: #e3eff0; /* Pétrole clair : surbrillance temps réel, bulle envoyée */
+  --color-brand-200: #c4dcdf;
+  --color-brand-300: #93bcc3; /* icône active et compteur de la barre latérale */
+  --color-brand-400: #5a97a2;
+  --color-brand-500: #2e7381; /* focus */
+  --color-brand-600: #1f5c68; /* Pétrole : action principale, liens, onglet actif */
+  --color-brand-700: #194c56; /* survol */
+  --color-brand-800: #143d45; /* appui */
+  --color-brand-900: #0f2e35; /* fond sombre */
+
+  /* Neutres chauds */
+  --color-neutral-0: #ffffff; /* cartes, tableaux */
+  --color-neutral-50: #faf6ef; /* Lin : fond d'application */
+  --color-neutral-100: #f3eee5; /* survol, squelettes */
+  --color-neutral-200: #eae2d6; /* Sable : bordures */
+  --color-neutral-300: #d9cfc0; /* bordure de champ */
+  --color-neutral-400: #b3a797;
+  --color-neutral-500: #7d7369; /* placeholder, désactivé : jamais porteur d'information */
+  --color-neutral-600: #6e645b; /* Taupe : texte secondaire */
+  --color-neutral-700: #4f4741;
+  --color-neutral-800: #3a332e;
+  --color-neutral-900: #2a2420; /* Encre brune : texte, barre latérale */
+
+  /* Statuts : pastille fond teinté + bordure de la même teinte */
+  --color-status-nouveau-fg: #4c2ba8;
+  --color-status-nouveau-bg: #e4dcfa;
+  --color-status-nouveau-border: #b7a3ee;
+  --color-status-en-cours-fg: #1c47b8;
+  --color-status-en-cours-bg: #dae4fc;
+  --color-status-en-cours-border: #9db4f2;
+  --color-status-en-attente-fg: #97155f;
+  --color-status-en-attente-bg: #f9daea;
+  --color-status-en-attente-border: #e79dc3;
+  --color-status-termine-fg: #2b641c;
+  --color-status-termine-bg: #dcedd1;
+  --color-status-termine-border: #a3cd8c;
+  --color-status-abandonne-fg: #574e46;
+  --color-status-abandonne-bg: #e8e1d7;
+  --color-status-abandonne-border: #c3b7a8;
+
+  /* Priorités : sans fond, sauf Critique en pastille pleine */
+  --color-priority-basse: #6e645b;
+  --color-priority-moyenne: #855c00;
+  --color-priority-haute: #b0420a;
+  --color-priority-critique-fg: #ffffff;
+  --color-priority-critique-bg: #b3261e;
+
+  /* SLA : fond teinté seulement quand il faut agir */
+  --color-sla-ok-fg: #2b641c;
+  --color-sla-proche-fg: #a13f00;
+  --color-sla-proche-bg: #fde8d7;
+  --color-sla-retard-fg: #9c1c15;
+  --color-sla-retard-bg: #fad9d5;
+  --color-sla-suspendu-fg: #6e645b;
+
+  /* Retours système (un seul rouge dans tout le produit) */
+  --color-feedback-success-fg: #2b641c;
+  --color-feedback-success-bg: #dcedd1;
+  --color-feedback-info-fg: #194c56;
+  --color-feedback-info-bg: #e3eff0;
+  --color-feedback-warning-fg: #8a3700;
+  --color-feedback-warning-bg: #fde8d7;
+  --color-feedback-danger-fg: #9c1c15;
+  --color-feedback-danger-bg: #fad9d5;
+  --color-danger-button: #b3261e;
+  --color-danger-button-hover: #971f18;
+  --color-danger-button-active: #7e1913;
+
+  /* Graphiques : palette catégorielle, distincte des statuts */
+  --color-chart-1: #1f5c68; /* Pétrole */
+  --color-chart-2: #5a97a2; /* Lagune */
+  --color-chart-3: #a9cdd2; /* Brume */
+  --color-chart-4: #9c6b4e; /* Grès */
+  --color-chart-5: #d1b48c; /* Blé */
+  --color-chart-6: #4f4741; /* Ardoise */
+
+  /* Avatars : chaque utilisateur reçoit toujours la même paire (voir avatar.js) */
+  --color-avatar-1-bg: #f0e4d8;
+  --color-avatar-1-fg: #6b4a2e;
+  --color-avatar-2-bg: #e3eff0;
+  --color-avatar-2-fg: #1f5c68;
+  --color-avatar-3-bg: #e8e4ee;
+  --color-avatar-3-fg: #4a4060;
+  --color-avatar-4-bg: #e2eae0;
+  --color-avatar-4-fg: #3f5440;
+  --color-avatar-5-bg: #f3e3dc;
+  --color-avatar-5-fg: #7a3b2a;
+  --color-avatar-6-bg: #eae2d6;
+  --color-avatar-6-fg: #4f4741;
+
+  /* Barre latérale : deux teintes propres à ce composant */
+  --color-sidebar-item-active-bg: #3f3832;
+  --color-sidebar-divider: #3f3832;
+  --color-sidebar-section: #a89c8f;
+
+  /* Voile des modales et surbrillance temps réel */
+  --color-overlay: rgba(42, 36, 32, 0.4);
+  --color-highlight: #e3eff0;
+
+  /* Typographie : famille unique */
+  --font-family: 'Figtree', sans-serif;
+
+  --text-display-xl-size: 44px;
+  --text-display-xl-line: 52px;
+  --text-display-xl-weight: 700;
+  --text-display-xl-tracking: -0.03em;
+
+  --text-display-lg-size: 30px;
+  --text-display-lg-line: 38px;
+  --text-display-lg-weight: 700;
+  --text-display-lg-tracking: -0.02em;
+
+  --text-heading-lg-size: 22px;
+  --text-heading-lg-line: 30px;
+  --text-heading-lg-weight: 600;
+  --text-heading-lg-tracking: -0.01em;
+
+  --text-heading-md-size: 18px;
+  --text-heading-md-line: 26px;
+  --text-heading-md-weight: 600;
+
+  --text-heading-sm-size: 15px;
+  --text-heading-sm-line: 22px;
+  --text-heading-sm-weight: 600;
+
+  --text-body-lg-size: 16px;
+  --text-body-lg-line: 24px;
+
+  --text-body-md-size: 14px;
+  --text-body-md-line: 20px;
+
+  --text-body-sm-size: 13px;
+  --text-body-sm-line: 18px;
+
+  --text-label-size: 13px;
+  --text-label-line: 16px;
+  --text-label-weight: 600;
+
+  --text-caption-size: 12px;
+  --text-caption-line: 16px;
+  --text-caption-weight: 500;
+  --text-caption-tracking: 0.01em;
+
+  --text-numeric-xl-size: 36px;
+  --text-numeric-xl-line: 40px;
+  --text-numeric-xl-weight: 600;
+  --text-numeric-xl-tracking: -0.02em;
+
+  /* Espacements : base 4 px */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Rayons (control et popover : rayons employés par les maquettes hors de l'échelle) */
+  --radius-xs: 4px; /* case à cocher, barre de graphique */
+  --radius-sm: 6px; /* étiquette SLA, puce de filtre */
+  --radius-control: 8px; /* bouton 32, filtres, pagination, éléments de menu */
+  --radius-md: 10px; /* bouton, champ, menu */
+  --radius-popover: 12px; /* menu déroulant, carte de doublon */
+  --radius-lg: 14px; /* carte, tableau, toast */
+  --radius-xl: 20px; /* modale, panneau */
+  --radius-full: 999px; /* pastille de statut, avatar */
+
+  /* Ombres chaudes, teintées Encre brune */
+  --shadow-xs: 0 1px 2px rgba(42, 36, 32, 0.06);
+  --shadow-sm: 0 1px 2px rgba(42, 36, 32, 0.06), 0 4px 12px -6px rgba(42, 36, 32, 0.18);
+  --shadow-md: 0 2px 4px rgba(42, 36, 32, 0.06), 0 12px 28px -12px rgba(42, 36, 32, 0.28);
+  --shadow-lg: 0 4px 8px rgba(42, 36, 32, 0.06), 0 24px 56px -16px rgba(42, 36, 32, 0.4);
+
+  /* Focus clavier : jamais supprimé, jamais remplacé par un simple changement de couleur */
+  --shadow-focus: 0 0 0 2px #faf6ef, 0 0 0 4px #2e7381; /* sur fond Lin */
+  --shadow-focus-on-surface: 0 0 0 2px #ffffff, 0 0 0 4px #2e7381; /* sur fond blanc */
+  --shadow-focus-inset: inset 0 0 0 2px #2e7381; /* lignes de tableau, onglets */
+  --shadow-field-focus: 0 0 0 3px rgba(46, 115, 129, 0.25); /* champ actif */
+
+  /* Densité et mise en page */
+  --row-height-dense: 44px;
+  --row-height-comfort: 52px;
+  --layout-sidebar-width: 248px;
+  --layout-header-height: 64px;
+
+  /* Mouvement : uniquement pour signifier un changement */
+  --duration-fast: 120ms; /* survol, appui, focus */
+  --duration-base: 200ms; /* onglets, menus */
+  --duration-toast: 280ms; /* entrée des toasts */
+  --duration-highlight: 1500ms; /* ligne arrivée en direct */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}

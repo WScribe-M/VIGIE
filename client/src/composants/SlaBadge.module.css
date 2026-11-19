@@ -1,0 +1,52 @@
+/* Délai (SLA) : étiquette rectangulaire (handoff, 02 Fondations et 03 Composants) */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.t26 {
+  height: 26px;
+}
+
+.t28 {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+/* Forme courte des cartes et du mobile : « reste 34 min » */
+.court {
+  font-size: 12px;
+}
+
+/* Fond teinté seulement quand il faut agir */
+.ok {
+  color: var(--color-sla-ok-fg);
+  font-weight: 500;
+}
+
+.proche {
+  background: var(--color-sla-proche-bg);
+  color: var(--color-sla-proche-fg);
+  font-weight: 600;
+}
+
+.retard {
+  background: var(--color-sla-retard-bg);
+  color: var(--color-sla-retard-fg);
+  font-weight: 700;
+}
+
+.suspendu {
+  color: var(--color-sla-suspendu-fg);
+  font-weight: 500;
+}

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { AuthProvider, useAuth } from './auth/AuthContext.jsx';
 import { RouteProtegee } from './auth/RouteProtegee.jsx';
@@ -5,6 +6,11 @@ import { accueilDuRole } from './auth/roles.js';
 import { MiseEnPage } from './composants/MiseEnPage.jsx';
 import { Connexion } from './pages/Connexion.jsx';
 import { PageAVenir } from './pages/PageAVenir.jsx';
+
+// Catalogue des composants : chargé seulement en développement, absent du build de production
+const Styleguide = import.meta.env.DEV
+  ? lazy(() => import('./pages/Styleguide.jsx').then((module) => ({ default: module.Styleguide })))
+  : null;
 
 function Accueil() {
   const { utilisateur, chargement } = useAuth();
@@ -18,6 +24,16 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/connexion" element={<Connexion />} />
+          {Styleguide && (
+            <Route
+              path="/styleguide"
+              element={
+                <Suspense>
+                  <Styleguide />
+                </Suspense>
+              }
+            />
+          )}
 
           {/* Pages réservées aux utilisateurs connectés, filtrées par rôle */}
           <Route element={<RouteProtegee />}>

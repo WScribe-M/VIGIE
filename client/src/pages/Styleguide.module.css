@@ -1,0 +1,156 @@
+/* Mise en page de la page /styleguide (développement uniquement) */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-8) var(--space-16);
+}
+
+.titre {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.titre h1 {
+  margin: 0;
+}
+
+.bloc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-8);
+  border-radius: var(--radius-xl);
+  background: var(--color-neutral-0);
+}
+
+.entete {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.entete h2 {
+  margin: 0;
+}
+
+.famille {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.nuancier {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.nuance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.pastille {
+  height: 56px;
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-md);
+}
+
+.typo {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-6);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-neutral-100);
+}
+
+.grilleBoutons {
+  display: grid;
+  grid-template-columns: 120px repeat(6, minmax(0, 1fr));
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.rangee {
+  display: contents;
+}
+
+.ligneOutils {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-neutral-100);
+}
+
+.rangeeBadges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.rangeeBadges > :first-child {
+  width: 56px;
+}
+
+.tableau {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Test daltonisme de 02 Fondations */
+.gris {
+  filter: grayscale(1);
+}
+
+.ligne {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--row-height-comfort);
+  padding: var(--space-2) var(--space-4) var(--space-2) 13px;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid var(--color-neutral-100);
+}
+
+/* Ligne en retard : liseré gauche 3 px */
+.enRetard {
+  border-left-color: var(--color-sla-retard-fg);
+}
+
+.titreLigne {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badges {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.barres {
+  display: grid;
+  grid-template-columns: repeat(4, var(--layout-sidebar-width));
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.barre {
+  height: 600px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}

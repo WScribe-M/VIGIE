@@ -1,0 +1,167 @@
+/* Boutons (handoff, 03 Composants · Boutons) : 40 px (md) et 32 px (sm), rayon 10, Figtree 14/600 */
+
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.sm {
+  gap: 6px;
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-control);
+  font-size: 13px;
+}
+
+.bouton:focus-visible,
+.bouton[data-etat='focus'] {
+  box-shadow: var(--shadow-focus-on-surface);
+}
+
+/* Primaire : Pétrole, survol 700, appui 800 */
+.primaire {
+  background: var(--color-brand-600);
+  border-color: var(--color-brand-600);
+  color: var(--color-neutral-0);
+}
+
+.primaire:hover:not(:disabled),
+.primaire[data-etat='survol'] {
+  background: var(--color-brand-700);
+  border-color: var(--color-brand-700);
+}
+
+.primaire:active:not(:disabled),
+.primaire[data-etat='actif'] {
+  background: var(--color-brand-800);
+  border-color: var(--color-brand-800);
+}
+
+/* Secondaire : blanc, bordure de champ */
+.secondaire {
+  background: var(--color-neutral-0);
+  border-color: var(--color-neutral-300);
+  color: var(--color-neutral-900);
+}
+
+.secondaire:hover:not(:disabled),
+.secondaire[data-etat='survol'] {
+  background: var(--color-neutral-100);
+  border-color: var(--color-neutral-400);
+}
+
+.secondaire:active:not(:disabled),
+.secondaire[data-etat='actif'] {
+  background: var(--color-neutral-200);
+  border-color: var(--color-neutral-400);
+}
+
+/* Tertiaire : texte Pétrole, sans fond */
+.tertiaire {
+  background: transparent;
+  color: var(--color-brand-600);
+}
+
+.tertiaire:hover:not(:disabled),
+.tertiaire[data-etat='survol'] {
+  background: var(--color-brand-100);
+  color: var(--color-brand-700);
+}
+
+.tertiaire:active:not(:disabled),
+.tertiaire[data-etat='actif'] {
+  background: var(--color-brand-200);
+  color: var(--color-brand-800);
+}
+
+/* Danger : le seul rouge du produit */
+.danger {
+  background: var(--color-danger-button);
+  border-color: var(--color-danger-button);
+  color: var(--color-neutral-0);
+}
+
+.danger:hover:not(:disabled),
+.danger[data-etat='survol'] {
+  background: var(--color-danger-button-hover);
+  border-color: var(--color-danger-button-hover);
+}
+
+.danger:active:not(:disabled),
+.danger[data-etat='actif'] {
+  background: var(--color-danger-button-active);
+  border-color: var(--color-danger-button-active);
+}
+
+/* Désactivé. Un bouton en chargement garde ses couleurs : seul le curseur change. */
+.bouton:disabled:not([aria-busy='true']) {
+  cursor: not-allowed;
+}
+
+.primaire:disabled:not([aria-busy='true']),
+.danger:disabled:not([aria-busy='true']) {
+  background: var(--color-neutral-200);
+  border-color: var(--color-neutral-200);
+  color: var(--color-neutral-500);
+}
+
+.secondaire:disabled:not([aria-busy='true']) {
+  background: var(--color-neutral-50);
+  border-color: var(--color-neutral-200);
+  color: var(--color-neutral-500);
+}
+
+.tertiaire:disabled:not([aria-busy='true']) {
+  background: transparent;
+  color: var(--color-neutral-500);
+}
+
+.enChargement {
+  cursor: progress;
+}
+
+/* L'icône animée n'existe que dans un bouton ou un champ : jamais de spinner isolé */
+.rotation {
+  animation: vigie-rotation 1s linear infinite;
+}
+
+/* Icône seule : 40 × 40, icône 20 px */
+.boutonIcone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-neutral-700);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.boutonIcone:hover,
+.boutonIcone[data-etat='survol'] {
+  background: var(--color-neutral-100);
+}
+
+.boutonIcone:focus-visible,
+.boutonIcone[data-etat='focus'] {
+  box-shadow: var(--shadow-focus-on-surface);
+}

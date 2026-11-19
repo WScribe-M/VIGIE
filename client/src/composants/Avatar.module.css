@@ -1,0 +1,40 @@
+.avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.t24 {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+
+.t32 {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
+.t36 {
+  width: 36px;
+  height: 36px;
+  font-size: 13px;
+}
+
+.t40 {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+}
+
+/* Non assigné : cercle pointillé, jamais une couleur de personne */
+.nonAssigne {
+  border: 1.5px dashed var(--color-neutral-400);
+  background: var(--color-neutral-0);
+  color: var(--color-neutral-500);
+}
