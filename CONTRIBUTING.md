@@ -35,7 +35,16 @@ git push -u origin VIGIE-12-socket-auth
 1. Ouvrir la PR avec le titre `VIGIE-<n> Description`. Le modèle s'affiche : le remplir et cocher la DoD honnêtement.
 2. Passer le ticket en **Revue en cours** dans Jira.
 3. Une autre personne relit : critères d'acceptation, DoD, lisibilité, sécurité.
-4. Après approbation, fusionner, supprimer la branche, puis passer le ticket en **Terminé**.
+4. Après approbation, fusionner avec **« Squash and merge »**, supprimer la branche, puis passer le ticket en **Terminé**.
+
+### Squash des commits
+
+On fusionne **toujours** avec « Squash and merge » : tous les commits de la branche deviennent **un seul commit sur `main`**.
+
+- `main` garde un historique lisible : un commit par story, facile à relire et à annuler si besoin.
+- Le message du commit final est le **titre de la PR** (`VIGIE-12 Connexion Socket.io authentifiée et rooms`) : vérifier qu'il contient la clé du ticket avant de valider.
+- Sur sa branche, on peut commiter autant qu'on veut (« wip », « correction relecture »…) : inutile de nettoyer l'historique soi-même, le squash s'en charge.
+- Après un squash, la branche ne doit plus servir : on en recrée une nouvelle depuis `main` à jour pour la story suivante.
 
 Relire vite fait partie du travail : une PR qui attend bloque peut-être d'autres stories.
 
@@ -82,14 +91,24 @@ Règle principale : **la logique métier va dans `services/`**. Un controller ne
 - Codes HTTP : `400` données invalides, `401` non connecté, `403` interdit, `404` introuvable, `409` conflit (ticket déjà pris, version périmée).
 - Erreurs au format `{ "message": "…" }`. Ne jamais renvoyer une pile d'erreur ou un détail technique au client.
 - Dans un service, signaler une erreur métier avec `throw new ErreurHttp(404, 'Ticket introuvable')` (`utils/ErreurHttp.js`) : le gestionnaire d'erreurs de `app.js` renvoie le bon code.
-- Protéger une route avec les middlewares de `middlewares/auth.js` :
+- **Déclarer chaque nouvelle route dans `ROUTES_PROTEGEES` (`app.js`)** : elle est alors protégée automatiquement, avec jeton obligatoire (401) et `LECTEUR` en lecture seule (403). Seules `/api/health` et `/api/auth/connexion` sont publiques ; une adresse inconnue répond 404.
 
 ```js
-router.get('/', authentifier, lister); // tout utilisateur connecté
-router.post('/', authentifier, autoriser('ADMIN'), creer); // ADMIN uniquement
+const ROUTES_PROTEGEES = {
+  '/services': serviceRoutes, // → /api/services
+};
 ```
 
-`authentifier` remplit `req.utilisateur = { id, role }` à partir du jeton. `interdireEcritureLecteur` refuse toute écriture au `LECTEUR`.
+- Pour restreindre une route à certains rôles, ajouter `autoriser` (`middlewares/auth.js`) :
+
+```js
+router.get('/', lister); // tout utilisateur connecté
+router.post('/', autoriser('ADMIN'), creer); // ADMIN uniquement
+```
+
+`req.utilisateur = { id, role }` contient l'utilisateur connecté, lu dans le jeton.
+
+- Pour les tickets, toujours appliquer les règles de `services/visibiliteService.js` : `filtreTicketsVisibles(utilisateur)` dans les recherches, `peutVoirTicket(utilisateur, ticket)` pour un ticket précis.
 
 ### Sécurité (non négociable)
 

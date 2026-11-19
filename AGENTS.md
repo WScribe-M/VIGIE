@@ -21,10 +21,11 @@ React (Vite) dans `client/`, Node.js 22 / Express 5 et Mongoose 9 dans `server/`
 - **Toute modification passe par l'API REST**, puis le serveur émet l'événement Socket.io. Le client n'émet que des événements éphémères.
 - **Historique** : tout changement de statut, d'assignation, de priorité ou de domaine ajoute une entrée dans `ticket.historique`.
 - **Erreurs** : `400`, `401`, `403`, `404`, `409`, au format `{ "message": "…" }`, sans détail technique. Dans un service : `throw new ErreurHttp(status, message)` (`server/src/utils/ErreurHttp.js`).
-- **Authentification** : `authentifier` puis `autoriser(...roles)` depuis `server/src/middlewares/auth.js`. L'utilisateur connecté est dans `req.utilisateur = { id, role }`. Ne pas réécrire ces middlewares.
+- **Authentification** : déclarer chaque nouvelle route dans `ROUTES_PROTEGEES` (`server/src/app.js`), qui ajoute automatiquement le jeton obligatoire et la lecture seule du LECTEUR ; ajouter `autoriser(...roles)` (`server/src/middlewares/auth.js`) pour restreindre à des rôles. L'utilisateur connecté est dans `req.utilisateur = { id, role }`. Ne pas réécrire ces middlewares.
+- **Visibilité des tickets** : toujours passer par `filtreTicketsVisibles` et `peutVoirTicket` (`server/src/services/visibiliteService.js`).
 - **Tests** : `node:test`, fichiers `*.test.js` à côté du code. Tester en priorité les règles métier (matrice de priorité, SLA en heures ouvrées, transitions de statut, prise en charge atomique, visibilité).
 - **Style** : le code doit passer `npm run lint` et `npm run format:check`. Commentaires en français, qui expliquent le pourquoi.
-- **Git** : branche `VIGIE-<n>-description`, commits préfixés `VIGIE-<n>`, pull request obligatoire (pas de push sur `main`).
+- **Git** : branche `VIGIE-<n>-description`, commits préfixés `VIGIE-<n>`, pull request obligatoire (pas de push sur `main`), fusion en « Squash and merge » (un commit par story, titre de la PR = message).
 
 ## Règles métier à ne pas réinventer
 

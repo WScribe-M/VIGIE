@@ -27,6 +27,14 @@ MongoDB : **soit** installé en local (service Windows, port 27017), **soit** vi
 
 Ouvrir http://localhost:5173 : la page affiche l'état de l'API et de la base de données.
 
+Créer un compte (en attendant l'administration VIGIE-37 et le seed VIGIE-23) :
+
+```bash
+npm run utilisateur -- admin@vigie.local "MotDePasse123" ADMIN Prénom Nom
+```
+
+Rôles : `ADMIN`, `GESTIONNAIRE`, `CLIENT`, `LECTEUR`. Il n'y a pas d'inscription libre : les comptes sont créés par l'administrateur.
+
 Données de démonstration : `npm run seed` (à venir, VIGIE-23).
 
 ### Scripts
