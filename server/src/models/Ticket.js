@@ -1,5 +1,14 @@
 import mongoose from 'mongoose';
-import { CANAUX, DOMAINES, IMPACTS, PRIORITES, STATUTS, URGENCES } from './constantes.js';
+import {
+  CANAUX,
+  DOMAINES,
+  IMPACTS,
+  NIVEAUX_ALERTE_SLA,
+  PRIORITES,
+  RANG_PRIORITE,
+  STATUTS,
+  URGENCES,
+} from './constantes.js';
 
 const { ObjectId } = mongoose.Schema.Types;
 
@@ -35,6 +44,8 @@ const pieceJointeSchema = new mongoose.Schema(
 
 const ticketSchema = new mongoose.Schema(
   {
+    // Numéro lisible, affiché VIG-0042 (formaterNumero) : attribué à la création par le compteur
+    numero: { type: Number, required: true, unique: true },
     titre: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
 
@@ -45,10 +56,20 @@ const ticketSchema = new mongoose.Schema(
     urgence: { type: String, enum: URGENCES, required: true },
     prioriteCalculee: { type: String, enum: PRIORITES, required: true },
     prioriteFinale: { type: String, enum: PRIORITES, required: true },
+    // Copie numérique de prioriteFinale, pour trier (voir RANG_PRIORITE). Recalculée à la validation ;
+    // une mise à jour directe (updateOne, findOneAndUpdate) doit modifier les deux champs ensemble.
+    rangPriorite: { type: Number, min: 1, max: 4, required: true },
 
     statut: { type: String, enum: STATUTS, default: 'NOUVEAU' },
+    // Entrée dans le statut actuel : base des relances (updatedAt change à chaque commentaire)
+    dateStatut: { type: Date, default: Date.now },
+    derniereRelance: { type: Date, default: null },
     echeanceSla: Date,
-    dateCloture: Date,
+    niveauAlerteSla: { type: String, enum: NIVEAUX_ALERTE_SLA, default: 'AUCUNE' },
+    // Délai de prise en charge sans relire l'historique (statistiques, VIGIE-41)
+    datePriseEnCharge: { type: Date, default: null },
+    // Remplie au passage à TERMINE ou ABANDONNE, remise à null à la réouverture
+    dateCloture: { type: Date, default: null },
     nbReouvertures: { type: Number, default: 0 },
 
     demandeur: { type: ObjectId, ref: 'User', required: true },
@@ -71,10 +92,28 @@ const ticketSchema = new mongoose.Schema(
   },
 );
 
-// Recherche textuelle pour la détection de doublons
-ticketSchema.index({ titre: 'text', description: 'text' });
-ticketSchema.index({ statut: 1, prioriteFinale: 1, echeanceSla: 1 });
+ticketSchema.pre('validate', function () {
+  if (this.prioriteFinale) {
+    this.rangPriorite = RANG_PRIORITE[this.prioriteFinale];
+  }
+});
+
+// Index choisis à partir des requêtes de l'application (cadrage 9.10).
+// Ordre des champs : égalité, puis tri, puis intervalle.
+
+// Recherche et suggestions de doublons, en français (racines des mots, mots vides ignorés)
+ticketSchema.index({ titre: 'text', description: 'text' }, { default_language: 'french' });
+// Visibilité d'un CLIENT : un $or n'utilise les index que si chacune de ses branches en a un
 ticketSchema.index({ demandeur: 1 });
-ticketSchema.index({ technicien: 1, statut: 1 });
+ticketSchema.index({ suiveurs: 1 });
+ticketSchema.index({ enCopie: 1 });
+// « Ma file » : tickets nouveaux, du plus prioritaire à l'échéance la plus proche
+ticketSchema.index({ statut: 1, rangPriorite: -1, echeanceSla: 1 });
+// Tâche SLA : tickets ouverts dont l'échéance approche
+ticketSchema.index({ statut: 1, echeanceSla: 1 });
+// Mes tickets en cours, triés par échéance ; charge par technicien
+ticketSchema.index({ technicien: 1, statut: 1, echeanceSla: 1 });
+// Panne collective : tickets récents d'un même service
+ticketSchema.index({ service: 1, createdAt: -1 });
 
 export const Ticket = mongoose.model('Ticket', ticketSchema);
