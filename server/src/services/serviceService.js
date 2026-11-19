@@ -4,7 +4,7 @@ import { DOMAINES } from '../models/constantes.js';
 
 // Le service « Autre » doit toujours déclencher une qualification.
 const NOM_AUTRE = 'Autre / je ne sais pas';
-const DOMAINE_A_QUALIFIER = DOMAINES[4];
+const DOMAINE_A_QUALIFIER = 'A_QUALIFIER';
 
 function erreurMetier(status, message) {
   return Object.assign(new Error(message), { status });
@@ -63,7 +63,13 @@ function convertirErreurDoublon(erreur) {
 export async function listerServices({ inclureInactifs = false } = {}, modele = Service) {
   const filtre = inclureInactifs ? {} : { actif: true };
 
-  return modele.find(filtre).sort({ nom: 1 });
+  const services = await modele.find(filtre).sort({ nom: 1 });
+
+return services.sort((a, b) => {
+  if (a.nom === NOM_AUTRE) return 1;
+  if (b.nom === NOM_AUTRE) return -1;
+  return 0;
+});
 }
 
 export async function creerService(donnees, modele = Service) {
@@ -110,7 +116,10 @@ export async function modifierService(id, modifications, modele = Service) {
   if (modifications.actif !== undefined && typeof modifications.actif !== 'boolean') {
     throw erreurMetier(400, 'Le champ actif doit être un booléen');
   }
-
+  // Le service « Autre » ne peut pas être désactivé.
+  if (service.nom === NOM_AUTRE && modifications.actif === false) {
+    throw erreurMetier(400, 'Le service Autre ne peut pas être désactivé');
+  }
   service.nom = nom;
   service.domaine = domaine;
 

@@ -19,6 +19,31 @@ test('la liste publique exclut les services inactifs', async () => {
   assert.deepEqual(filtreRecu, { actif: true });
 });
 
+test('le service Autre apparaît en dernier dans le catalogue', async () => {
+  const modele = {
+    find() {
+      return {
+        async sort() {
+          return [
+            { nom: 'Autre / je ne sais pas' },
+            { nom: 'ERP' },
+            { nom: 'Messagerie' },
+            { nom: 'VPN' },
+          ];
+        },
+      };
+    },
+  };
+
+  const services = await listerServices({}, modele);
+
+  assert.deepEqual(
+    services.map((service) => service.nom),
+    ['ERP', 'Messagerie', 'VPN', 'Autre / je ne sais pas'],
+  );
+});
+
+
 test('la liste ADMIN inclut les services inactifs', async () => {
   let filtreRecu;
 
@@ -139,7 +164,29 @@ test('le nom du service Autre est protégé', async () => {
 
   await assert.rejects(modifierService(ID, { nom: 'Divers' }, modele), { status: 400 });
 });
+test('le service Autre ne peut pas être désactivé', async () => {
+  const service = {
+    nom: 'Autre / je ne sais pas',
+    domaine: 'A_QUALIFIER',
+    actif: true,
+    async save() {
+      return this;
+    },
+  };
 
+  const modele = {
+    async findById() {
+      return service;
+    },
+  };
+
+  await assert.rejects(
+    modifierService(ID, { actif: false }, modele),
+    { status: 400 },
+  );
+
+  assert.equal(service.actif, true);
+});
 test('un service inexistant retourne 404', async () => {
   const modele = {
     async findById() {

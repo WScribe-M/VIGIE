@@ -1,3 +1,4 @@
+
 import { Router } from 'express';
 
 import {
@@ -7,16 +8,16 @@ import {
   mettreAJourService,
 } from '../controllers/serviceController.js';
 
-import { authentifier, autoriser } from '../middlewares/auth.js';
+import { autoriser } from '../middlewares/auth.js';
 
 export const serviceRoutes = Router();
 
-// Catalogue disponible pour le formulaire de création.
+// Catalogue des services pour les utilisateurs connectés.
 serviceRoutes.get('/', listerServicesPublics);
 
-// Administration du catalogue : rôle ADMIN obligatoire.
-serviceRoutes.get('/admin', authentifier, autoriser('ADMIN'), listerServicesAdmin);
+// Administration : rôle ADMIN obligatoire.
+serviceRoutes.get('/admin', autoriser('ADMIN'), listerServicesAdmin);
 
-serviceRoutes.post('/', authentifier, autoriser('ADMIN'), ajouterService);
+serviceRoutes.post('/', autoriser('ADMIN'), ajouterService);
 
-serviceRoutes.patch('/:id', authentifier, autoriser('ADMIN'), mettreAJourService);
+serviceRoutes.patch('/:id', autoriser('ADMIN'), mettreAJourService);
