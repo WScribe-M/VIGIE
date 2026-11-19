@@ -62,6 +62,7 @@ server/
   src/utils/         outils transverses (ErreurHttp)
   src/models/        modèles Mongoose : User, Service, Ticket, Notification
   src/app.js         application Express (routes, erreurs)
+  docs/openapi.yaml  documentation de l'API (OpenAPI), affichée sur /api/docs
   src/index.js       démarrage : connexion à la base puis écoute
 ```
 
@@ -71,4 +72,5 @@ server/
 - [CONTRIBUTING.md](CONTRIBUTING.md) : **à lire avant de coder** — workflow Jira/Kanban, convention Git, pull requests, Definition of Done, conventions de code.
 - [AGENTS.md](AGENTS.md) : instructions à donner à un assistant IA.
 - [IA/rapport-ia.md](IA/rapport-ia.md) : rapport d'utilisation de l'IA (dossier, partie 4).
+- **Documentation de l'API** : http://localhost:3000/api/docs une fois l'API lancée (`npm run dev`), source dans [server/docs/openapi.yaml](server/docs/openapi.yaml).
 - Backlog et tableau Kanban : [Jira — projet VIGIE](https://matheagaveriaux.atlassian.net/jira/software/projects/VIGIE/boards/1)

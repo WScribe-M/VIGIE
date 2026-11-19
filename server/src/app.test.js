@@ -66,3 +66,18 @@ describe('routage de l’API', () => {
     assert.equal(corps.message, 'Requête invalide');
   });
 });
+
+describe('documentation de l’API', () => {
+  it('/api/docs affiche Swagger UI sans jeton', async () => {
+    // Swagger UI redirige /api/docs vers /api/docs/ : fetch suit la redirection
+    const reponse = await fetch(`${base}/docs`);
+    assert.equal(reponse.status, 200);
+    assert.match(reponse.headers.get('content-type'), /text\/html/);
+  });
+
+  it('/api/docs/openapi.json renvoie la spécification sans jeton', async () => {
+    const { status, corps } = await appeler('/docs/openapi.json');
+    assert.equal(status, 200);
+    assert.match(corps.openapi, /^3\./);
+  });
+});

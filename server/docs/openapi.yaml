@@ -1,0 +1,189 @@
+# Documentation de l'API VIGIE, affichée sur /api/docs (Swagger UI).
+# Règle de la Definition of Done : toute route ajoutée ou modifiée est décrite ici, dans la même PR.
+# Les valeurs autorisées (enum) doivent rester identiques à server/src/models/constantes.js :
+# un test (src/docs/openapi.test.js) le vérifie.
+openapi: 3.0.3
+info:
+  title: API VIGIE
+  version: 0.1.0
+  description: |
+    API REST de VIGIE, application de gestion d'incidents IT.
+
+    **Authentification** : se connecter avec `POST /auth/connexion`, copier le `jeton` reçu,
+    puis cliquer sur **Authorize** et le coller. Toutes les routes exigent ce jeton,
+    sauf celles marquées sans cadenas.
+
+    **Règles communes à toutes les routes protégées**
+    - sans jeton, ou jeton invalide ou expiré : `401` ;
+    - le rôle `LECTEUR` est en lecture seule : toute requête autre que `GET` répond `403` ;
+    - une adresse inconnue répond `404`.
+
+    **Erreurs** : toujours au format `{ "message": "…" }`, sans détail technique.
+servers:
+  - url: /api
+tags:
+  - name: Système
+  - name: Authentification
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [Système]
+      summary: État de l'API et de la base
+      security: []
+      responses:
+        '200':
+          description: L'API répond.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EtatApi'
+
+  /auth/connexion:
+    post:
+      tags: [Authentification]
+      summary: Se connecter et obtenir un jeton
+      description: |
+        Le même message est renvoyé pour un e-mail inconnu, un mauvais mot de passe ou un compte
+        désactivé, pour ne pas révéler quels e-mails ont un compte.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Identifiants'
+      responses:
+        '200':
+          description: Connexion réussie.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connexion'
+        '400':
+          description: E-mail ou mot de passe manquant, ou corps JSON mal formé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: E-mail et mot de passe requis
+        '401':
+          description: Identifiants incorrects ou compte désactivé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Identifiants incorrects
+
+  /auth/moi:
+    get:
+      tags: [Authentification]
+      summary: Profil de l'utilisateur connecté
+      description: Identité lue dans le jeton ; sert à restaurer la session au rechargement de la page.
+      responses:
+        '200':
+          description: Profil de l'utilisateur connecté.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Utilisateur'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Jeton reçu à la connexion (valable 8 h par défaut, `JWT_EXPIRES_IN`).
+
+  responses:
+    NonAuthentifie:
+      description: Jeton absent, invalide ou expiré, ou compte désactivé.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+          example:
+            message: Authentification requise
+    Interdit:
+      description: Rôle insuffisant, ou LECTEUR qui tente une modification.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+          example:
+            message: Accès interdit
+    Introuvable:
+      description: Ressource introuvable.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+          example:
+            message: Ressource introuvable
+
+  schemas:
+    Erreur:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    Role:
+      type: string
+      enum: [ADMIN, GESTIONNAIRE, CLIENT, LECTEUR]
+
+    EtatApi:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        database:
+          type: string
+          enum: [déconnectée, connectée, connexion en cours, déconnexion en cours]
+
+    Identifiants:
+      type: object
+      required: [email, motDePasse]
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@vigie.local
+        motDePasse:
+          type: string
+          format: password
+
+    Utilisateur:
+      type: object
+      description: Profil public ; le mot de passe n'est jamais renvoyé.
+      properties:
+        id:
+          type: string
+          example: 665a1f0c2b7e4a0012345678
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/Role'
+
+    Connexion:
+      type: object
+      properties:
+        jeton:
+          type: string
+          description: "JWT à envoyer dans l'en-tête `Authorization: Bearer <jeton>`."
+        utilisateur:
+          $ref: '#/components/schemas/Utilisateur'
