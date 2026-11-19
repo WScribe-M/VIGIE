@@ -34,7 +34,7 @@ Besoins :
 
 ### 3.1 Tickets
 
-- **Création** : titre, description, service, pièces jointes, personnes en copie, et deux questions guidées à la place d'une priorité libre : **impact** et **urgence**.
+- **Création** : titre, **description guidée** (que se passe-t-il ? depuis quand ? quel message d'erreur ?), service, pièces jointes, personnes en copie, et deux questions guidées à la place d'une priorité libre : **impact** et **urgence**.
 - **Statuts** (un sens unique chacun, pour des compteurs fiables) :
 
 | Statut                 | Sens                                                             |
@@ -50,6 +50,7 @@ Besoins :
 - **Un seul technicien par ticket** : il s'assigne depuis « Ma file » ou le responsable DSI le lui attribue. La prise en charge est **atomique**.
 - **Doublons** : à la saisie du titre, suggestions de tickets ouverts similaires et bouton « Je suis aussi concerné » (rattache comme suiveur). Le gestionnaire peut marquer un ticket comme doublon d'un autre : il passe `ABANDONNE` avec un lien, et son demandeur devient suiveur du ticket principal.
 - **Réouverture** : après `TERMINE`, le demandeur peut contester pendant **15 jours**. Motif obligatoire, retour `EN_COURS` chez le même technicien, notifié, tracé, SLA recalculé, compteur de réouvertures incrémenté. Passé ce délai, le bouton « Contester » n'est plus proposé et le client crée un nouveau ticket ; le ticket n'est pas verrouillé et le technicien peut toujours le rouvrir, avec un motif.
+- **Résolution** : au passage à `TERMINE`, le technicien renseigne obligatoirement la **cause** et la **solution** (section 9.9).
 - **Relances sans action automatique** : aucun ticket n'est jamais verrouillé, clôturé ou abandonné automatiquement. Relance après 3 jours (paramétrable) : réponse attendue (`EN_ATTENTE_DEMANDEUR`) ou invitation à confirmer, contester ou noter (`TERMINE`). Le technicien décide seul d'abandonner, avec un motif.
 - **Ticket pour le compte d'un tiers** : le technicien crée le ticket au nom d'un utilisateur, avec le canal d'origine (téléphone, e-mail, en direct). Le tiers devient le demandeur ; le technicien reste tracé comme créateur.
 - **Commentaires** visibles par le demandeur et la DSI.
@@ -111,7 +112,7 @@ Authentification JWT pour le MVP, quatre rôles globaux : `ADMIN`, `GESTIONNAIRE
 
 ## 7. Hors périmètre (Won't)
 
-OIDC / IAM externe, SLA avancés, multi-équipes, assignation automatique par compétence, jours fériés dans le calcul SLA, scan antivirus des pièces jointes.
+OIDC / IAM externe, SLA avancés, multi-équipes, assignation automatique par compétence, jours fériés dans le calcul SLA, scan antivirus des pièces jointes, assistant IA de résolution (RAG, section 9.9).
 
 ## 8. Ordre d'abandon en cas de manque de temps
 
@@ -189,3 +190,18 @@ Deux fonctionnalités `Could` (lot 4), ajoutées pour répondre plus finement à
 - Alerte en direct des gestionnaires (room `support`) ; les rattachements comptent dans les doublons évités.
 
 Les seuils (5 tickets en 30 min, 90 jours, 10 tickets minimum) sont des valeurs de départ, à ajuster avec les données du seed.
+
+### 9.9 Tickets homogènes et résolution structurée, pour un futur RAG (VIGIE-44)
+
+Conseil du formateur : construire tous les tickets de la même façon, pour pouvoir un jour faire du **RAG** (_Retrieval-Augmented Generation_). À l'arrivée d'un incident, on retrouve les tickets passés les plus proches, et une IA s'appuie sur leur résolution pour proposer une solution. Un RAG n'est utile que si les données retrouvées sont propres et comparables.
+
+Déjà en place : schéma imposé par Mongoose, service choisi dans un catalogue, domaine, impact, urgence et priorité en valeurs fixes, historique tracé avec les mêmes champs.
+
+Décisions :
+
+- **Résolution structurée** (VIGIE-44, `Should`) : au passage à `TERMINE`, **cause** et **solution** obligatoires (texte court, 500 caractères au plus), stockées dans un sous-document `resolution` du ticket. Non demandées pour `ABANDONNE`. À la réouverture, la résolution précédente reste dans l'historique et la clôture suivante la redemande.
+- **Description guidée** (VIGIE-3) : trois questions plutôt qu'un champ libre (que se passe-t-il ? depuis quand ? quel message d'erreur ?).
+- **Pas de données personnelles** dans le texte libre (titre, description, cause, solution) : le formulaire le rappelle. Ces textes pourraient un jour être envoyés à une IA (RGPD).
+- **Seed** (VIGIE-23) : causes et solutions réalistes pour les tickets terminés.
+
+Hors périmètre : le RAG lui-même (vecteurs d'embedding, MongoDB Atlas Vector Search, appel à une IA). Il est présenté comme évolution dans le dossier technique : les vecteurs pourraient être stockés dans la collection `tickets`, sans nouvelle base.
