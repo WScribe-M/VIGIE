@@ -75,7 +75,7 @@ rond 16) : choisi fond `--color-brand-50` ; titre 14/600 + méta 12 Taupe ; Seco
 - Onglets : « Commentaires » · « Historique » ; champ : « Répondre à Awa Diallo et aux 8 personnes concernées… » ; case « Note interne (invisible des demandeurs) »
 - Informations : « Demandeur » (Awa Diallo · Comptabilité) · « Canal » · « Service » · « Domaine » · « Technicien » (« Mamadou Koné (vous) ») · « Ouvert le » · « Réouvertures » · « Doublons » (« 1 rattaché (INC-1026) ») · « Suiveurs · 9 » · « Gérer » · « Pièces jointes · 2 »
 - Historique : « a signalé l’incident (e-mail) » · « se sont déclarées concernées » · « a pris en charge · Nouveau → En cours » · « a requalifié la priorité · Moyenne → Haute » · « Motif : … » · « a rattaché INC-1026 comme doublon » · « a changé le domaine · Applicatif → Réseau »
-- Menu : En cours « Actuel » · En attente du demandeur « Suspend le délai » · Terminé « Motif de résolution requis » · Abandonné « Motif requis » · Nouveau « Impossible »
+- Menu : En cours « Actuel » · En attente du demandeur « Suspend le délai » · Terminé « Cause et solution requises » (⚠ maquette : « Motif de résolution requis ») · Abandonné « Motif requis » · Nouveau « Impossible »
 - Doublon : « Marquer INC-1026 comme doublon » · « Le ticket sera abandonné et son demandeur rejoindra le ticket principal. » · « Ticket principal * » · « Annuler » · « Rattacher à INC-1024 »
 - Requalification ([composants.md](composants.md), Modal) : « Requalifier la priorité » · « Calculée : » · « Nouvelle priorité * » · « Motif * » · placeholder « Expliquez la raison au demandeur… » · erreur « Indiquez un motif (10 caractères minimum). » · « Requalifier »
 - Prise en charge (Modal confirmation) : « Prendre en charge INC-1027 ? » · « Vous serez le technicien assigné. Léa Martin et les 8 personnes concernées seront prévenues. »
@@ -98,4 +98,6 @@ rond 16) : choisi fond `--color-brand-50` ; titre 14/600 + méta 12 Taupe ; Seco
 ## ⚠ Écarts avec les règles
 
 - Domaines « Applications → Réseau » : utiliser les libellés de `libelles.js` (Applicatif, Réseau…).
-- « Motif de résolution requis » au passage en Terminé : absent du cadrage, **à valider**.
+- Passage en Terminé : **cause et solution** obligatoires (cadrage 9.9, VIGIE-44, 500 caractères au plus chacune),
+  au lieu d’un « motif de résolution » unique. Note du menu : « Cause et solution requises » ; la fenêtre de
+  clôture suit le modèle « motif obligatoire » de la Modal ([composants.md](composants.md)) avec deux champs.

@@ -2,7 +2,7 @@
 
 Route proposée : `/services` · Rôles : tous (action réservée au Gestionnaire et à l'Administrateur)
 
-> ⚠ Fonctionnalité **sans story** (cadrage 9.9) : à ne coder qu'une fois la story créée et priorisée.
+> ⚠ Fonctionnalité **sans story** (cadrage 9.10) : à ne coder qu'une fois la story créée et priorisée.
 > L'entrée « État des services » de la barre latérale n'apparaît qu'à ce moment-là.
 
 ![Vue Gestionnaire, temps réel](captures/10-etat-des-services.png)

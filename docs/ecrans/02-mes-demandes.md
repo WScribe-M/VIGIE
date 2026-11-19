@@ -60,5 +60,5 @@ Contenu, colonne, écart 24 :
 
 - « jusqu’au 21/11 » et « à confirmer avant le 21/11 » : la contestation dure **15 jours** (cadrage 3.1) →
   date affichée = passage en Terminé + 15 jours (exemple : 29/11).
-- Carte « État des services » : fonctionnalité sans story (cadrage 9.9) ; la colonne de droite reste vide ou
+- Carte « État des services » : fonctionnalité sans story (cadrage 9.10) ; la colonne de droite reste vide ou
   est retirée tant qu'elle n'existe pas.

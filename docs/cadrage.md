@@ -37,7 +37,7 @@ Libellés affichés dans l'interface : **Client** (`CLIENT`), **Gestionnaire** (
 
 ### 3.1 Tickets
 
-- **Création** : titre, description, service, pièces jointes, personnes en copie, et deux questions guidées à la place d'une priorité libre : **impact** et **urgence**.
+- **Création** : titre, **description guidée** (que se passe-t-il ? depuis quand ? quel message d'erreur ?), service, pièces jointes, personnes en copie, et deux questions guidées à la place d'une priorité libre : **impact** et **urgence**.
 - **Statuts** (un sens unique chacun, pour des compteurs fiables) :
 
 | Statut                 | Libellé affiché         | Sens                                                             |
@@ -67,10 +67,11 @@ Aucun retour vers `NOUVEAU`. Chaque transition ajoute une entrée dans l'histori
 - **Un seul technicien par ticket** : il s'assigne depuis « Ma file » ou le responsable DSI le lui attribue. La prise en charge est **atomique**.
 - **Doublons** : à la saisie du titre, suggestions de tickets ouverts similaires et bouton « Je suis aussi concerné » (rattache comme suiveur). Le gestionnaire peut marquer un ticket comme doublon d'un autre : il passe `ABANDONNE` avec un lien, et son demandeur devient suiveur du ticket principal.
 - **Réouverture** : après `TERMINE`, le demandeur peut contester pendant **15 jours**. Motif obligatoire, retour `EN_COURS` chez le même technicien, notifié, tracé, SLA recalculé, compteur de réouvertures incrémenté. Passé ce délai, le bouton « Contester » n'est plus proposé et le client crée un nouveau ticket ; le ticket n'est pas verrouillé et le technicien peut toujours le rouvrir, avec un motif.
+- **Résolution** : au passage à `TERMINE`, le technicien renseigne obligatoirement la **cause** et la **solution** (section 9.9).
 - **Relances sans action automatique** : aucun ticket n'est jamais verrouillé, clôturé ou abandonné automatiquement. Relance après 3 jours (paramétrable) : réponse attendue (`EN_ATTENTE_DEMANDEUR`) ou invitation à confirmer, contester ou noter (`TERMINE`). Le technicien décide seul d'abandonner, avec un motif.
 - **Ticket pour le compte d'un tiers** : le technicien crée le ticket au nom d'un utilisateur, avec le canal d'origine (téléphone, e-mail, en direct ; libellés affichés : Téléphone, E-mail, Sur place ; un ticket créé par le demandeur lui-même a le canal `APPLICATION`, affiché « Vigie »). Le tiers devient le demandeur ; le technicien reste tracé comme créateur.
 - **Commentaires** visibles par le demandeur et la DSI.
-- **Notes internes** (`Should`, section 9.9) : un gestionnaire peut cocher « Note interne (invisible des demandeurs) » sur un commentaire. Une note interne est visible des rôles `GESTIONNAIRE`, `ADMIN` et `LECTEUR`, **jamais d'un `CLIENT`** (demandeur et suiveurs compris) : le serveur la retire des réponses de l'API selon le rôle du JWT, et ne l'émet jamais dans la room `ticket:<id>` (section 5).
+- **Notes internes** (`Should`, section 9.10) : un gestionnaire peut cocher « Note interne (invisible des demandeurs) » sur un commentaire. Une note interne est visible des rôles `GESTIONNAIRE`, `ADMIN` et `LECTEUR`, **jamais d'un `CLIENT`** (demandeur et suiveurs compris) : le serveur la retire des réponses de l'API selon le rôle du JWT, et ne l'émet jamais dans la room `ticket:<id>` (section 5).
 - **Historique (timeline)** : qui a modifié quoi et quand (statut, assignation, priorité, domaine). Il alimente les temps de résolution, la suspension du SLA et les statistiques.
 
 ### 3.2 Vues par rôle (compteurs mis à jour en direct)
@@ -138,7 +139,7 @@ Authentification JWT pour le MVP, quatre rôles globaux : `ADMIN`, `GESTIONNAIRE
 | `comment:created`                  | serveur  | `ticket:<id>` (note interne : `ticket:<id>:interne`) | Nouveau message dans les échanges                                     |
 | `typing:start` / `typing:stop`     | client   | `ticket:<id>` (`ticketId`, `userId`)                 | « … est en train d'écrire… » (éphémère)                               |
 | `presence:join` / `presence:leave` | client   | `ticket:<id>` (`ticketId`)                           | Avatars « consultent aussi ce ticket » (éphémère)                     |
-| `service:status`                   | serveur  | tous les connectés                                   | État des services (section 9.9, sans story)                           |
+| `service:status`                   | serveur  | tous les connectés                                   | État des services (section 9.10, sans story)                          |
 | `notification:new`                 | serveur  | `user:<id>`                                          | Compteur de la cloche, panneau de notifications                       |
 
 Les événements émis par le client sont **éphémères** ; toute modification passe par l'API REST, puis le serveur émet.
@@ -155,7 +156,7 @@ Les événements émis par le client sont **éphémères** ; toute modification 
 
 ## 7. Hors périmètre (Won't)
 
-OIDC / IAM externe, SLA avancés, multi-équipes, assignation automatique par compétence, jours fériés dans le calcul SLA, scan antivirus des pièces jointes.
+OIDC / IAM externe, SLA avancés, multi-équipes, assignation automatique par compétence, jours fériés dans le calcul SLA, scan antivirus des pièces jointes, assistant IA de résolution (RAG, section 9.9).
 
 ## 8. Ordre d'abandon en cas de manque de temps
 
@@ -235,7 +236,22 @@ Deux fonctionnalités `Could` (lot 4), ajoutées pour répondre plus finement à
 
 Les seuils (5 tickets en 30 min, 90 jours, 10 tickets minimum) sont des valeurs de départ, à ajuster avec les données du seed.
 
-### 9.9 Handoff de design (17 nov. 2026)
+### 9.9 Tickets homogènes et résolution structurée, pour un futur RAG (VIGIE-44)
+
+Conseil du formateur : construire tous les tickets de la même façon, pour pouvoir un jour faire du **RAG** (_Retrieval-Augmented Generation_). À l'arrivée d'un incident, on retrouve les tickets passés les plus proches, et une IA s'appuie sur leur résolution pour proposer une solution. Un RAG n'est utile que si les données retrouvées sont propres et comparables.
+
+Déjà en place : schéma imposé par Mongoose, service choisi dans un catalogue, domaine, impact, urgence et priorité en valeurs fixes, historique tracé avec les mêmes champs.
+
+Décisions :
+
+- **Résolution structurée** (VIGIE-44, `Should`) : au passage à `TERMINE`, **cause** et **solution** obligatoires (texte court, 500 caractères au plus), stockées dans un sous-document `resolution` du ticket. Non demandées pour `ABANDONNE`. À la réouverture, la résolution précédente reste dans l'historique et la clôture suivante la redemande.
+- **Description guidée** (VIGIE-3) : trois questions plutôt qu'un champ libre (que se passe-t-il ? depuis quand ? quel message d'erreur ?).
+- **Pas de données personnelles** dans le texte libre (titre, description, cause, solution) : le formulaire le rappelle. Ces textes pourraient un jour être envoyés à une IA (RGPD).
+- **Seed** (VIGIE-23) : causes et solutions réalistes pour les tickets terminés.
+
+Hors périmètre : le RAG lui-même (vecteurs d'embedding, MongoDB Atlas Vector Search, appel à une IA). Il est présenté comme évolution dans le dossier technique : les vecteurs pourraient être stockés dans la collection `tickets`, sans nouvelle base.
+
+### 9.10 Handoff de design (17 nov. 2026)
 
 Le handoff de design a été transféré dans le code (`client/src/styles/`, `client/src/composants/`, page `/styleguide`) et dans les fiches d'écran ([ecrans/](ecrans/README.md)). Quand il diverge de ce cadrage, l'équipe a tranché ainsi :
 
@@ -249,13 +265,15 @@ Le handoff de design a été transféré dans le code (`client/src/styles/`, `cl
   - suggestions de doublons limitées au plan A (9.3) : pas de nombre de concernés ni de technicien avant de rejoindre ;
   - une seule échéance SLA, celle de la résolution (9.2) ;
   - domaines de `constantes.js` (Réseau, Infrastructure, Applicatif, Base de données, À qualifier), pas « Applications, Matériel, Postes » ;
-  - page 403 : le pilotage est aussi accessible à l'Administrateur.
+  - page 403 : le pilotage est aussi accessible à l'Administrateur ;
+  - description guidée en **trois questions** (9.9, VIGIE-3), là où la maquette montre un seul champ ;
+  - au passage en `TERMINE`, **cause et solution** obligatoires (9.9, VIGIE-44), et non un « motif de résolution » unique.
 
 **À trancher par l'équipe** :
 
 - Suivi de la demande : 3 étapes du design (Signalé → Pris en charge → Résolu) ou 5 jalons de VIGIE-41 (9.8).
 - Délai estimé à la création : « Prise en charge sous 30 min » (design) ou fourchette de VIGIE-41 ; libellé exact.
-- Motifs obligatoires vus dans les maquettes : requalification de la priorité (10 caractères minimum) et « motif de résolution » au passage en `TERMINE`.
+- Motif obligatoire de requalification de la priorité (10 caractères minimum), vu dans les maquettes.
 - Menus par rôle : ceux du design (Tous les tickets, Nouveau ticket, État des services…) ou ceux de VIGIE-2 (`client/src/auth/roles.js`), complétés story par story.
 - Textes au féminin dans les maquettes (« prévenue », « connectée ») : accord selon l'utilisateur ou forme neutre.
 

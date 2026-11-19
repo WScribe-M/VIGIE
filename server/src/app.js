@@ -1,12 +1,15 @@
 import cors from 'cors';
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
 import { config } from './config/env.js';
 import { etatBase } from './config/db.js';
+import { specificationApi } from './docs/specificationApi.js';
 import { authentifier, interdireEcritureLecteur } from './middlewares/auth.js';
 import { authRoutes } from './routes/authRoutes.js';
 
 // Routes protégées : jeton obligatoire (401) et LECTEUR en lecture seule (403).
-// Toute nouvelle route se déclare ici, la protection est ajoutée automatiquement.
+// Toute nouvelle route se déclare ici, la protection est ajoutée automatiquement,
+// et se documente dans server/docs/openapi.yaml.
 // Exemple : '/services': serviceRoutes
 const ROUTES_PROTEGEES = {};
 
@@ -20,6 +23,13 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', database: etatBase() });
 });
 app.use('/api/auth', authRoutes);
+
+// Documentation de l'API (server/docs/openapi.yaml) : publique, elle ne contient aucune donnée.
+// Elle doit être déclarée avant la route 404, sinon /api/docs serait « Route introuvable ».
+app.get('/api/docs/openapi.json', (req, res) => {
+  res.json(specificationApi);
+});
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specificationApi));
 
 // La protection ne s'applique qu'aux préfixes qui existent : une adresse inconnue
 // répond « Route introuvable » au lieu d'un 401 trompeur

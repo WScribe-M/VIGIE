@@ -91,6 +91,11 @@ Contenu, colonne, écart 24 :
 
 ## ⚠ Écarts avec les règles
 
+- **Description guidée** (cadrage 9.9, VIGIE-3) : **trois questions** (« Que se passe-t-il ? », « Depuis quand ? »,
+  « Quel message d’erreur ? ») au lieu du champ unique de la maquette. Même style de champ que la Description
+  (zone de texte, libellé au-dessus) ; libellés exacts à reprendre de la story VIGIE-3.
+- **Données personnelles** (cadrage 9.9) : l’encart « N’indiquez jamais de mot de passe… » doit aussi rappeler de ne
+  pas mettre de données personnelles dans le titre et la description ; texte à valider avec l’équipe.
 - **Pièces jointes** : « 10 Mo max. » → « Glissez un fichier ou parcourez · 5 Mo max. par fichier, 5 fichiers »
   (cadrage 9.4 : png, jpg, pdf, txt, log, csv, docx, xlsx).
 - **Suggestions de doublons** (cadrage 9.3, plan A : titre, service, statut, date d'ouverture uniquement) :

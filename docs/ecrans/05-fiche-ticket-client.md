@@ -64,7 +64,7 @@ Carte blanche, marges 20, écart 16 :
 - Onglets : « Échanges » · « Historique » ; en-tête de bulle : « Mamadou Koné · Gestionnaire · 11:02 », « Vous · Client · 11:20 »
 - « Mamadou Koné est en train d’écrire… » · champ : « Écrire un message au support… »
 - En attente : « Le support attend votre réponse » · « Répondre » · « Le délai reprendra dès votre réponse. »
-- Terminé : « Le problème est-il résolu ? » · « Karim Benali a clos le ticket : « … ». Vous pouvez contester jusqu’au JJ/MM. » · « Votre satisfaction » · « Confirmer la résolution » · « Contester » · « Motif de la contestation * (si vous contestez) » · placeholder « Que se passe-t-il encore ? » · erreur « Le motif est obligatoire pour rouvrir le ticket. »
+- Terminé : « Le problème est-il résolu ? » · « Karim Benali a clos le ticket : « … » (la **solution** saisie à la clôture, cadrage 9.9). Vous pouvez contester jusqu’au JJ/MM. » · « Votre satisfaction » · « Confirmer la résolution » · « Contester » · « Motif de la contestation * (si vous contestez) » · placeholder « Que se passe-t-il encore ? » · erreur « Le motif est obligatoire pour rouvrir le ticket. »
 - Erreur : icône `ticket` 32 Taupe · « Ce ticket n’existe plus ou ne vous est pas accessible » (20/600) · « INC-0999 a peut-être été fusionné avec un autre ticket. Retrouvez vos demandes depuis l’accueil. » · Primaire « Retour à mes demandes ».
 
 ## États
