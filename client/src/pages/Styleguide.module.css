@@ -108,7 +108,7 @@
   box-shadow: var(--shadow-xs);
 }
 
-/* Test daltonisme de 02 Fondations */
+/* Test daltonisme : sans la couleur, la forme et le libellé portent l'information */
 .gris {
   filter: grayscale(1);
 }

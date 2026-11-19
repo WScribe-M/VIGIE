@@ -8,7 +8,7 @@ import { StatusBadge } from '../composants/StatusBadge.jsx';
 import styles from './Styleguide.module.css';
 
 // Page de développement uniquement (absente du build de production) : catalogue des
-// composants du design system, à comparer avec 02 Fondations et 03 Composants.
+// composants du design system, à comparer avec les captures de docs/ecrans/.
 // Les données sont celles de la démo du handoff.
 
 const STATUTS = ['NOUVEAU', 'EN_COURS', 'EN_ATTENTE_DEMANDEUR', 'TERMINE', 'ABANDONNE'];
@@ -106,7 +106,7 @@ const LIGNES_DEMO = [
   },
 ];
 
-// Barres latérales des quatre rôles, telles que dessinées dans 03 Composants
+// Barres latérales des quatre rôles, telles que dessinées dans le handoff (capture composants-03-barre-laterale-et-en-tete)
 const BARRES = [
   {
     utilisateur: { prenom: 'Awa', nom: 'Diallo', role: 'CLIENT', paire: 1 },
@@ -203,7 +203,7 @@ export function Styleguide() {
         <h1 className="text-display-lg">Design system</h1>
       </header>
 
-      <Bloc titre="Couleurs" note="Tokens de styles/tokens.css (02 Fondations)">
+      <Bloc titre="Couleurs" note="Tokens de styles/tokens.css">
         {COULEURS.map(({ famille, prefixe, cles }) => (
           <div key={famille} className={styles.famille}>
             <span className="text-label">{famille}</span>

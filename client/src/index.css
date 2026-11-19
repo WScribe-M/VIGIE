@@ -42,7 +42,7 @@
   margin-top: var(--space-6);
 }
 
-/* Libellé au-dessus du champ, jamais dans le champ (03 Composants · Champs) */
+/* Libellé au-dessus du champ, jamais dans le champ (docs/ecrans/composants.md, Champs) */
 .connexion label {
   display: flex;
   flex-direction: column;

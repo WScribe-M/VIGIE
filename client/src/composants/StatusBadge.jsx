@@ -5,7 +5,7 @@ import styles from './StatusBadge.module.css';
 // Mesures relevées dans les maquettes pour chaque hauteur de pastille
 const TAILLES = {
   24: { classe: styles.t24, icone: 14 }, // listes, cartes
-  26: { classe: styles.t26, icone: 15 }, // 02 Fondations
+  26: { classe: styles.t26, icone: 15 }, // hauteur intermédiaire
   28: { classe: styles.t28, icone: 16 }, // en-tête de fiche ticket
 };
 

@@ -4,7 +4,7 @@ import styles from './SlaBadge.module.css';
 
 const TAILLES = {
   24: { classe: '', icone: 14 }, // tableaux
-  26: { classe: styles.t26, icone: 15 }, // 02 Fondations
+  26: { classe: styles.t26, icone: 15 }, // hauteur intermédiaire
   28: { classe: styles.t28, icone: 16 }, // en-tête de fiche ticket
 };
 

@@ -9,7 +9,7 @@ function classes(...noms) {
 }
 
 /**
- * Bouton du design system (handoff, 03 Composants · Boutons).
+ * Bouton du design system (docs/ecrans/composants.md, capture composants-03-boutons).
  * Une seule action `primaire` par écran.
  *
  * @param variante   'primaire' | 'secondaire' | 'tertiaire' | 'danger'

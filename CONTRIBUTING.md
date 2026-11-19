@@ -2,6 +2,7 @@
 
 Ce guide est la référence de l'équipe : comment on choisit une tâche, comment on code, comment on livre.
 Le contexte métier et les décisions sont dans [docs/cadrage.md](docs/cadrage.md).
+L'interface suit le design system : [docs/design-system.md](docs/design-system.md) et les fiches d'écran [docs/ecrans/](docs/ecrans/README.md).
 
 ## 1. Choisir une story (Kanban)
 
@@ -59,6 +60,7 @@ Une story est terminée seulement si :
 - les droits sont contrôlés côté serveur, pas seulement dans l'interface ;
 - aucun secret (mot de passe, clé, `.env`) n'est commité ;
 - la fonctionnalité est démontrable avec les données du seed ;
+- pour un écran : il est conforme à sa fiche et à ses captures (`docs/ecrans/`), n'utilise que les tokens, reprend les textes exacts et implémente les 5 états (normal, vide, chargement, erreur, temps réel) ;
 - le README est à jour si l'installation ou la configuration a changé.
 
 ## 5. Conventions de code
@@ -118,11 +120,26 @@ router.post('/', autoriser('ADMIN'), creer); // ADMIN uniquement
 - Toute configuration passe par `.env` (modèle : `.env.example`). Le `.env` n'est jamais commité.
 - Chaque changement de statut, d'assignation, de priorité ou de domaine ajoute une entrée dans `historique`.
 
+### Interface (client React)
+
+```
+client/src/
+  styles/        tokens.css (valeurs), base.css, typographie.css, libelles.js, icones.js, avatar.js
+  composants/    composants réutilisables, un fichier .jsx + un .module.css chacun
+  pages/         écrans ; /styleguide montre tous les composants (développement uniquement)
+```
+
+- **Quel style à quel moment** : [docs/design-system.md](docs/design-system.md). **Quel écran** : sa fiche dans [docs/ecrans/](docs/ecrans/README.md).
+- **Tokens uniquement** : `var(--…)` ; aucune couleur codée en dur dans un composant. Une valeur manque : on l'ajoute d'abord dans `tokens.css`.
+- **Réutiliser** les composants existants (voir `/styleguide`) ; un nouveau composant suit [docs/ecrans/composants.md](docs/ecrans/composants.md) et s'ajoute à `/styleguide`.
+- **Libellés** via `libelles.js`, jamais la valeur brute de l'API. **Icônes** via `lucide-react` avec `strokeWidth={TRAIT_ICONE}`.
+- Chaque écran implémente **5 états** : normal, vide, chargement (squelettes, jamais de spinner isolé), erreur, temps réel.
+
 ### Tests
 
 - Outil : le module natif `node:test` (aucune dépendance). Lancer : `npm test`.
 - Fichiers `*.test.js` à côté du code testé, par exemple `services/priorite.test.js`.
-- À tester en priorité : la matrice de priorité, le calcul SLA en heures ouvrées, les transitions de statut, la prise en charge atomique, les règles de visibilité.
+- À tester en priorité : la matrice de priorité, le calcul SLA en heures ouvrées, les transitions de statut, la prise en charge atomique, les règles de visibilité (dont les notes internes, jamais visibles d'un client), le délai de contestation de 15 jours.
 
 ### Style
 
@@ -132,4 +149,4 @@ router.post('/', autoriser('ADMIN'), creer); // ADMIN uniquement
 ## 6. Utiliser un assistant IA
 
 C'est autorisé, à condition de rester responsable du code produit : on le comprend, on le relit, on le teste.
-Donner à l'assistant [AGENTS.md](AGENTS.md) et la description de la story Jira au début de la conversation.
+Donner à l'assistant [AGENTS.md](AGENTS.md) et la description de la story Jira au début de la conversation. Pour un écran, lui donner aussi la fiche de [docs/ecrans/](docs/ecrans/README.md) et ses captures : c'est plus fiable qu'une description. Claude Code lit automatiquement [CLAUDE.md](CLAUDE.md), qui importe AGENTS.md et le guide du design system.

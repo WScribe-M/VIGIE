@@ -1,4 +1,4 @@
-// Icônes Lucide associées aux valeurs métier (handoff de design, vigie-kit.js).
+// Icônes Lucide associées aux valeurs métier (handoff de design).
 // Toujours avec TRAIT_ICONE, jamais dans un cercle coloré, jamais seules pour porter un état.
 import {
   Activity,
@@ -72,7 +72,7 @@ export function iconeService(nomService) {
   return ICONES_SERVICE[nomService] ?? CircleQuestionMark;
 }
 
-// Entrées de la barre latérale, par libellé (handoff, Vigie Sidebar)
+// Entrées de la barre latérale, par libellé (docs/ecrans/composants.md, capture composants-03-barre-laterale-et-en-tete)
 export const ICONES_NAVIGATION = {
   'Mes demandes': House,
   'Ma file': Inbox,

@@ -4,9 +4,25 @@ Application web de gestion d'incidents IT : déclaration, qualification, suivi e
 
 Mini projet M2 — LaManu.
 
+## Identité et design
+
+**Vigie** — « Un incident signalé une fois, suivi par tous. » On déclare une panne en moins d'une minute, on rejoint les incidents déjà signalés, on suit leur avancement en direct ; le support voit sa charge et ses retards.
+
+Palette :
+
+- **Pétrole** `#1F5C68` : marque et action principale ;
+- **Lin** `#FAF6EF` : fond d'application, cartes en blanc, bordures Sable `#EAE2D6` ;
+- **Encre brune** `#2A2420` : texte et barre latérale, texte secondaire Taupe `#6E645B` ;
+- **Couleurs d'état** réservées aux statuts, priorités et délais, toujours avec une icône et un libellé.
+
+Police unique **Figtree**, icônes **Lucide**. Les valeurs sont dans `client/src/styles/tokens.css` ; le guide [docs/design-system.md](docs/design-system.md) dit quel style utiliser à quel moment.
+
+Voir les composants : `npm run dev`, puis http://localhost:5173/styleguide (en développement uniquement).
+Voir les écrans à construire : [docs/ecrans/](docs/ecrans/README.md), une fiche et des captures par écran.
+
 ## Stack
 
-- **Front** : React.js
+- **Front** : React (Vite) en JavaScript (JSX), `react-router`, icônes `lucide-react`, police Figtree
 - **API** : Node.js / Express (REST)
 - **Base de données** : MongoDB via Mongoose
 - **Temps réel** : Socket.io
@@ -53,6 +69,10 @@ Données de démonstration : `npm run seed` (à venir, VIGIE-23).
 
 ```
 client/              React (Vite) — appels /api relayés vers l'API en développement
+  src/styles/        design system : tokens, base, typographie, libellés, icônes
+  src/composants/    composants réutilisables (Button, badges, Sidebar…)
+  src/pages/         écrans (et /styleguide en développement)
+docs/                cadrage (métier), design-system (guide), ecrans (fiches et captures)
 server/
   src/config/        variables d'environnement et connexion MongoDB
   src/routes/        déclaration des routes Express
@@ -68,6 +88,8 @@ server/
 ## Documentation
 
 - [docs/cadrage.md](docs/cadrage.md) : besoin, rôles, fonctionnalités, architecture et décisions prises.
+- [docs/design-system.md](docs/design-system.md) : quel style utiliser à quel moment.
+- [docs/ecrans/](docs/ecrans/README.md) : fiche et captures de chaque écran, parcours, catalogue des composants.
 - [CONTRIBUTING.md](CONTRIBUTING.md) : **à lire avant de coder** — workflow Jira/Kanban, convention Git, pull requests, Definition of Done, conventions de code.
 - [AGENTS.md](AGENTS.md) : instructions à donner à un assistant IA.
 - [IA/rapport-ia.md](IA/rapport-ia.md) : rapport d'utilisation de l'IA (dossier, partie 4).

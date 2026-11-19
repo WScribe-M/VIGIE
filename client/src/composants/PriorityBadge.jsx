@@ -10,7 +10,7 @@ const COULEURS = {
   CRITIQUE: styles.critique,
 };
 
-// Barres de signal (vigie-kit.js) : SVG 14 × 12, quatre barres de 2,4 px,
+// Barres de signal (handoff de design) : SVG 14 × 12, quatre barres de 2,4 px,
 // hauteurs 4 / 6,67 / 9,33 / 12, barres inactives à 25 % d'opacité
 function BarresSignal({ actives }) {
   return (

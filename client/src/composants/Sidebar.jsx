@@ -6,7 +6,7 @@ import { LIBELLES_ROLE } from '../styles/libelles.js';
 import { Avatar } from './Avatar.jsx';
 import styles from './Sidebar.module.css';
 
-// Symbole du logo : le V est un faisceau, le point la vigie qui guette (handoff, 01 Identité)
+// Symbole du logo : le V est un faisceau, le point la vigie qui guette (docs/ecrans/composants.md, Identité)
 function Logo() {
   return (
     <span className={styles.logo}>
@@ -20,7 +20,7 @@ function Logo() {
 }
 
 /**
- * Barre latérale par rôle (handoff, Vigie Sidebar).
+ * Barre latérale par rôle (docs/ecrans/composants.md, capture composants-03-barre-laterale-et-en-tete).
  * @param entrees     [{ chemin, libelle, compteur?, etiquette?, section?, actif? }]
  *                    `section` ouvre un groupe (« Administration »), `etiquette` ajoute « Lecture seule »,
  *                    `actif` force l'état actif (page /styleguide) ; sinon, la route courante décide.
