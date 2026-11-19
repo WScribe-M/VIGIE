@@ -37,19 +37,19 @@ Besoins :
 - **Création** : titre, description, service, pièces jointes, personnes en copie, et deux questions guidées à la place d'une priorité libre : **impact** et **urgence**.
 - **Statuts** (un sens unique chacun, pour des compteurs fiables) :
 
-| Statut                 | Sens                                                     |
-| ---------------------- | -------------------------------------------------------- |
-| `NOUVEAU`              | Pas encore pris en charge                                |
-| `EN_COURS`             | Un gestionnaire travaille dessus                         |
-| `EN_ATTENTE_DEMANDEUR` | On attend une réponse du demandeur ; **SLA suspendu**    |
-| `TERMINE`              | Solution apportée ; le demandeur peut toujours contester |
-| `ABANDONNE`            | Annulé ou doublon                                        |
+| Statut                 | Sens                                                             |
+| ---------------------- | ---------------------------------------------------------------- |
+| `NOUVEAU`              | Pas encore pris en charge                                        |
+| `EN_COURS`             | Un gestionnaire travaille dessus                                 |
+| `EN_ATTENTE_DEMANDEUR` | On attend une réponse du demandeur ; **SLA suspendu**            |
+| `TERMINE`              | Solution apportée ; le demandeur peut contester pendant 15 jours |
+| `ABANDONNE`            | Annulé ou doublon                                                |
 
 - **Catalogue de services** : le client choisit un service dans son vocabulaire (VPN, Messagerie, ERP, Imprimante, Poste de travail, « Autre / je ne sais pas »). Chaque service est lié par l'admin à un domaine technique (réseau, infrastructure, applicatif, base de données) : le domaine est déduit. Le technicien peut le corriger (tracé). « Autre » déclenche une qualification manuelle. Une seule équipe support.
 - **Priorité calculée** : déduite de l'impact et de l'urgence (matrice, section 9.1). Le gestionnaire peut la requalifier ; c'est tracé.
 - **Un seul technicien par ticket** : il s'assigne depuis « Ma file » ou le responsable DSI le lui attribue. La prise en charge est **atomique**.
 - **Doublons** : à la saisie du titre, suggestions de tickets ouverts similaires et bouton « Je suis aussi concerné » (rattache comme suiveur). Le gestionnaire peut marquer un ticket comme doublon d'un autre : il passe `ABANDONNE` avec un lien, et son demandeur devient suiveur du ticket principal.
-- **Réouverture** : après `TERMINE`, le demandeur peut contester sans limite de durée. Motif obligatoire, retour `EN_COURS` chez le même technicien, notifié, tracé, SLA recalculé, compteur de réouvertures incrémenté.
+- **Réouverture** : après `TERMINE`, le demandeur peut contester pendant **15 jours**. Motif obligatoire, retour `EN_COURS` chez le même technicien, notifié, tracé, SLA recalculé, compteur de réouvertures incrémenté. Passé ce délai, le bouton « Contester » n'est plus proposé et le client crée un nouveau ticket ; le ticket n'est pas verrouillé et le technicien peut toujours le rouvrir, avec un motif.
 - **Relances sans action automatique** : aucun ticket n'est jamais verrouillé, clôturé ou abandonné automatiquement. Relance après 3 jours (paramétrable) : réponse attendue (`EN_ATTENTE_DEMANDEUR`) ou invitation à confirmer, contester ou noter (`TERMINE`). Le technicien décide seul d'abandonner, avec un motif.
 - **Ticket pour le compte d'un tiers** : le technicien crée le ticket au nom d'un utilisateur, avec le canal d'origine (téléphone, e-mail, en direct). Le tiers devient le demandeur ; le technicien reste tracé comme créateur.
 - **Commentaires** visibles par le demandeur et la DSI.
