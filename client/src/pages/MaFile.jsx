@@ -7,7 +7,7 @@ import {
   WifiOff,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { appelerApi } from '../api.js';
 import { Button } from '../composants/Button.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
@@ -65,10 +65,17 @@ function detailSla(sla, minutesParJour) {
   return sla.niveau === 'EN_RETARD' ? `de ${duree}` : `reste ${duree}`;
 }
 
+// Décision du 20/11 : ni « Prendre en charge » ni bouton « Ouvrir » dans la liste. Toute la ligne
+// ouvre le ticket ; on s'assigne depuis la fiche, après l'avoir lu. Le titre reste un vrai lien :
+// c'est lui qu'on atteint au clavier (Tab, Entrée) et que lit le lecteur d'écran.
 function Ligne({ ligne, minutesParJour, nouveau }) {
+  const navigate = useNavigate();
   const enRetard = ligne.sla?.niveau === 'EN_RETARD';
   return (
-    <tr className={`${enRetard ? styles.enRetard : ''} ${nouveau ? styles.surbrillance : ''}`}>
+    <tr
+      className={`${styles.ligneCliquable} ${enRetard ? styles.enRetard : ''} ${nouveau ? styles.surbrillance : ''}`}
+      onClick={() => navigate(`/tickets/${ligne._id}`)}
+    >
       <td className={`${styles.numero} chiffres`}>{ligne.reference}</td>
       <td>
         <div className={styles.cellTitre}>
@@ -107,13 +114,6 @@ function Ligne({ ligne, minutesParJour, nouveau }) {
       <td className={styles.demandeur}>
         {ligne.demandeur && `${ligne.demandeur.prenom} ${ligne.demandeur.nom}`}
       </td>
-      {/* Décision du 20/11 : pas de « Prendre en charge » dans la liste. On ouvre le ticket et on
-          s'assigne depuis la fiche, après l'avoir lu (fiche 07 : écart signalé). */}
-      <td className={styles.action}>
-        <Link to={`/tickets/${ligne._id}`} className={styles.lienOuvrir}>
-          Ouvrir
-        </Link>
-      </td>
     </tr>
   );
 }
@@ -139,9 +139,6 @@ function Section({ section, lignes, total, minutesParJour, nouveaux }) {
                 <th scope="col">Priorité</th>
                 <th scope="col">{section.colonneSla}</th>
                 <th scope="col">Demandeur</th>
-                <th scope="col">
-                  <span className="visuellement-cache">Action</span>
-                </th>
               </tr>
             </thead>
             <tbody>
