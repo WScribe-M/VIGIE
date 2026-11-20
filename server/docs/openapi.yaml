@@ -421,6 +421,105 @@ paths:
               example:
                 message: 'Le ticket a été modifié entre-temps : rechargez-le'
 
+  /tickets/{id}/prise-en-charge:
+    post:
+      tags: [Tickets]
+      summary: Prendre en charge un ticket (GESTIONNAIRE, ADMIN)
+      description: >-
+        Le gestionnaire connecté devient le technicien et le ticket passe de `NOUVEAU` à
+        `EN_COURS`, en une seule écriture conditionnelle (ticket encore `NOUVEAU` et sans
+        technicien). Si un collègue l'a pris juste avant, rien n'est écrit et la réponse est `409`.
+        Tracé dans l'historique (statut et technicien) ; émet `ticket:modifie`.
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      responses:
+        '200':
+          description: Ticket pris en charge.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '409':
+          description: Ticket déjà pris en charge, ou plus au statut `NOUVEAU`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Le ticket a été modifié entre-temps : rechargez-le'
+
+  /tickets/{id}/statut:
+    patch:
+      tags: [Tickets]
+      summary: Changer le statut (GESTIONNAIRE, ADMIN)
+      description: >-
+        Transitions du cadrage (3.1) : `NOUVEAU` → `ABANDONNE` ; `EN_COURS` →
+        `EN_ATTENTE_DEMANDEUR`, `TERMINE`, `ABANDONNE` ; `EN_ATTENTE_DEMANDEUR` → `EN_COURS`,
+        `TERMINE`, `ABANDONNE`. Aucun retour vers `NOUVEAU`, `ABANDONNE` est définitif.
+        `NOUVEAU` → `EN_COURS` passe par la prise en charge, `TERMINE` → `EN_COURS` par la
+        contestation (VIGIE-30). Abandon : `motif` obligatoire. Terminé : `cause` et `solution`
+        obligatoires (500 caractères au plus, cadrage 9.9). Met à jour `dateStatut`, remplit
+        `dateCloture` à la clôture, ajoute une entrée d'historique et émet `ticket:modifie`.
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [statut]
+              properties:
+                statut:
+                  $ref: '#/components/schemas/Statut'
+                motif:
+                  type: string
+                  maxLength: 500
+                  description: Obligatoire pour `ABANDONNE`, facultatif sinon.
+                cause:
+                  type: string
+                  maxLength: 500
+                  description: Obligatoire pour `TERMINE`.
+                solution:
+                  type: string
+                  maxLength: 500
+                  description: Obligatoire pour `TERMINE`.
+      responses:
+        '200':
+          description: Ticket mis à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Statut inconnu, transition non autorisée, motif ou résolution manquants.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Transition de statut non autorisée
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '409':
+          description: Le statut a changé entre la lecture et l'écriture (action d'un collègue).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Le ticket a été modifié entre-temps : rechargez-le'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -677,3 +776,46 @@ components:
               $ref: '#/components/schemas/Personne'
             technicien:
               $ref: '#/components/schemas/Personne'
+            updatedAt:
+              type: string
+              format: date-time
+              description: Dernière modification.
+            datePriseEnCharge:
+              type: string
+              format: date-time
+              nullable: true
+            vuParSupportLe:
+              type: string
+              format: date-time
+              nullable: true
+              description: Jalon « Vu par le support » (première ouverture par un GESTIONNAIRE).
+            dateCloture:
+              type: string
+              format: date-time
+              nullable: true
+              description: Passage à `TERMINE` ou `ABANDONNE`.
+            resolution:
+              type: object
+              nullable: true
+              description: Remplie au passage à `TERMINE` (cadrage 9.9).
+              properties:
+                cause:
+                  type: string
+                solution:
+                  type: string
+                auteur:
+                  $ref: '#/components/schemas/Personne'
+                date:
+                  type: string
+                  format: date-time
+            motifAbandon:
+              type: string
+              nullable: true
+              description: Présent seulement pour un ticket `ABANDONNE`.
+            transitionsPossibles:
+              type: array
+              description: >-
+                Statuts proposés dans le menu « Changer le statut ». Renvoyé seulement au
+                GESTIONNAIRE et à l'ADMIN.
+              items:
+                $ref: '#/components/schemas/Statut'
