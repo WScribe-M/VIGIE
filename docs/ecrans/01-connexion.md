@@ -1,6 +1,6 @@
 # 01 — Connexion
 
-Route : `/connexion` · Rôles : tous · Story : VIGIE-2 (fonctionnement fait, mise en forme à reprendre)
+Route : `/connexion` · Rôles : tous · Stories : VIGIE-2 (fonctionnement), VIGIE-49 (mise en forme selon cette fiche)
 
 | Normal                                 | Erreur                                | Chargement                                | Indisponible                                |
 | -------------------------------------- | ------------------------------------- | ----------------------------------------- | ------------------------------------------- |
@@ -52,3 +52,7 @@ Grille 2 colonnes : `600px minmax(0, 1fr)`.
 - « Mot de passe oublié ? », « Rester connectée sur ce poste » et « Il vous reste 3 tentatives avant le blocage
   temporaire du compte » ne correspondent à aucune règle ni story : **ne pas les afficher** sans story.
 - L'encart « En direct » dépend de l'État des services, intégré à **VIGIE-42** (cadrage 9.8) : masqué tant que cette story n'est pas livrée.
+- **Choix de VIGIE-49** (20/11) : l’API est vérifiée à l’ouverture (`/api/health`) et en cas d’erreur réseau ou
+  serveur ; dans l’état « injoignable », nouvel essai automatique toutes les 10 s. Champ vide : message sous le
+  champ (« Indiquez votre adresse e-mail. », « Indiquez votre mot de passe. », textes ajoutés, absents de la
+  maquette). Sous 768 px, le panneau devient un bandeau (logo et promesse, sans l’accroche).

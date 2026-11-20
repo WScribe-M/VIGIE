@@ -4,20 +4,8 @@ import { NavLink } from 'react-router';
 import { TAILLE_ICONE, TRAIT_ICONE } from '../styles/icones.js';
 import { LIBELLES_ROLE } from '../styles/libelles.js';
 import { Avatar } from './Avatar.jsx';
+import { Logo } from './Logo.jsx';
 import styles from './Sidebar.module.css';
-
-// Symbole du logo : le V est un faisceau, le point la vigie qui guette (docs/ecrans/composants.md, Identité)
-function Logo() {
-  return (
-    <span className={styles.logo}>
-      <svg viewBox="0 0 24 24" className={styles.symbole} aria-hidden="true">
-        <polygon points="0,0 3.6,0 12,16.8 20.4,0 24,0 12,24" />
-        <circle cx="12" cy="2.8" r="2.8" />
-      </svg>
-      vigie
-    </span>
-  );
-}
 
 /**
  * Barre latérale par rôle (docs/ecrans/composants.md, capture composants-03-barre-laterale-et-en-tete).
@@ -30,7 +18,7 @@ function Logo() {
 export function Sidebar({ entrees, utilisateur, onDeconnexion }) {
   return (
     <nav className={styles.barre} aria-label="Navigation principale">
-      <Logo />
+      <Logo className={styles.logo} />
 
       {entrees.map((entree) => {
         const Icone = entree.icone;

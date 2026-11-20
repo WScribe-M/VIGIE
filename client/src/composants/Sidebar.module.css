@@ -12,23 +12,10 @@
   background: var(--color-neutral-900);
 }
 
+/* Logo (composant Logo) : marges et taille propres à la barre latérale */
 .logo {
   padding: 0 8px 28px;
   font-size: 28px;
-  line-height: 1;
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  color: var(--color-neutral-50);
-  white-space: nowrap;
-}
-
-.symbole {
-  display: inline-block;
-  width: 0.7em;
-  height: 0.7em;
-  margin-right: 0.1em;
-  vertical-align: baseline;
-  fill: var(--color-brand-100);
 }
 
 .section {
