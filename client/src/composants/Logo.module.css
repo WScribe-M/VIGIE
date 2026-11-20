@@ -1,0 +1,18 @@
+/* Logo « vigie » : sur fond sombre (barre latérale, panneau de connexion) */
+
+.logo {
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: var(--color-neutral-50);
+  white-space: nowrap;
+}
+
+.symbole {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.1em;
+  vertical-align: baseline;
+  fill: var(--color-brand-100);
+}

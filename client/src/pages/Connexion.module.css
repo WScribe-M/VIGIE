@@ -1,0 +1,183 @@
+/* Connexion (docs/ecrans/01-connexion.md) : panneau Pétrole à gauche, formulaire centré à droite */
+
+.page {
+  display: grid;
+  grid-template-columns: 600px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* Panneau gauche : logo en haut, promesse au milieu (l'encart « En direct » viendra en bas) */
+.panneau {
+  display: flex;
+  flex-direction: column;
+  padding: 56px;
+  background: var(--color-brand-600);
+  color: var(--color-neutral-50);
+}
+
+.logo {
+  font-size: 40px;
+}
+
+.promesse {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-5);
+}
+
+.titrePromesse {
+  max-width: 440px;
+  margin: 0;
+  font-size: 52px;
+  line-height: 58px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.accroche {
+  max-width: 440px;
+  margin: 0;
+  font-size: 17px;
+  line-height: 26px;
+  color: var(--color-brand-200);
+}
+
+/* Colonne droite : formulaire de 400 px centré */
+.colonne {
+  display: grid;
+  place-items: center;
+  padding: var(--space-8) var(--space-6);
+}
+
+.formulaire,
+.indisponible {
+  display: flex;
+  flex-direction: column;
+  width: min(400px, 100%);
+}
+
+.formulaire {
+  gap: 28px;
+}
+
+.entete {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.entete h1,
+.sousTitre {
+  margin: 0;
+}
+
+.sousTitre {
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--color-neutral-600);
+}
+
+.champs {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bandeau {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: var(--space-3) 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-feedback-danger-bg);
+  color: var(--color-feedback-danger-fg);
+  font-size: 14px;
+}
+
+/* Bouton œil dans le champ mot de passe : plus petit que le champ de 44 px */
+.oeil {
+  width: 32px;
+  height: 32px;
+  color: var(--color-neutral-600);
+}
+
+/* Bouton principal pleine largeur, 48 px */
+.bouton {
+  width: 100%;
+  height: 48px;
+  font-size: 15px;
+}
+
+/* API injoignable */
+.indisponible {
+  gap: var(--space-3);
+}
+
+.iconeIndisponible {
+  color: var(--color-feedback-danger-fg);
+}
+
+.titreIndisponible {
+  margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.texteIndisponible {
+  margin: 0 0 var(--space-2);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-neutral-700);
+}
+
+/* Écrans moyens : panneau plus étroit */
+@media (max-width: 1100px) {
+  .page {
+    grid-template-columns: 420px minmax(0, 1fr);
+  }
+
+  .panneau {
+    padding: var(--space-10);
+  }
+
+  .titrePromesse {
+    font-size: 40px;
+    line-height: 46px;
+  }
+}
+
+/* Mobile (fiche 14) : une colonne, le panneau devient un bandeau avec le logo et la promesse */
+@media (max-width: 768px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+
+  .panneau {
+    gap: var(--space-4);
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .logo {
+    font-size: 28px;
+  }
+
+  .titrePromesse {
+    font-size: 26px;
+    line-height: 32px;
+  }
+
+  .accroche {
+    display: none;
+  }
+
+  .colonne {
+    align-items: start;
+    padding: var(--space-8) var(--space-4);
+  }
+}
