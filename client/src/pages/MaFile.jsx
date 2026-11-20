@@ -24,7 +24,6 @@ import styles from './MaFile.module.css';
 // Les données viennent de GET /api/tickets/ma-file ; la page se recharge à chaque ticket créé ou
 // modifié (room support), l'API restant la source de vérité.
 
-const CLE_DENSITE = 'vigie.densite-ma-file';
 // L'étiquette « Nouveau · à l'instant » reste une minute sur une ligne arrivée en direct
 const DUREE_NOUVEAU = 60 * 1000;
 
@@ -48,14 +47,6 @@ const SECTIONS = [
     colonneSla: 'Ancienneté',
   },
 ];
-
-function lireDensite() {
-  try {
-    return localStorage.getItem(CLE_DENSITE) ?? 'confort';
-  } catch {
-    return 'confort';
-  }
-}
 
 // Texte du badge SLA : « reste 28 min », « de 3 h » (en retard), « depuis 4 j » (suspendu)
 function detailSla(sla, minutesParJour) {
@@ -195,7 +186,6 @@ export function MaFile() {
   const [erreur, setErreur] = useState(false);
   const [majLe, setMajLe] = useState(null);
   const [connecte, setConnecte] = useState(socket.connected);
-  const [densite, setDensite] = useState(lireDensite);
   const [nouveaux, setNouveaux] = useState(new Set());
   const idsConnus = useRef(null);
 
@@ -242,15 +232,6 @@ export function MaFile() {
       socket.off('disconnect', surDeconnexion);
     };
   }, [charger]);
-
-  function changerDensite(valeur) {
-    setDensite(valeur);
-    try {
-      localStorage.setItem(CLE_DENSITE, valeur);
-    } catch {
-      // Préférence non retenue (navigation privée) : sans conséquence
-    }
-  }
 
   const enDirect = (
     <span className={styles.enDirect}>
@@ -335,28 +316,11 @@ export function MaFile() {
   return (
     <>
       <PageHeader gauche={enDirect} />
-      <div className={`${styles.page} ${densite === 'dense' ? styles.dense : ''}`}>
+      <div className={styles.page}>
+        {/* Décision du 20/11 : une seule densité (« Confort », lignes de 52 px), pas de sélecteur */}
         <div className={styles.entete}>
-          <div>
-            <h1 className="text-display-lg">Ma file</h1>
-            <p className={styles.sousTitre}>triée par échéance, puis par priorité</p>
-          </div>
-          <div className={styles.segments} role="group" aria-label="Densité de la liste">
-            {[
-              ['confort', 'Confort'],
-              ['dense', 'Dense'],
-            ].map(([valeur, libelle]) => (
-              <button
-                key={valeur}
-                type="button"
-                className={styles.segment}
-                aria-pressed={densite === valeur}
-                onClick={() => changerDensite(valeur)}
-              >
-                {libelle}
-              </button>
-            ))}
-          </div>
+          <h1 className="text-display-lg">Ma file</h1>
+          <p className={styles.sousTitre}>triée par échéance, puis par priorité</p>
         </div>
 
         {/* Temps réel coupé : la liste reste affichée avec son heure (fiche 07, état erreur) */}

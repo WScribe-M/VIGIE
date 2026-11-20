@@ -51,7 +51,6 @@ Contenu, colonne, écart 24 :
 ## Textes exacts
 
 - Sous-titre : « triée par échéance, puis par priorité »
-- Segments : « Confort » · « Dense »
 - KPI : « À prendre » (`inbox`, « dont 2 Critique ») · « Mes tickets en cours » (`loader-circle`) · « Alertes SLA » (`clock`, « 1 en retard · 1 échéance proche ») · « En attente du demandeur » (`message-circle-question`, « le plus ancien : depuis 4 j »)
 - Sections : « À prendre » · « Mes tickets en cours » (« par échéance, puis par priorité ») · « En attente du demandeur » (« délai suspendu · relancez au-delà de 3 jours »)
 - Colonnes : « N° » · « Titre » · « Statut » · « Priorité » · « Échéance » / « Résolution » / « Ancienneté » · « Demandeur »
@@ -79,3 +78,5 @@ Contenu, colonne, écart 24 :
 - **Pas de « Prendre en charge » dans la liste ni dans le toast** (décision du 20/11) : aucun bouton dans les
   lignes : **un clic sur la ligne ouvre le ticket** ; le technicien lit le ticket puis s’assigne depuis la fiche (« Prendre en charge », VIGIE-7).
   Le toast informe seulement (« Ouvrir »).
+- **Une seule densité** (décision du 20/11) : pas de groupe segmenté « Confort / Dense » ; les lignes ont la
+  hauteur « Confort » (52 px).
