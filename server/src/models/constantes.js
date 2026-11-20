@@ -34,3 +34,5 @@ export const TYPES_NOTIFICATION = [
   'ALERTE_SLA',
   'RELANCE',
 ];
+
+export const NOM_SERVICE_AUTRE = 'Autre / je ne sais pas';

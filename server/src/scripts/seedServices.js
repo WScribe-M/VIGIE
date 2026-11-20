@@ -1,3 +1,4 @@
+import { NOM_SERVICE_AUTRE } from '../models/constantes.js';
 import mongoose from 'mongoose';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +10,7 @@ export const SERVICES_INITIAUX = [
   { nom: 'ERP', domaine: 'APPLICATIF' },
   { nom: 'Imprimante', domaine: 'INFRASTRUCTURE' },
   { nom: 'Poste de travail', domaine: 'INFRASTRUCTURE' },
-  { nom: 'Autre / je ne sais pas', domaine: 'A_QUALIFIER' },
+  { nom: NOM_SERVICE_AUTRE, domaine: 'A_QUALIFIER' },
 ];
 
 export async function initialiserServices(modele = Service) {

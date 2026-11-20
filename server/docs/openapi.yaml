@@ -1,52 +1,64 @@
-# Documentation de l'API VIGIE, affichée sur /api/docs (Swagger UI).
-# Règle de la Definition of Done : toute route ajoutée ou modifiée est décrite ici, dans la même PR.
-# Les valeurs autorisées (enum) doivent rester identiques à server/src/models/constantes.js :
-# un test (src/docs/openapi.test.js) le vérifie.
 openapi: 3.0.3
 info:
   title: API VIGIE
   version: 0.1.0
-  description: |
+  description: >
     API REST de VIGIE, application de gestion d'incidents IT.
 
-    **Authentification** : se connecter avec `POST /auth/connexion`, copier le `jeton` reçu,
-    puis cliquer sur **Authorize** et le coller. Toutes les routes exigent ce jeton,
+
+    **Authentification** : se connecter avec `POST /auth/connexion`, copier le
+    `jeton` reçu,
+
+    puis cliquer sur **Authorize** et le coller. Toutes les routes exigent ce
+    jeton,
+
     sauf celles marquées sans cadenas.
 
+
     **Règles communes à toutes les routes protégées**
+
     - sans jeton, ou jeton invalide ou expiré : `401` ;
-    - le rôle `LECTEUR` est en lecture seule : toute requête autre que `GET` répond `403` ;
+
+    - le rôle `LECTEUR` est en lecture seule : toute requête autre que `GET`
+    répond `403` ;
+
     - une adresse inconnue répond `404`.
 
-    **Erreurs** : toujours au format `{ "message": "…" }`, sans détail technique.
+
+    **Erreurs** : toujours au format `{ "message": "…" }`, sans détail
+    technique.
 servers:
   - url: /api
 tags:
   - name: Système
   - name: Authentification
+  - name: Services
+    description: Catalogue des services IT
 security:
   - bearerAuth: []
-
 paths:
   /health:
     get:
-      tags: [Système]
+      tags:
+        - Système
       summary: État de l'API et de la base
       security: []
       responses:
-        '200':
+        "200":
           description: L'API répond.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EtatApi'
-
+                $ref: "#/components/schemas/EtatApi"
   /auth/connexion:
     post:
-      tags: [Authentification]
+      tags:
+        - Authentification
       summary: Se connecter et obtenir un jeton
-      description: |
-        Le même message est renvoyé pour un e-mail inconnu, un mauvais mot de passe ou un compte
+      description: >
+        Le même message est renvoyé pour un e-mail inconnu, un mauvais mot de
+        passe ou un compte
+
         désactivé, pour ne pas révéler quels e-mails ont un compte.
       security: []
       requestBody:
@@ -54,46 +66,154 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Identifiants'
+              $ref: "#/components/schemas/Identifiants"
       responses:
-        '200':
+        "200":
           description: Connexion réussie.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Connexion'
-        '400':
+                $ref: "#/components/schemas/Connexion"
+        "400":
           description: E-mail ou mot de passe manquant, ou corps JSON mal formé.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Erreur'
+                $ref: "#/components/schemas/Erreur"
               example:
                 message: E-mail et mot de passe requis
-        '401':
+        "401":
           description: Identifiants incorrects ou compte désactivé.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Erreur'
+                $ref: "#/components/schemas/Erreur"
               example:
                 message: Identifiants incorrects
-
   /auth/moi:
     get:
-      tags: [Authentification]
+      tags:
+        - Authentification
       summary: Profil de l'utilisateur connecté
-      description: Identité lue dans le jeton ; sert à restaurer la session au rechargement de la page.
+      description: Identité lue dans le jeton ; sert à restaurer la session au
+        rechargement de la page.
       responses:
-        '200':
+        "200":
           description: Profil de l'utilisateur connecté.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Utilisateur'
-        '401':
-          $ref: '#/components/responses/NonAuthentifie'
-
+                $ref: "#/components/schemas/Utilisateur"
+        "401":
+          $ref: "#/components/responses/NonAuthentifie"
+  /services:
+    get:
+      tags:
+        - Services
+      summary: Lister les services actifs, avec Autre en dernier
+      responses:
+        "200":
+          description: Liste des services.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+        "401":
+          $ref: "#/components/responses/NonAuthentifie"
+    post:
+      tags:
+        - Services
+      summary: Cr?er un service (ADMIN)
+      description: Le nom doit ?tre unique sans distinction de casse. Le service Autre
+        conserve le domaine A_QUALIFIER.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nom
+                - domaine
+              additionalProperties: false
+              properties:
+                nom:
+                  type: string
+                  minLength: 1
+                domaine:
+                  $ref: "#/components/schemas/Service/properties/domaine"
+      responses:
+        "201":
+          description: Service cr??.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "400":
+          description: Donn?es invalides.
+        "401":
+          $ref: "#/components/responses/NonAuthentifie"
+        "403":
+          $ref: "#/components/responses/Interdit"
+        "409":
+          description: Nom de service d?j? utilis?.
+  /services/admin:
+    get:
+      tags:
+        - Services
+      summary: Lister tous les services, y compris d?sactiv?s (ADMIN)
+      responses:
+        "403":
+          $ref: "#/components/responses/Interdit"
+  /services/{id}:
+    patch:
+      tags:
+        - Services
+      summary: Modifier ou d?sactiver un service (ADMIN)
+      description: Le service Autre ne peut ?tre ni renomm? ni d?sactiv? et doit
+        conserver A_QUALIFIER.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Identifiant MongoDB du service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              additionalProperties: false
+              properties:
+                nom:
+                  type: string
+                  minLength: 1
+                domaine:
+                  $ref: "#/components/schemas/Service/properties/domaine"
+                actif:
+                  type: boolean
+      responses:
+        "200":
+          description: Service modifi?.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "400":
+          description: Identifiant ou donn?es invalides, ou r?gle du service Autre viol?e.
+        "401":
+          $ref: "#/components/responses/NonAuthentifie"
+        "403":
+          $ref: "#/components/responses/Interdit"
+        "404":
+          $ref: "#/components/responses/Introuvable"
+        "409":
+          description: Nom de service d?j? utilis?.
 components:
   securitySchemes:
     bearerAuth:
@@ -101,14 +221,13 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Jeton reçu à la connexion (valable 8 h par défaut, `JWT_EXPIRES_IN`).
-
   responses:
     NonAuthentifie:
       description: Jeton absent, invalide ou expiré, ou compte désactivé.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Erreur'
+            $ref: "#/components/schemas/Erreur"
           example:
             message: Authentification requise
     Interdit:
@@ -116,7 +235,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Erreur'
+            $ref: "#/components/schemas/Erreur"
           example:
             message: Accès interdit
     Introuvable:
@@ -124,22 +243,24 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Erreur'
+            $ref: "#/components/schemas/Erreur"
           example:
             message: Ressource introuvable
-
   schemas:
     Erreur:
       type: object
-      required: [message]
+      required:
+        - message
       properties:
         message:
           type: string
-
     Role:
       type: string
-      enum: [ADMIN, GESTIONNAIRE, CLIENT, LECTEUR]
-
+      enum:
+        - ADMIN
+        - GESTIONNAIRE
+        - CLIENT
+        - LECTEUR
     EtatApi:
       type: object
       properties:
@@ -148,11 +269,16 @@ components:
           example: ok
         database:
           type: string
-          enum: [déconnectée, connectée, connexion en cours, déconnexion en cours]
-
+          enum:
+            - déconnectée
+            - connectée
+            - connexion en cours
+            - déconnexion en cours
     Identifiants:
       type: object
-      required: [email, motDePasse]
+      required:
+        - email
+        - motDePasse
       properties:
         email:
           type: string
@@ -161,7 +287,6 @@ components:
         motDePasse:
           type: string
           format: password
-
     Utilisateur:
       type: object
       description: Profil public ; le mot de passe n'est jamais renvoyé.
@@ -177,8 +302,7 @@ components:
           type: string
           format: email
         role:
-          $ref: '#/components/schemas/Role'
-
+          $ref: "#/components/schemas/Role"
     Connexion:
       type: object
       properties:
@@ -186,4 +310,29 @@ components:
           type: string
           description: "JWT à envoyer dans l'en-tête `Authorization: Bearer <jeton>`."
         utilisateur:
-          $ref: '#/components/schemas/Utilisateur'
+          $ref: "#/components/schemas/Utilisateur"
+    Service:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 665a1f0c2b7e4a0012345678
+        nom:
+          type: string
+          example: VPN
+        domaine:
+          type: string
+          enum:
+            - RESEAU
+            - INFRASTRUCTURE
+            - APPLICATIF
+            - BASE_DE_DONNEES
+            - A_QUALIFIER
+        actif:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

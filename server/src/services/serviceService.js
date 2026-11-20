@@ -1,18 +1,16 @@
 import mongoose from 'mongoose';
+import { ErreurHttp } from '../utils/ErreurHttp.js';
 import { Service } from '../models/Service.js';
-import { DOMAINES } from '../models/constantes.js';
+import { DOMAINES, NOM_SERVICE_AUTRE } from '../models/constantes.js';
 
 // Le service « Autre » doit toujours déclencher une qualification.
-const NOM_AUTRE = 'Autre / je ne sais pas';
+const NOM_AUTRE = NOM_SERVICE_AUTRE;
 const DOMAINE_A_QUALIFIER = 'A_QUALIFIER';
 
-function erreurMetier(status, message) {
-  return Object.assign(new Error(message), { status });
-}
 
 function verifierNom(nom) {
   if (typeof nom !== 'string' || !nom.trim()) {
-    throw erreurMetier(400, 'Le nom du service est obligatoire');
+    throw new ErreurHttp(400, 'Le nom du service est obligatoire');
   }
 
   return nom.trim();
@@ -20,7 +18,7 @@ function verifierNom(nom) {
 
 function verifierDomaine(domaine) {
   if (!DOMAINES.includes(domaine)) {
-    throw erreurMetier(400, 'Domaine technique invalide');
+    throw new ErreurHttp(400, 'Domaine technique invalide');
   }
 
   return domaine;
@@ -28,31 +26,31 @@ function verifierDomaine(domaine) {
 
 function verifierIdentifiant(id) {
   if (!mongoose.isValidObjectId(id)) {
-    throw erreurMetier(400, 'Identifiant de service invalide');
+    throw new ErreurHttp(400, 'Identifiant de service invalide');
   }
 }
 
 function verifierChamps(donnees, champsAutorises) {
   if (!donnees || typeof donnees !== 'object' || Array.isArray(donnees)) {
-    throw erreurMetier(400, 'Données invalides');
+    throw new ErreurHttp(400, 'Données invalides');
   }
 
   const champs = Object.keys(donnees);
 
   if (champs.length === 0 || champs.some((champ) => !champsAutorises.includes(champ))) {
-    throw erreurMetier(400, 'Champs du service invalides');
+    throw new ErreurHttp(400, 'Champs du service invalides');
   }
 }
 
 function verifierServiceAutre(nom, domaine) {
   if (nom === NOM_AUTRE && domaine !== DOMAINE_A_QUALIFIER) {
-    throw erreurMetier(400, 'Le service Autre doit conserver le domaine A_QUALIFIER');
+    throw new ErreurHttp(400, 'Le service Autre doit conserver le domaine A_QUALIFIER');
   }
 }
 
 function convertirErreurDoublon(erreur) {
   if (erreur.code === 11000) {
-    throw erreurMetier(409, 'Un service portant ce nom existe déjà');
+    throw new ErreurHttp(409, 'Un service portant ce nom existe déjà');
   }
 
   throw erreur;
@@ -98,7 +96,7 @@ export async function modifierService(id, modifications, modele = Service) {
   const service = await modele.findById(id);
 
   if (!service) {
-    throw erreurMetier(404, 'Service introuvable');
+    throw new ErreurHttp(404, 'Service introuvable');
   }
 
   const nom = modifications.nom === undefined ? service.nom : verifierNom(modifications.nom);
@@ -108,17 +106,17 @@ export async function modifierService(id, modifications, modele = Service) {
 
   // Le service « Autre » est une valeur métier réservée.
   if (service.nom === NOM_AUTRE && nom !== NOM_AUTRE) {
-    throw erreurMetier(400, 'Le nom du service Autre ne peut pas être modifié');
+    throw new ErreurHttp(400, 'Le nom du service Autre ne peut pas être modifié');
   }
 
   verifierServiceAutre(nom, domaine);
 
   if (modifications.actif !== undefined && typeof modifications.actif !== 'boolean') {
-    throw erreurMetier(400, 'Le champ actif doit être un booléen');
+    throw new ErreurHttp(400, 'Le champ actif doit être un booléen');
   }
   // Le service « Autre » ne peut pas être désactivé.
   if (service.nom === NOM_AUTRE && modifications.actif === false) {
-    throw erreurMetier(400, 'Le service Autre ne peut pas être désactivé');
+    throw new ErreurHttp(400, 'Le service Autre ne peut pas être désactivé');
   }
   service.nom = nom;
   service.domaine = domaine;
@@ -141,11 +139,11 @@ export async function deduireDomaine(serviceId, modele = Service) {
   const service = await modele.findById(serviceId);
 
   if (!service) {
-    throw erreurMetier(404, 'Service introuvable');
+    throw new ErreurHttp(404, 'Service introuvable');
   }
 
   if (!service.actif) {
-    throw erreurMetier(400, 'Ce service est désactivé');
+    throw new ErreurHttp(400, 'Ce service est désactivé');
   }
 
   return service.domaine;
