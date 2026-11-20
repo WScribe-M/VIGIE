@@ -1,4 +1,4 @@
-import { CircleAlert } from 'lucide-react';
+import { ChevronDown, CircleAlert } from 'lucide-react';
 import { useId } from 'react';
 import { TRAIT_ICONE } from '../styles/icones.js';
 import styles from './Champs.module.css';
@@ -79,6 +79,42 @@ export function TextField({
         {...proprietesCommunes(id, { obligatoire, aide, compteur, erreur, grand })}
         {...props}
       />
+    </Cadre>
+  );
+}
+
+/**
+ * Liste déroulante : un <select> natif, dont le navigateur gère le clavier et l'annonce au lecteur
+ * d'écran. `apercu` : ce qu'on affiche à la place du texte de l'option choisie, par exemple un
+ * PriorityBadge (capture composants-03-modales) ; il est posé au-dessus du <select>, qui reste
+ * dessous pour recevoir les clics. Les options sont passées en enfants (<option>).
+ */
+export function Select({ libelle, obligatoire, facultatif, aide, erreur, apercu, ...props }) {
+  const id = useId();
+  const communes = proprietesCommunes(id, { obligatoire, aide, erreur });
+  return (
+    <Cadre {...{ id, libelle, obligatoire, facultatif, aide, erreur }}>
+      <div className={styles.selection}>
+        <select
+          {...communes}
+          className={[communes.className, styles.liste, apercu && styles.avecApercu]
+            .filter(Boolean)
+            .join(' ')}
+          {...props}
+        />
+        {apercu && (
+          // Déjà annoncé par le <select> : on ne le lit pas deux fois
+          <span className={styles.apercu} aria-hidden="true">
+            {apercu}
+          </span>
+        )}
+        <ChevronDown
+          size={16}
+          strokeWidth={TRAIT_ICONE}
+          className={styles.chevron}
+          aria-hidden="true"
+        />
+      </div>
     </Cadre>
   );
 }

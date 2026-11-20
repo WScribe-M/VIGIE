@@ -4,6 +4,7 @@ import {
   Check,
   CircleAlert,
   Clock,
+  Flag,
   History,
   Layers,
   Ticket,
@@ -17,7 +18,7 @@ import { useAuth } from '../auth/AuthContext.jsx';
 import { MENU_PAR_ROLE } from '../auth/roles.js';
 import { Avatar } from '../composants/Avatar.jsx';
 import { Button } from '../composants/Button.jsx';
-import { TextArea } from '../composants/Champs.jsx';
+import { Select, TextArea } from '../composants/Champs.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
 import { MenuStatut } from '../composants/MenuStatut.jsx';
 import { Modal } from '../composants/Modal.jsx';
@@ -26,7 +27,7 @@ import { PriorityBadge } from '../composants/PriorityBadge.jsx';
 import { ProgressTracker } from '../composants/ProgressTracker.jsx';
 import { StatusBadge } from '../composants/StatusBadge.jsx';
 import { IconeService, TRAIT_ICONE } from '../styles/icones.js';
-import { LIBELLES_DOMAINE } from '../styles/libelles.js';
+import { LIBELLES_DOMAINE, LIBELLES_PRIORITE } from '../styles/libelles.js';
 import { socket } from '../tempsReel/socket.js';
 import { formaterDateHeure, formaterEcheance } from '../utils/dates.js';
 import styles from './FicheTicket.module.css';
@@ -36,6 +37,10 @@ import styles from './FicheTicket.module.css';
 
 const ROLES_SUPPORT = ['GESTIONNAIRE', 'ADMIN'];
 const TEXTE_MAX = 500;
+// Requalification (VIGIE-5) : mêmes règles que le serveur (prioriteService), vérifiées ici pour
+// répondre tout de suite ; le serveur reste celui qui décide
+const MOTIF_MIN = 10;
+const STATUTS_CLOS = ['TERMINE', 'ABANDONNE'];
 const ICONE_16 = { size: 16, strokeWidth: TRAIT_ICONE, 'aria-hidden': true };
 
 const nomComplet = (personne) => (personne ? `${personne.prenom} ${personne.nom}` : '');
@@ -146,6 +151,16 @@ function ActionsSupport({ ticket, utilisateur, onAction, enCours }) {
           onChoisir={(statut) => onAction('statut', statut)}
         />
       )}
+      {!STATUTS_CLOS.includes(ticket.statut) && (
+        <Button
+          variante="secondaire"
+          icone={Flag}
+          disabled={Boolean(enCours)}
+          onClick={() => onAction('priorite')}
+        >
+          Requalifier la priorité
+        </Button>
+      )}
     </div>
   );
 }
@@ -157,9 +172,9 @@ export function FicheTicket() {
   const [ticket, setTicket] = useState(null);
   const [erreur, setErreur] = useState(null); // 'introuvable' | 'reseau'
   const [erreurAction, setErreurAction] = useState(null);
-  const [enCours, setEnCours] = useState(null); // action en cours : 'prise' | 'statut'
-  const [modale, setModale] = useState(null); // 'TERMINE' | 'ABANDONNE'
-  const [saisie, setSaisie] = useState({ cause: '', solution: '', motif: '' });
+  const [enCours, setEnCours] = useState(null); // action en cours : 'prise' | 'statut' | 'priorite'
+  const [modale, setModale] = useState(null); // 'TERMINE' | 'ABANDONNE' | 'PRIORITE'
+  const [saisie, setSaisie] = useState({ cause: '', solution: '', motif: '', priorite: '' });
   const [erreursSaisie, setErreursSaisie] = useState({});
 
   const support = ROLES_SUPPORT.includes(utilisateur.role);
@@ -217,6 +232,12 @@ export function FicheTicket() {
   function surAction(type, statut) {
     if (type === 'prise') {
       executer('prise', `/tickets/${id}/prise-en-charge`, { methode: 'POST' });
+    } else if (type === 'priorite') {
+      // La liste part de la priorité actuelle, comme sur la capture
+      setSaisie({ cause: '', solution: '', motif: '', priorite: ticket.prioriteFinale });
+      setErreursSaisie({});
+      setErreurAction(null);
+      setModale('PRIORITE');
     } else if (statut === 'TERMINE' || statut === 'ABANDONNE') {
       // Clôture et abandon demandent une saisie : on ouvre la fenêtre correspondante
       setSaisie({ cause: '', solution: '', motif: '' });
@@ -239,6 +260,25 @@ export function FicheTicket() {
     const corps = { statut: modale };
     for (const champ of champs) corps[champ] = saisie[champ];
     const reussi = await executer('statut', `/tickets/${id}/statut`, { methode: 'PATCH', corps });
+    if (reussi) setModale(null);
+  }
+
+  async function confirmerRequalification() {
+    const manquants = {};
+    if (saisie.priorite === ticket.prioriteFinale) {
+      manquants.priorite = 'Le ticket a déjà cette priorité.';
+    }
+    if (saisie.motif.trim().length < MOTIF_MIN) {
+      manquants.motif = `Indiquez un motif (${MOTIF_MIN} caractères minimum).`;
+    }
+    setErreursSaisie(manquants);
+    if (Object.keys(manquants).length) return;
+
+    const corps = { priorite: saisie.priorite, motif: saisie.motif };
+    const reussi = await executer('priorite', `/tickets/${id}/priorite`, {
+      methode: 'PATCH',
+      corps,
+    });
     if (reussi) setModale(null);
   }
 
@@ -448,6 +488,51 @@ export function FicheTicket() {
           obligatoire
           maxLength={TEXTE_MAX}
           placeholder="Demande annulée, doublon de VIG-0042…"
+          value={saisie.motif}
+          onChange={modifierSaisie('motif')}
+          erreur={erreursSaisie.motif}
+        />
+        {erreurAction && <p className={styles.erreurModale}>{erreurAction}</p>}
+      </Modal>
+
+      {/* Requalification (VIGIE-5, fiche 06 et capture composants-03-modales) */}
+      <Modal
+        ouverte={modale === 'PRIORITE'}
+        titre="Requalifier la priorité"
+        onFermer={() => setModale(null)}
+        actions={
+          <>
+            <Button variante="secondaire" onClick={() => setModale(null)}>
+              Annuler
+            </Button>
+            <Button chargement={enCours && 'Requalification…'} onClick={confirmerRequalification}>
+              Requalifier
+            </Button>
+          </>
+        }
+      >
+        <p className={styles.calculee}>
+          Calculée : <PriorityBadge priorite={ticket?.prioriteCalculee} />
+        </p>
+        <Select
+          libelle="Nouvelle priorité"
+          obligatoire
+          value={saisie.priorite}
+          onChange={modifierSaisie('priorite')}
+          erreur={erreursSaisie.priorite}
+          apercu={<PriorityBadge priorite={saisie.priorite} />}
+        >
+          {Object.entries(LIBELLES_PRIORITE).map(([valeur, libelle]) => (
+            <option key={valeur} value={valeur}>
+              {libelle}
+            </option>
+          ))}
+        </Select>
+        <TextArea
+          libelle="Motif"
+          obligatoire
+          maxLength={TEXTE_MAX}
+          placeholder="Expliquez la raison au demandeur…"
           value={saisie.motif}
           onChange={modifierSaisie('motif')}
           erreur={erreursSaisie.motif}

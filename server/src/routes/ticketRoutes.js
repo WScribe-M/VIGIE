@@ -7,6 +7,7 @@ import {
   modifierDomaine,
   modifierStatut,
   prendre,
+  requalifier,
 } from '../controllers/ticketController.js';
 import { autoriser } from '../middlewares/auth.js';
 
@@ -26,3 +27,6 @@ ticketRoutes.patch('/:id/domaine', autoriser('GESTIONNAIRE', 'ADMIN'), modifierD
 // action est tracée dans l'historique avec son auteur
 ticketRoutes.post('/:id/prise-en-charge', autoriser('GESTIONNAIRE', 'ADMIN'), prendre);
 ticketRoutes.patch('/:id/statut', autoriser('GESTIONNAIRE', 'ADMIN'), modifierStatut);
+
+// Requalification de la priorité (VIGIE-5) : le support seul, jamais le demandeur
+ticketRoutes.patch('/:id/priorite', autoriser('GESTIONNAIRE', 'ADMIN'), requalifier);

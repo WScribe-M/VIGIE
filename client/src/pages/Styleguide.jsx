@@ -17,7 +17,7 @@ import {
 import { useState } from 'react';
 import { Avatar } from '../composants/Avatar.jsx';
 import { Button, IconButton } from '../composants/Button.jsx';
-import { TextArea, TextField } from '../composants/Champs.jsx';
+import { Select, TextArea, TextField } from '../composants/Champs.jsx';
 import { ChoiceGroup } from '../composants/ChoiceCard.jsx';
 import { DelayEstimate } from '../composants/DelayEstimate.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
@@ -478,6 +478,18 @@ export function Styleguide() {
           <TextField libelle="Titre" obligatoire erreur="Le titre est obligatoire." />
           <TextField libelle="Quel message d’erreur ?" facultatif disabled />
           <TextArea libelle="Que se passe-t-il ?" obligatoire grand />
+          <Select
+            libelle="Nouvelle priorité"
+            obligatoire
+            defaultValue="CRITIQUE"
+            apercu={<PriorityBadge priorite="CRITIQUE" />}
+          >
+            {Object.entries(LIBELLES_PRIORITE).map(([valeur, libelle]) => (
+              <option key={valeur} value={valeur}>
+                {libelle}
+              </option>
+            ))}
+          </Select>
         </div>
       </Bloc>
 

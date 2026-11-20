@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
-import { DOMAINES, IMPACTS, URGENCES } from '../models/constantes.js';
+import { DOMAINES, IMPACTS, RANG_PRIORITE, URGENCES } from '../models/constantes.js';
 import { Ticket } from '../models/index.js';
 import { emettre, ROOM_PILOTAGE, ROOM_SUPPORT, roomTicket } from '../socket/index.js';
 import { ErreurHttp } from '../utils/ErreurHttp.js';
 import { formaterNumero, prochainNumeroTicket } from './numeroService.js';
-import { calculerPriorite } from './prioriteService.js';
+import { calculerPriorite, verifierRequalification } from './prioriteService.js';
 import { deduireDomaine } from './serviceService.js';
 import { notifierNouveauTicket } from './notificationService.js';
 import { calculerEcheance } from './slaService.js';
@@ -29,7 +29,7 @@ const CHAMPS_CREATION = ['titre', 'description', 'service', 'impact', 'urgence']
 // Lecture d'un ticket et liste : uniquement les champs affichés (CONTRIBUTING, Requêtes MongoDB).
 // Ni commentaires, ni historique, ni pièces jointes : chaque story les ajoutera avec ses droits.
 const CHAMPS_FICHE =
-  'numero titre description service domaine impact urgence prioriteFinale statut dateStatut echeanceSla demandeur technicien createdAt updatedAt dateCloture datePriseEnCharge vuParSupportLe resolution';
+  'numero titre description service domaine impact urgence prioriteCalculee prioriteFinale statut dateStatut echeanceSla demandeur technicien createdAt updatedAt dateCloture datePriseEnCharge vuParSupportLe resolution';
 // Rôles du support : ils font avancer les tickets (une seule équipe, cadrage 3.1)
 const ROLES_SUPPORT = ['GESTIONNAIRE', 'ADMIN'];
 const CHAMPS_LISTE = 'numero titre service statut prioriteFinale echeanceSla createdAt';
@@ -358,4 +358,53 @@ export async function corrigerDomaine(id, domaine, utilisateur) {
     throw err;
   }
   return lireTicket(ticket._id, utilisateur);
+}
+
+// Requalification de la priorité (VIGIE-5) : construit l'écriture à faire. Pure (ticket lu et date
+// fournis) pour être testée sans base de données.
+// - prioriteCalculee ne change pas : elle garde la trace de ce qu'avait déduit la matrice ;
+// - rangPriorite est écrit avec prioriteFinale : findOneAndUpdate ne passe pas par le schéma ;
+// - l'échéance repart de la requalification, avec le délai complet de la nouvelle priorité
+//   (décision du 20/11/2026, cadrage 9.2) ; l'alerte SLA déjà envoyée ne vaut plus pour elle.
+export function preparerRequalification(actuel, donnees, utilisateur, maintenant) {
+  if (STATUTS_CLOS.includes(actuel.statut)) {
+    throw new ErreurHttp(409, 'Ticket clos : la priorité ne peut plus être requalifiée');
+  }
+  const { priorite, motif } = verifierRequalification(actuel.prioriteFinale, donnees);
+  return {
+    // État attendu : si un collègue a requalifié ou clos le ticket entre-temps, rien n'est écrit (409)
+    filtre: { prioriteFinale: actuel.prioriteFinale, statut: { $nin: STATUTS_CLOS } },
+    miseAJour: {
+      $set: {
+        prioriteFinale: priorite,
+        rangPriorite: RANG_PRIORITE[priorite],
+        echeanceSla: calculerEcheance(maintenant, priorite),
+        niveauAlerteSla: 'AUCUNE',
+      },
+      $push: {
+        historique: entreeHistorique(
+          utilisateur,
+          'priorite',
+          actuel.prioriteFinale,
+          priorite,
+          maintenant,
+          motif,
+        ),
+      },
+    },
+  };
+}
+
+// « Requalifier la priorité » (GESTIONNAIRE, ADMIN) : le client ne peut jamais la modifier
+export async function requalifierPriorite(id, donnees, utilisateur) {
+  if (!mongoose.isObjectIdOrHexString(id)) {
+    throw new ErreurHttp(404, 'Ticket introuvable');
+  }
+  const actuel = await Ticket.findById(id).select('statut prioriteFinale').lean();
+  if (!actuel) {
+    throw new ErreurHttp(404, 'Ticket introuvable');
+  }
+  const { filtre, miseAJour } = preparerRequalification(actuel, donnees, utilisateur, new Date());
+  await appliquerTransition(id, filtre, miseAJour);
+  return lireTicket(id, utilisateur);
 }

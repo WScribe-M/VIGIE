@@ -73,6 +73,44 @@
   line-height: 22px;
 }
 
+/* Liste déroulante : flèche native remplacée par un chevron Lucide */
+.selection {
+  position: relative;
+}
+
+.liste {
+  appearance: none;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+/* Le texte de l'option choisie est masqué sous l'aperçu, pas celui des options ouvertes */
+.avecApercu {
+  color: transparent;
+}
+
+.avecApercu option {
+  color: var(--color-neutral-900);
+}
+
+.apercu,
+.chevron {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.apercu {
+  left: var(--space-3);
+  display: flex;
+}
+
+.chevron {
+  right: var(--space-3);
+  color: var(--color-neutral-600);
+}
+
 .enErreur,
 .enErreur:hover {
   border-color: var(--color-danger-button);

@@ -5,8 +5,13 @@ import mongoose from 'mongoose';
 process.env.MONGODB_URI ??= 'mongodb://localhost:27017/vigie-test';
 process.env.JWT_SECRET ??= 'secret-de-test';
 
-const { composerDescription, estimerTicket, preparerTicket, validerCreation } =
-  await import('../../src/services/ticketService.js');
+const {
+  composerDescription,
+  estimerTicket,
+  preparerRequalification,
+  preparerTicket,
+  validerCreation,
+} = await import('../../src/services/ticketService.js');
 const { Ticket } = await import('../../src/models/index.js');
 
 const SERVICE = '665a1f0c2b7e4a0000000051';
@@ -152,5 +157,66 @@ describe('estimerTicket', () => {
   it('refuse un impact ou une urgence invalides', () => {
     assert.throws(() => estimerTicket('ENORME', 'HAUTE'), { status: 400 });
     assert.throws(() => estimerTicket('FORT', undefined), { status: 400 });
+  });
+});
+
+describe('preparerRequalification (VIGIE-5)', () => {
+  const GESTIONNAIRE = { id: '665a1f0c2b7e4a0000000002', role: 'GESTIONNAIRE' };
+  const MOTIF = 'Toute la comptabilité est bloquée';
+  const maintenant = new Date(2026, 10, 20, 16, 0); // vendredi 16 h
+  const actuel = { statut: 'EN_COURS', prioriteFinale: 'MOYENNE' };
+  const preparer = (ticket = actuel, donnees = { priorite: 'CRITIQUE', motif: MOTIF }) =>
+    preparerRequalification(ticket, donnees, GESTIONNAIRE, maintenant);
+
+  it('met à jour la priorité finale et son rang ensemble', () => {
+    const { $set } = preparer().miseAJour;
+    assert.equal($set.prioriteFinale, 'CRITIQUE');
+    assert.equal($set.rangPriorite, 4);
+    // La priorité calculée par la matrice reste celle de la création
+    assert.equal('prioriteCalculee' in $set, false);
+  });
+
+  it('recalcule l’échéance à partir de la requalification (décision du 20/11)', () => {
+    const { $set } = preparer().miseAJour;
+    // Critique = 4 h ouvrées : 2 h vendredi (16 h → 18 h), puis 2 h lundi (9 h → 11 h)
+    assert.deepEqual($set.echeanceSla, new Date(2026, 10, 23, 11, 0));
+    assert.equal($set.niveauAlerteSla, 'AUCUNE');
+  });
+
+  it('trace l’ancienne et la nouvelle valeur, l’auteur, la date et le motif', () => {
+    assert.deepEqual(preparer().miseAJour.$push.historique, {
+      auteur: GESTIONNAIRE.id,
+      champ: 'priorite',
+      ancienneValeur: 'MOYENNE',
+      nouvelleValeur: 'CRITIQUE',
+      motif: MOTIF,
+      date: maintenant,
+    });
+  });
+
+  it('n’écrit que si la priorité lue est toujours là et le ticket pas clos (sinon 409)', () => {
+    assert.deepEqual(preparer().filtre, {
+      prioriteFinale: 'MOYENNE',
+      statut: { $nin: ['TERMINE', 'ABANDONNE'] },
+    });
+  });
+
+  it('refuse un ticket Terminé ou Abandonné (409)', () => {
+    for (const statut of ['TERMINE', 'ABANDONNE']) {
+      assert.throws(() => preparer({ ...actuel, statut }), { status: 409 });
+    }
+  });
+
+  it('accepte un ticket Nouveau ou En attente du demandeur', () => {
+    for (const statut of ['NOUVEAU', 'EN_ATTENTE_DEMANDEUR']) {
+      assert.ok(preparer({ ...actuel, statut }));
+    }
+  });
+
+  it('refuse un motif trop court (400)', () => {
+    assert.throws(() => preparer(actuel, { priorite: 'CRITIQUE', motif: 'urgent' }), {
+      status: 400,
+      message: 'Indiquez un motif (10 caractères minimum).',
+    });
   });
 });

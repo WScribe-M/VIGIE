@@ -6,6 +6,7 @@ import {
   lireTicket,
   listerTickets,
   prendreEnCharge,
+  requalifierPriorite,
 } from '../services/ticketService.js';
 
 // L'utilisateur vient toujours du jeton (req.utilisateur), jamais du corps de la requête
@@ -36,4 +37,8 @@ export async function prendre(req, res) {
 
 export async function modifierStatut(req, res) {
   res.json(await changerStatut(req.params.id, req.body, req.utilisateur));
+}
+
+export async function requalifier(req, res) {
+  res.json(await requalifierPriorite(req.params.id, req.body, req.utilisateur));
 }

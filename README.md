@@ -65,6 +65,25 @@ Données de démonstration : `npm run seed` (à venir, VIGIE-23).
 | `npm run format` | formate le code avec Prettier                                 |
 | `npm test`       | tests du serveur (`node:test`)                                |
 
+## Priorité et délai de résolution
+
+Le demandeur ne choisit pas la priorité : le serveur la calcule à partir de l'impact et de l'urgence
+(`calculerPriorite`, `server/src/services/prioriteService.js`, cadrage 9.1).
+
+| Impact \ Urgence              | Faible (je peux continuer) | Moyenne (mode dégradé) | Haute (je suis bloqué) |
+| ----------------------------- | -------------------------- | ---------------------- | ---------------------- |
+| **Fort** (toute l'entreprise) | Moyenne                    | Haute                  | Critique               |
+| **Moyen** (mon équipe)        | Basse                      | Moyenne                | Haute                  |
+| **Faible** (moi seul)         | Basse                      | Basse                  | Moyenne                |
+
+Délai de résolution (SLA), en heures ouvrées (du lundi au vendredi, de 9 h à 18 h) : Critique 4 h,
+Haute 1 jour, Moyenne 3 jours, Basse 5 jours.
+
+Un gestionnaire ou un administrateur peut **requalifier** la priorité (`PATCH /api/tickets/:id/priorite`),
+avec un motif de 10 caractères minimum. Le ticket garde la priorité calculée et la priorité finale ;
+l'échéance repart de la requalification avec le délai de la nouvelle priorité, et le changement est
+tracé dans l'historique.
+
 ## Structure
 
 ```
