@@ -257,7 +257,9 @@ export function MaFile() {
   const [file, setFile] = useState(null);
   const [erreur, setErreur] = useState(false);
   const [majLe, setMajLe] = useState(null);
-  const [connecte, setConnecte] = useState(socket.connected);
+  // Coupure du temps réel après une première connexion. Au chargement, « pas encore connecté »
+  // n'est pas une coupure : le bandeau ne s'affiche qu'après un vrai « disconnect ».
+  const [coupe, setCoupe] = useState(false);
   const [nouveaux, setNouveaux] = useState(new Set());
   const idsConnus = useRef(null);
 
@@ -289,10 +291,10 @@ export function MaFile() {
   useEffect(() => {
     charger();
     const surConnexion = () => {
-      setConnecte(true);
+      setCoupe(false);
       charger(); // après une coupure, on se resynchronise par l'API
     };
-    const surDeconnexion = () => setConnecte(false);
+    const surDeconnexion = () => setCoupe(true);
     socket.on('ticket:cree', charger);
     socket.on('ticket:modifie', charger);
     socket.on('connect', surConnexion);
@@ -385,7 +387,7 @@ export function MaFile() {
         <h1 className={`text-display-lg ${styles.titrePage}`}>À traiter</h1>
 
         {/* Temps réel coupé : la liste reste affichée avec son heure (fiche 07, état erreur) */}
-        {!connecte && file && (
+        {coupe && file && (
           <div className={styles.coupure} role="status">
             <WifiOff size={18} strokeWidth={TRAIT_ICONE} aria-hidden="true" />
             <span>
