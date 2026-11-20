@@ -9,9 +9,15 @@ import { Service } from '../models/Service.js';
 import { Ticket } from '../models/Ticket.js';
 import { IMPACTS, URGENCES, CANAUX } from '../models/constantes.js';
 import { hacherMotDePasse } from '../services/authService.js';
-import { prochainNumeroTicket } from '../services/numeroService.js';
+import { formaterNumero, prochainNumeroTicket } from '../services/numeroService.js';
 import { calculerPriorite } from '../services/prioriteService.js';
-import { calculerEcheance } from '../services/slaService.js';
+import {
+  ajouterMinutesOuvrees,
+  calculerEcheance,
+  delaiMinutes,
+  minutesOuvreesEntre,
+  niveauSla,
+} from '../services/slaService.js';
 import { composerDescription } from '../services/ticketService.js';
 import { initialiserServices } from './seedServices.js';
 
@@ -141,58 +147,67 @@ export function choisir(valeurs, aleatoire) {
   return valeurs[Math.floor(aleatoire() * valeurs.length)];
 }
 
-export function ajouterHeures(date, heures) {
-  return new Date(date.getTime() + heures * 3600000);
+// Répartition dans le temps : les tickets sont étalés sur six mois d'heures ouvrées, et les derniers
+// sont resserrés sur les trois derniers jours ouvrés pour que « À traiter » ait du contenu frais.
+const RECENTS = 25;
+const JOURS_RECENTS = 3;
+
+// Part des tickets terminés parmi ceux dont le traitement est fini (les autres sont abandonnés)
+const PART_TERMINES = 0.92;
+
+// Relance du demandeur au-delà de 3 jours d'attente (fiche 05, « relance après 3 jours »)
+const DELAI_RELANCE = 3 * 24 * 3600000;
+
+// Date de création, toujours pendant les heures ouvrées : les tickets arrivent quand on travaille.
+export function dateDeCreation(index, contexte) {
+  const { debut, maintenant, aleatoire } = contexte;
+  const total = minutesOuvreesEntre(debut, maintenant);
+  const recents = Math.min(JOURS_RECENTS * (config.sla.fin - config.sla.debut), total);
+  const anciens = total - recents;
+  // Un léger décalage aléatoire évite des arrivées à intervalles parfaitement réguliers
+  const decalage = aleatoire() - 0.5;
+
+  const position =
+    index < TOTAL - RECENTS
+      ? (anciens * (index + 0.5 + decalage)) / (TOTAL - RECENTS)
+      : anciens + (recents * (index - (TOTAL - RECENTS) + 0.5 + decalage)) / RECENTS;
+
+  return ajouterMinutesOuvrees(debut, Math.floor(position));
 }
 
-// Temps écoulé en minutes ouvrées.
-export function minutesOuvreesEntre(debut, fin, horaires = config.sla) {
-  if (fin <= debut) return 0;
-
-  let minutes = 0;
-  const jour = new Date(debut);
-  jour.setHours(0, 0, 0, 0);
-
-  while (jour < fin) {
-    if (horaires.jours.includes(jour.getDay() || 7)) {
-      const ouverture = new Date(jour);
-      ouverture.setMinutes(horaires.debut);
-
-      const fermeture = new Date(jour);
-      fermeture.setMinutes(horaires.fin);
-
-      minutes += Math.max(0, Math.min(fin, fermeture) - Math.max(debut, ouverture)) / 60000;
-    }
-
-    jour.setDate(jour.getDate() + 1);
-  }
-
-  return minutes;
+// Durées en minutes ouvrées, proportionnelles au délai SLA de la priorité : l'attente avant prise en
+// charge vaut 5 à 50 % du délai, le travail ensuite 15 à 75 %. Un ticket sur dix traîne (durées
+// multipliées par 2,5) : ce sont eux qui restent ouverts en retard dans « À traiter ».
+export function tirerDurees(priorite, aleatoire) {
+  const delai = delaiMinutes(priorite);
+  const facteur = aleatoire() < 0.1 ? 2.5 : 1;
+  const prise = Math.round(delai * facteur * (0.05 + aleatoire() * 0.45));
+  const traitement = prise + Math.max(30, Math.round(delai * facteur * (0.15 + aleatoire() * 0.6)));
+  return { prise, traitement };
 }
 
-export function choisirStatut(heuresDisponibles, aleatoire) {
-  const tirage = aleatoire();
+// Le statut découle des durées et de l'âge du ticket (en minutes ouvrées) : un ticket n'est encore
+// NOUVEAU que si personne ne l'a pris en charge, et n'est clos que si son traitement est fini.
+export function statutSelonAge(age, durees, aleatoire) {
+  if (age < durees.prise) return 'NOUVEAU';
+  if (age < durees.traitement) return aleatoire() < 0.2 ? 'EN_ATTENTE_DEMANDEUR' : 'EN_COURS';
+  return aleatoire() < PART_TERMINES ? 'TERMINE' : 'ABANDONNE';
+}
 
-  // Tickets récents : davantage de demandes à traiter.
-  if (heuresDisponibles < 72) {
-    if (tirage < 0.6) return 'NOUVEAU';
-    if (tirage < 0.92) return 'EN_COURS';
-    return 'EN_ATTENTE_DEMANDEUR';
-  }
+// Doublon : un ticket encore ouvert quand le doublon est déclaré (créé avant, pas encore clos),
+// signalé par un autre demandeur.
+function trouverPrincipal(index, creation, demandeur, contexte) {
+  if (index <= 20 || index % 19 !== 0) return null;
 
-  if (heuresDisponibles <= 14 * 24) {
-    if (tirage < 0.38) return 'NOUVEAU';
-    if (tirage < 0.63) return 'EN_COURS';
-    if (tirage < 0.73) return 'EN_ATTENTE_DEMANDEUR';
-    if (tirage < 0.96) return 'TERMINE';
-    return 'ABANDONNE';
-  }
+  const candidats = contexte.ticketsCrees.filter(
+    (ticket) =>
+      !ticket.doublonDe &&
+      ticket.createdAt < creation &&
+      (!ticket.dateCloture || ticket.dateCloture > creation) &&
+      String(ticket.demandeur) !== String(demandeur._id),
+  );
 
-  // Les tickets anciens sont presque tous clôturés.
-  if (tirage < 0.965) return 'TERMINE';
-  if (tirage < 0.99) return 'ABANDONNE';
-  if (tirage < 0.995) return 'EN_COURS';
-  return 'EN_ATTENTE_DEMANDEUR';
+  return candidats.length > 0 ? choisir(candidats, contexte.aleatoire) : null;
 }
 
 export function evenementStatut(auteur, ancienneValeur, nouvelleValeur, date, motif) {
@@ -248,69 +263,58 @@ async function creerUtilisateurs() {
 }
 
 export function creerDonneesTicket(index, contexte) {
-  const { services, clients, techniciens, debut, maintenant, ticketsCrees, aleatoire } = contexte;
+  const { services, clients, techniciens, maintenant, aleatoire } = contexte;
 
-  const service = choisir(services, aleatoire);
-  const [titre, cause, solution] = choisir(SCENARIOS[service.nom], aleatoire);
-
-  const creation = new Date(
-    debut.getTime() + ((maintenant.getTime() - debut.getTime()) * (index + 0.5)) / TOTAL,
-  );
-
-  const heuresDisponibles = (maintenant.getTime() - creation.getTime()) / 3600000;
+  const creation = dateDeCreation(index, contexte);
+  const age = minutesOuvreesEntre(creation, maintenant);
 
   const demandeur = choisir(clients, aleatoire);
+  const ticketPrincipal = trouverPrincipal(index, creation, demandeur, contexte);
+
+  // Un doublon reprend le service et le titre du ticket qu'il rejoint
+  const service = ticketPrincipal
+    ? services.find((s) => String(s._id) === String(ticketPrincipal.service))
+    : choisir(services, aleatoire);
+  const scenario = choisir(SCENARIOS[service.nom], aleatoire);
+  const [titre, cause, solution] = ticketPrincipal ? [ticketPrincipal.titre] : scenario;
+
   const impact = choisir(IMPACTS, aleatoire);
   const urgence = choisir(URGENCES, aleatoire);
   const priorite = calculerPriorite(impact, urgence);
 
-  let statut = choisirStatut(heuresDisponibles, aleatoire);
-
-  // Doublons : même service, autre demandeur, ticket récent non abandonné.
-  const estCandidatDoublon = index > 20 && index % 19 === 0;
-
-  const principaux = estCandidatDoublon
-    ? ticketsCrees.filter(
-        (ticket) =>
-          String(ticket.service) === String(service._id) &&
-          !ticket.doublonDe &&
-          ticket.statut !== 'ABANDONNE' &&
-          (!ticket.demandeur || String(ticket.demandeur) !== String(demandeur._id)) &&
-          (!ticket.createdAt ||
-            creation.getTime() - new Date(ticket.createdAt).getTime() <= 21 * 86400000),
-      )
-    : [];
-
-  const ticketPrincipal = principaux.length > 0 ? choisir(principaux, aleatoire) : null;
+  let durees = tirerDurees(priorite, aleatoire);
+  let statut = statutSelonAge(age, durees, aleatoire);
 
   if (ticketPrincipal) {
+    // Le support repère vite le doublon et le clôt en renvoyant vers le ticket principal
+    const prise = Math.min(durees.prise, Math.floor(age / 2));
+    durees = { prise, traitement: Math.min(prise + 30, age) };
     statut = 'ABANDONNE';
   }
 
+  // Les événements tombent pendant les heures ouvrées, jamais après « maintenant »
+  const placer = (minutes) =>
+    new Date(Math.min(ajouterMinutesOuvrees(creation, minutes), maintenant));
+
   const technicien = statut === 'NOUVEAU' ? null : choisir(techniciens, aleatoire);
-
-  // Durées variables selon la priorité.
-  const delaisParPriorite = {
-    CRITIQUE: { prise: 1, resolution: 6 },
-    HAUTE: { prise: 3, resolution: 18 },
-    MOYENNE: { prise: 8, resolution: 48 },
-    BASSE: { prise: 16, resolution: 120 },
-  };
-
-  const delais = delaisParPriorite[priorite];
-
-  const heuresPriseEnCharge = Math.min(0.25 + aleatoire() * delais.prise, heuresDisponibles / 3);
-
-  const heuresResolution = Math.min(
-    heuresPriseEnCharge + 1 + aleatoire() * delais.resolution,
-    heuresDisponibles * 0.9,
-  );
-
-  const priseEnCharge = ajouterHeures(creation, heuresPriseEnCharge);
-  const finTraitement = ajouterHeures(creation, heuresResolution);
+  const priseEnCharge = technicien ? placer(durees.prise) : null;
+  const finTraitement = placer(durees.traitement);
 
   const termine = statut === 'TERMINE';
   const abandonne = statut === 'ABANDONNE';
+  const enAttente = statut === 'EN_ATTENTE_DEMANDEUR';
+
+  // Mise en attente entre la prise en charge et maintenant
+  const miseEnAttente = enAttente
+    ? placer(durees.prise + Math.max(1, Math.floor((age - durees.prise) * aleatoire())))
+    : null;
+
+  // Une partie des tickets NOUVEAU a déjà été ouverte par le support (« Vu par le support »)
+  const vuParSupportLe = technicien
+    ? priseEnCharge
+    : aleatoire() < 0.5 && age > 0
+      ? placer(Math.floor(age * aleatoire()))
+      : null;
 
   const reouvert =
     termine && index % 13 === 0 && finTraitement.getTime() - priseEnCharge.getTime() > 3 * 3600000;
@@ -348,19 +352,19 @@ export function creerDonneesTicket(index, contexte) {
       evenementStatut(demandeur, 'TERMINE', 'EN_COURS', reouverture, 'Le problème est réapparu'),
       evenementStatut(technicien, 'EN_COURS', 'TERMINE', finTraitement, 'Résolution définitive'),
     );
-  } else if (statut === 'EN_ATTENTE_DEMANDEUR') {
+  } else if (enAttente) {
     historique.push(
       evenementStatut(
         technicien,
         'EN_COURS',
         statut,
-        finTraitement,
+        miseEnAttente,
         'Informations complémentaires demandées',
       ),
     );
   } else if (termine || abandonne) {
     const motif = ticketPrincipal
-      ? `Doublon de VIG-${String(ticketPrincipal.numero).padStart(4, '0')}`
+      ? `Doublon de ${formaterNumero(ticketPrincipal.numero)}`
       : termine
         ? 'Incident résolu'
         : 'Demande abandonnée';
@@ -383,24 +387,24 @@ export function creerDonneesTicket(index, contexte) {
   }
 
   const dateStatut =
-    statut === 'NOUVEAU' ? creation : statut === 'EN_COURS' ? priseEnCharge : finTraitement;
+    {
+      NOUVEAU: creation,
+      EN_COURS: priseEnCharge,
+      EN_ATTENTE_DEMANDEUR: miseEnAttente,
+    }[statut] ?? finTraitement;
+
+  // Relance du demandeur quand l'attente dépasse 3 jours
+  const derniereRelance =
+    enAttente && maintenant - miseEnAttente > DELAI_RELANCE
+      ? new Date(miseEnAttente.getTime() + DELAI_RELANCE)
+      : null;
 
   const echeanceSla = calculerEcheance(creation, priorite);
 
-  let niveauAlerteSla = 'AUCUNE';
-
-  if (!termine && !abandonne && statut !== 'EN_ATTENTE_DEMANDEUR') {
-    const tempsRestant = echeanceSla.getTime() - maintenant.getTime();
-
-    if (tempsRestant < 0) {
-      niveauAlerteSla = 'ROUGE';
-    } else if (
-      minutesOuvreesEntre(creation, maintenant) >=
-      0.75 * minutesOuvreesEntre(creation, echeanceSla)
-    ) {
-      niveauAlerteSla = 'ORANGE';
-    }
-  }
+  // Même lecture du SLA que l'application (niveauSla), traduite en niveau d'alerte enregistré
+  const sla = niveauSla({ statut, dateStatut, echeanceSla, prioriteFinale: priorite }, maintenant);
+  const niveauAlerteSla =
+    { EN_RETARD: 'ROUGE', ECHEANCE_PROCHE: 'ORANGE' }[sla?.niveau] ?? 'AUCUNE';
 
   return {
     titre,
@@ -418,9 +422,10 @@ export function creerDonneesTicket(index, contexte) {
     prioriteFinale: priorite,
     statut,
     dateStatut,
-    datePriseEnCharge: technicien ? priseEnCharge : null,
-    vuParSupportLe: technicien ? priseEnCharge : null,
+    datePriseEnCharge: priseEnCharge,
+    vuParSupportLe,
     dateCloture: termine || abandonne ? finTraitement : null,
+    derniereRelance,
     echeanceSla,
     niveauAlerteSla,
     nbReouvertures: reouvert ? 1 : 0,
@@ -525,11 +530,12 @@ export async function executerSeedDemo() {
     contexte.ticketsCrees.push({
       _id: ticket._id,
       numero: ticket.numero,
+      titre: ticket.titre,
       service: ticket.service,
       doublonDe: ticket.doublonDe,
-      statut: ticket.statut,
       demandeur: ticket.demandeur,
       createdAt: ticket.createdAt,
+      dateCloture: ticket.dateCloture,
     });
 
     if (ticket.doublonDe) {
