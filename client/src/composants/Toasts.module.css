@@ -1,0 +1,103 @@
+/* Toasts (docs/ecrans/composants.md, Toast ; position : docs/ecrans/07-ma-file.md) */
+
+.pile {
+  position: fixed;
+  z-index: 30;
+  top: 80px;
+  right: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: min(400px, calc(100vw - 32px));
+}
+
+.toast {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 16px;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-lg);
+  animation: entree-toast 280ms var(--ease-out);
+}
+
+@keyframes entree-toast {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+.icone {
+  color: var(--color-brand-600);
+}
+
+.corps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.direct {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-neutral-600);
+}
+
+.point {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-600);
+}
+
+.titre {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.texte {
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-neutral-700);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.erreur {
+  font-size: 13px;
+  color: var(--color-feedback-danger-fg);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.fermer {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-neutral-600);
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .pile {
+    top: 64px;
+    right: var(--space-4);
+  }
+}
