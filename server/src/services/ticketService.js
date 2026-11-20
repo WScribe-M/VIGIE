@@ -6,6 +6,7 @@ import { ErreurHttp } from '../utils/ErreurHttp.js';
 import { formaterNumero, prochainNumeroTicket } from './numeroService.js';
 import { calculerPriorite } from './prioriteService.js';
 import { deduireDomaine } from './serviceService.js';
+import { notifierNouveauTicket } from './notificationService.js';
 import { calculerEcheance } from './slaService.js';
 import { STATUTS_CLOS, transitionsDuMenu, verifierChangement } from './statutService.js';
 import { filtreTicketsVisibles, peutVoirTicket } from './visibiliteService.js';
@@ -152,11 +153,16 @@ export async function creerTicket(donnees, utilisateur) {
   const ticket = await Ticket.create(
     preparerTicket(champs, utilisateur, { numero, domaine, maintenant: new Date() }),
   );
+  // Le ticket est enregistré : une panne de notification ne doit pas faire échouer la création
+  // (le demandeur recevrait une erreur pour un ticket bien créé). On la journalise.
+  try {
+    await notifierNouveauTicket(ticket._id, utilisateur.id);
+  } catch (err) {
+    console.error('Notification du nouveau ticket impossible :', err);
+  }
   return lireTicket(ticket._id, utilisateur);
 }
 
-// Un ticket invisible pour cet utilisateur répond comme un ticket inexistant : on ne révèle pas
-// quels numéros existent
 // Prévient ceux qui regardent le ticket, « Ma file » et le pilotage : ils rechargent par l'API.
 // L'événement ne contient que l'identifiant et le statut, jamais de donnée réservée au support.
 function signalerModification(
@@ -182,6 +188,8 @@ async function marquerVuParSupport(ticket, utilisateur) {
   }
 }
 
+// Un ticket invisible pour cet utilisateur répond comme un ticket inexistant : on ne révèle pas
+// quels numéros existent
 export async function lireTicket(id, utilisateur) {
   if (!mongoose.isObjectIdOrHexString(id)) {
     throw new ErreurHttp(404, 'Ticket introuvable');

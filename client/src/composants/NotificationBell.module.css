@@ -1,0 +1,206 @@
+/* Cloche et panneau des notifications (docs/ecrans/11-notifications.md) */
+
+.conteneur {
+  position: relative;
+}
+
+.cloche {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-neutral-700);
+  cursor: pointer;
+}
+
+.cloche:hover {
+  background: var(--color-neutral-100);
+}
+
+.ouverte,
+.ouverte:hover {
+  background: var(--color-brand-100);
+  color: var(--color-brand-600);
+}
+
+/* Compteur Pétrole, jamais rouge, avec un anneau de la couleur du fond */
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-600);
+  box-shadow: 0 0 0 2px var(--color-neutral-50);
+  color: var(--color-neutral-0);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+/* Au-dessus des toasts (z-index 30), qui occupent le même coin de l'écran */
+.panneau {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(420px, calc(100vw - 32px));
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-xl);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) 18px var(--space-2);
+}
+
+.titre {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.lien {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-brand-600);
+  cursor: pointer;
+}
+
+.onglets {
+  display: flex;
+  gap: var(--space-5);
+  padding: 0 18px;
+  border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.onglet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-neutral-600);
+  cursor: pointer;
+}
+
+.onglet[aria-selected='true'] {
+  border-bottom-color: var(--color-brand-600);
+  font-weight: 600;
+  color: var(--color-neutral-900);
+}
+
+.compteur {
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-600);
+  color: var(--color-neutral-0);
+  font-size: 12px;
+}
+
+.liste {
+  max-height: 420px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.ligne {
+  display: grid;
+  grid-template-columns: 8px 20px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  width: 100%;
+  padding: var(--space-3) 18px;
+  border: 0;
+  border-top: 1px solid var(--color-neutral-100);
+  background: none;
+  color: var(--color-neutral-700);
+  text-align: left;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.ligne:hover {
+  background: var(--color-neutral-50);
+}
+
+.ligne strong {
+  font-weight: 400;
+  color: var(--color-neutral-900);
+}
+
+/* Non lue : fond Pétrole très clair, point Pétrole, type en gras */
+.nonLue,
+.nonLue:hover {
+  background: var(--color-brand-50);
+}
+
+.nonLue strong {
+  font-weight: 600;
+}
+
+.point {
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: var(--radius-full);
+}
+
+.nonLue .point {
+  background: var(--color-brand-600);
+}
+
+.texte {
+  display: flex;
+  flex-direction: column;
+}
+
+.date {
+  font-size: 12px;
+  color: var(--color-neutral-600);
+}
+
+.vide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 28px var(--space-5);
+  color: var(--color-neutral-600);
+}
+
+.videTitre,
+.videTexte {
+  margin: 0;
+}
+
+.videTitre {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-neutral-900);
+}
+
+.videTexte {
+  font-size: 13px;
+}

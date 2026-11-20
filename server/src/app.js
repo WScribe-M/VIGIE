@@ -6,6 +6,7 @@ import { etatBase } from './config/db.js';
 import { specificationApi } from './docs/specificationApi.js';
 import { authentifier, interdireEcritureLecteur } from './middlewares/auth.js';
 import { authRoutes } from './routes/authRoutes.js';
+import { notificationRoutes } from './routes/notificationRoutes.js';
 import { serviceRoutes } from './routes/serviceRoutes.js';
 import { ticketRoutes } from './routes/ticketRoutes.js';
 
@@ -16,6 +17,7 @@ import { ticketRoutes } from './routes/ticketRoutes.js';
 const ROUTES_PROTEGEES = {
   '/services': serviceRoutes,
   '/tickets': ticketRoutes,
+  '/notifications': notificationRoutes,
 };
 
 export const app = express();

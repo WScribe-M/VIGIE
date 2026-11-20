@@ -28,6 +28,10 @@ tags:
     description: Catalogue des services IT ; le domaine technique du ticket en est déduit.
   - name: Tickets
     description: Déclaration et suivi des incidents.
+  - name: Notifications
+    description: >-
+      Enregistrées en base puis émises en direct (`notification:nouvelle`, room `user:<id>`) ;
+      relues par l'API à la connexion.
 security:
   - bearerAuth: []
 
@@ -119,6 +123,81 @@ paths:
                     type: string
         '401':
           $ref: '#/components/responses/NonAuthentifie'
+
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Mes notifications et le nombre de non lues
+      description: >-
+        Toujours celles de l'utilisateur du jeton, les plus récentes d'abord (50 au plus). Appelée à
+        la connexion et à chaque reconnexion Socket.io : une notification reçue hors ligne est
+        retrouvée et le badge de la cloche reste exact. Pour l'instant, seuls les GESTIONNAIRE en
+        reçoivent (nouveau ticket, VIGIE-11).
+      parameters:
+        - in: query
+          name: nonLues
+          schema:
+            type: boolean
+          description: '`true` : seulement les non lues.'
+      responses:
+        '200':
+          description: Notifications et compteur de non lues.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  nonLues:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+
+  /notifications/lues:
+    patch:
+      tags: [Notifications]
+      summary: Tout marquer comme lu
+      responses:
+        '200':
+          description: Toutes mes notifications sont lues.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteurNonLues'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+
+  /notifications/{id}/lu:
+    patch:
+      tags: [Notifications]
+      summary: Marquer une notification comme lue
+      description: >-
+        Seulement une de mes notifications : celle d'une autre personne répond `404`, comme une
+        notification inexistante.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification lue ; nombre de non lues restantes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteurNonLues'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
 
   /services:
     get:
@@ -720,6 +799,59 @@ components:
           type: string
         prenom:
           type: string
+
+    TypeNotification:
+      type: string
+      enum:
+        [
+          NOUVEAU_TICKET,
+          TICKET_MIS_A_JOUR,
+          CHANGEMENT_STATUT,
+          NOUVEAU_COMMENTAIRE,
+          ATTENTE_REPONSE,
+          TICKET_TERMINE,
+          TICKET_CONTESTE,
+          ALERTE_SLA,
+          RELANCE,
+        ]
+
+    Notification:
+      type: object
+      properties:
+        _id:
+          type: string
+        type:
+          $ref: '#/components/schemas/TypeNotification'
+        lu:
+          type: boolean
+        date:
+          type: string
+          format: date-time
+        ticket:
+          type: object
+          nullable: true
+          properties:
+            _id:
+              type: string
+            reference:
+              type: string
+              example: VIG-0042
+            titre:
+              type: string
+            prioriteFinale:
+              $ref: '#/components/schemas/Priorite'
+            service:
+              type: object
+              properties:
+                nom:
+                  type: string
+
+    CompteurNonLues:
+      type: object
+      properties:
+        nonLues:
+          type: integer
+          example: 3
 
     TicketResume:
       type: object

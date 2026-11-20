@@ -151,3 +151,21 @@ describe('droits sur /api/tickets (sans base : les middlewares répondent avant)
     assert.match(corps.message, /priorite/);
   });
 });
+
+describe('droits sur /api/notifications', () => {
+  it('exige un jeton (401)', async () => {
+    assert.equal((await appeler('/notifications')).status, 401);
+    assert.equal((await appeler('/notifications/lues', { method: 'PATCH' })).status, 401);
+  });
+
+  it('un identifiant mal formé répond 404 sans toucher à la base', async () => {
+    const { creerJeton } = await import('../src/services/jetonService.js');
+    const { status } = await appeler('/notifications/abc/lu', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${creerJeton({ _id: '665a1f0c2b7e4a0000000001', role: 'GESTIONNAIRE' })}`,
+      },
+    });
+    assert.equal(status, 404);
+  });
+});
