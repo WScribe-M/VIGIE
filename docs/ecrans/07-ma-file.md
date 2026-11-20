@@ -92,4 +92,4 @@ Contenu, colonne, écart 24 :
 - **Pas de colonne Statut** (décision du 20/11) : chaque section ne contient qu’un statut (À prendre = Nouveau,
   Mes tickets en cours = En cours, En attente du demandeur = En attente), déjà dit par son titre.
 - **Priorité Critique sans pastille pleine** et **échéance en texte court** (« Reste 2 h 09 », « Retard de 3 h »,
-  « Depuis 4 j ») : décisions du 20/11, voir `docs/design-system.md`.
+  « Depuis 4 j »), arrondie vers le bas (minutes exactes sous une heure, puis heures entières, puis jours) : décisions du 20/11, voir `docs/design-system.md`.

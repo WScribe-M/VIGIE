@@ -28,15 +28,14 @@ export function formaterDateHeure(valeur) {
 
 const ESPACE = '\u00a0';
 
-// Durée en heures ouvrées (délai SLA) : « 28 min », « 3 h 40 », « 2 j ».
+// Durée en heures ouvrées (délai SLA), arrondie vers le bas pour une liste lisible (décision du
+// 20/11) : « 25 min » (minutes exactes sous une heure, là où chaque minute compte), « 3 h » (et non
+// 3 h 55), « 2 j ». Vers le bas : on n'annonce jamais plus de temps qu'il n'en reste. L'échéance
+// exacte reste sur la fiche et dans l'infobulle du badge.
 // `minutesParJour` : longueur d'une journée ouvrée, renvoyée par l'API (9 h par défaut).
 export function formaterDureeOuvree(minutes, minutesParJour) {
   if (minutes < 60) return `${minutes}${ESPACE}min`;
-  if (minutes < minutesParJour) {
-    const heures = Math.floor(minutes / 60);
-    const reste = minutes % 60;
-    return `${heures}${ESPACE}h${reste ? `${ESPACE}${String(reste).padStart(2, '0')}` : ''}`;
-  }
+  if (minutes < minutesParJour) return `${Math.floor(minutes / 60)}${ESPACE}h`;
   return `${Math.floor(minutes / minutesParJour)}${ESPACE}j`;
 }
 
