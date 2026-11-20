@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { filtreTicketsVisibles, peutVoirTicket } from './visibiliteService.js';
+import { filtreTicketsVisibles, peutVoirTicket } from '../../src/services/visibiliteService.js';
 
 const ticket = { demandeur: 'demandeur', suiveurs: ['suiveur'], enCopie: ['copie'] };
 

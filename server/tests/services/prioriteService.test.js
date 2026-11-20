@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { IMPACTS, PRIORITES, URGENCES } from '../models/constantes.js';
-import { calculerPriorite } from './prioriteService.js';
+import { IMPACTS, PRIORITES, URGENCES } from '../../src/models/constantes.js';
+import { calculerPriorite } from '../../src/services/prioriteService.js';
 
 describe('calculerPriorite (matrice impact × urgence, cadrage 9.1)', () => {
   // Recopie du tableau du cadrage : une erreur dans la matrice du code fait échouer le test

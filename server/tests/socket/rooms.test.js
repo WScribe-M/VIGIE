@@ -4,7 +4,8 @@ import { describe, it } from 'node:test';
 process.env.MONGODB_URI ??= 'mongodb://localhost:27017/vigie-test';
 process.env.JWT_SECRET ??= 'secret-de-test';
 
-const { quitterTicket, rejoindreTicket, roomsAutomatiques } = await import('./rooms.js');
+const { quitterTicket, rejoindreTicket, roomsAutomatiques } =
+  await import('../../src/socket/rooms.js');
 
 const CLIENT = { id: '665a1f0c2b7e4a0000000001', role: 'CLIENT' };
 const AUTRE_CLIENT = { id: '665a1f0c2b7e4a0000000002', role: 'CLIENT' };

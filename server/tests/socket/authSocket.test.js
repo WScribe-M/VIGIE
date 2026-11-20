@@ -5,8 +5,8 @@ import jwt from 'jsonwebtoken';
 process.env.MONGODB_URI ??= 'mongodb://localhost:27017/vigie-test';
 process.env.JWT_SECRET ??= 'secret-de-test';
 
-const { authentifierSocket, couperAExpiration } = await import('./authSocket.js');
-const { creerJeton } = await import('../services/jetonService.js');
+const { authentifierSocket, couperAExpiration } = await import('../../src/socket/authSocket.js');
+const { creerJeton } = await import('../../src/services/jetonService.js');
 
 const ID = '665a1f0c2b7e4a0012345678';
 const compteActif = async () => ({ role: 'GESTIONNAIRE', actif: true });
