@@ -50,7 +50,6 @@ Contenu, colonne, écart 24 :
 
 ## Textes exacts
 
-- Sous-titre : « triée par échéance, puis par priorité »
 - KPI : « À prendre » (`inbox`, « dont 2 Critique ») · « Mes tickets en cours » (`loader-circle`) · « Alertes SLA » (`clock`, « 1 en retard · 1 échéance proche ») · « En attente du demandeur » (`message-circle-question`, « le plus ancien : depuis 4 j »)
 - Sections : « À prendre » · « Mes tickets en cours » (« par échéance, puis par priorité ») · « En attente du demandeur » (« délai suspendu · relancez au-delà de 3 jours »)
 - Colonnes : « N° » · « Titre » · « Statut » · « Priorité » · « Échéance » / « Résolution » / « Ancienneté » · « Demandeur »
@@ -82,3 +81,5 @@ Contenu, colonne, écart 24 :
   hauteur « Confort » (52 px).
 - **Nom de l’écran** (décision du 20/11) : « À traiter » au lieu de « Ma file » (« file » se lit « fichier », et deux
   sections sur trois montrent les tickets de toute l’équipe). La route reste `/ma-file`.
+- **Pas de sous-titre** sous « À traiter » (décision du 20/11) : le tri est indiqué dans la description de chaque
+  section.

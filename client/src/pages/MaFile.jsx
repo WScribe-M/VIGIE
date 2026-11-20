@@ -318,10 +318,8 @@ export function MaFile() {
       <PageHeader gauche={enDirect} />
       <div className={styles.page}>
         {/* Décision du 20/11 : une seule densité (« Confort », lignes de 52 px), pas de sélecteur */}
-        <div className={styles.entete}>
-          <h1 className="text-display-lg">À traiter</h1>
-          <p className={styles.sousTitre}>triée par échéance, puis par priorité</p>
-        </div>
+        {/* Pas de sous-titre (décision du 20/11) : le tri est indiqué dans chaque section */}
+        <h1 className={`text-display-lg ${styles.titrePage}`}>À traiter</h1>
 
         {/* Temps réel coupé : la liste reste affichée avec son heure (fiche 07, état erreur) */}
         {!connecte && file && (

@@ -27,19 +27,8 @@
   background: var(--color-feedback-danger-fg);
 }
 
-.entete {
-  display: flex;
-  flex-direction: column;
-}
-
-.entete h1 {
+.titrePage {
   margin: 0;
-}
-
-.sousTitre {
-  margin: 4px 0 0;
-  font-size: 15px;
-  color: var(--color-neutral-700);
 }
 
 /* Cartes KPI */
