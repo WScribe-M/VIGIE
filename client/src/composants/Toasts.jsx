@@ -11,7 +11,7 @@ import styles from './Toasts.module.css';
 const DUREE = 6000;
 
 // Toast temps réel « Nouveau ticket » (fiche 07). Décision du 20/11 : le toast informe, il ne sert
-// pas à agir. On peut seulement ouvrir le ticket ; la prise en charge se fait depuis « Ma file » ou
+// pas à agir. On peut seulement ouvrir le ticket ; la prise en charge se fait depuis « À traiter » ou
 // la fiche, où l'on voit l'état réel du ticket (le toast, lui, ne sait pas s'il a déjà été pris).
 function ToastNouveauTicket({ notification }) {
   const { fermerToast, marquerLue } = useNotifications();

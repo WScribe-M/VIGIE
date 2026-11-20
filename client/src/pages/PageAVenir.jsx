@@ -1,7 +1,7 @@
 import { PageHeader } from '../composants/PageHeader.jsx';
 
 // Page provisoire : chaque vue sera développée dans sa propre story.
-// Elle garde l'en-tête, pour que la cloche des notifications soit là dès l'accueil (« Ma file »).
+// Elle garde l'en-tête, pour que la cloche des notifications soit là dès l'accueil (« À traiter »).
 export function PageAVenir({ titre, story }) {
   return (
     <>

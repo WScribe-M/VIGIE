@@ -164,7 +164,7 @@ export async function creerTicket(donnees, utilisateur) {
   return lireTicket(ticket._id, utilisateur);
 }
 
-// Prévient ceux qui regardent le ticket, « Ma file » et le pilotage : ils rechargent par l'API.
+// Prévient ceux qui regardent le ticket, « À traiter » et le pilotage : ils rechargent par l'API.
 // L'événement ne contient que l'identifiant et le statut, jamais de donnée réservée au support.
 function signalerModification(
   ticket,
@@ -325,7 +325,7 @@ export async function listerTickets(utilisateur) {
   return tickets.map(avecReference);
 }
 
-// « Ma file » (VIGIE-31, fiche 07) : ce que le technicien doit traiter maintenant.
+// « À traiter » (VIGIE-31, fiche 07) : ce que le technicien doit traiter maintenant.
 // Chaque section s'appuie sur un index du schéma (cadrage 9.10) ; 50 lignes au plus par section,
 // les compteurs portent sur tous les tickets.
 const CHAMPS_FILE =

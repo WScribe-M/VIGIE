@@ -12,7 +12,7 @@ import styles from './PageHeader.module.css';
  * s'ajoutera avec VIGIE-6 : pas d'élément qui ne mène nulle part.
  *
  * @param retour { chemin, libelle } : « ← Mes demandes »
- * @param gauche contenu propre à l'écran, à gauche (« En direct » dans « Ma file »)
+ * @param gauche contenu propre à l'écran, à gauche (« En direct » dans « À traiter »)
  */
 export function PageHeader({ retour, gauche }) {
   const { utilisateur } = useAuth();

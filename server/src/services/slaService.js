@@ -83,7 +83,7 @@ export function minutesOuvreesEntre(debut, fin, horaires = config.sla) {
   return Math.round(total / MINUTE);
 }
 
-// Niveau SLA affiché (badge des listes, « Ma file ») : une lecture de l'échéance à un instant donné.
+// Niveau SLA affiché (badge des listes, « À traiter ») : une lecture de l'échéance à un instant donné.
 // Les alertes envoyées (niveauAlerteSla, tâche planifiée) relèvent de VIGIE-20, qui réutilisera
 // cette fonction. Renvoie null pour un ticket clos ou sans échéance.
 //   SUSPENDU        : en attente du demandeur (délai suspendu, cadrage 9.2) ; minutes depuis l'attente

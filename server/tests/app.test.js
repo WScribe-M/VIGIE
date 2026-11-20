@@ -152,7 +152,7 @@ describe('droits sur /api/tickets (sans base : les middlewares répondent avant)
     }
   });
 
-  it('« Ma file » est réservée au support (403 pour un CLIENT)', async () => {
+  it('« À traiter » est réservée au support (403 pour un CLIENT)', async () => {
     const { status } = await appeler('/tickets/ma-file', { headers: await entetes('CLIENT') });
     assert.equal(status, 403);
   });

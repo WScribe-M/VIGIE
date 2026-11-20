@@ -11,7 +11,7 @@ Route proposée : `/tickets/:id` · Rôles : Gestionnaire, Administrateur ; Lect
 
 ## Mise en page
 
-**En-tête** : lien retour « ← Ma file » ; **présence** (PresenceAvatars) : avatars 32 superposés (−8 px,
+**En-tête** : lien retour « ← À traiter » ; **présence** (PresenceAvatars) : avatars 32 superposés (−8 px,
 anneau 2 px Lin) + `eye` 15 Pétrole + texte 13 `--color-neutral-700`, écart 10 ; puis cloche et avatar.
 Pas de recherche.
 
@@ -82,12 +82,12 @@ rond 16) : choisi fond `--color-brand-50` ; titre 14/600 + méta 12 Taupe ; Seco
 
 ## États
 
-| État       | Rendu                                                                                                                                             |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Chargement | Squelettes comme la fiche Client ([05](05-fiche-ticket-client.md)).                                                                               |
-| Erreur     | `404` / `403` : message de [05](05-fiche-ticket-client.md) adapté (« Retour à ma file »). `409` à la prise en charge : toast « Déjà pris par … ». |
-| Vide       | Aucun commentaire : le fil n'affiche que le champ de réponse.                                                                                     |
-| Temps réel | Présence, « en train d’écrire… », nouveau commentaire, changement de statut par un collègue.                                                      |
+| État       | Rendu                                                                                                                                               |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chargement | Squelettes comme la fiche Client ([05](05-fiche-ticket-client.md)).                                                                                 |
+| Erreur     | `404` / `403` : message de [05](05-fiche-ticket-client.md) adapté (« Retour à l’accueil »). `409` à la prise en charge : toast « Déjà pris par … ». |
+| Vide       | Aucun commentaire : le fil n'affiche que le champ de réponse.                                                                                       |
+| Temps réel | Présence, « en train d’écrire… », nouveau commentaire, changement de statut par un collègue.                                                        |
 
 ## Règles
 

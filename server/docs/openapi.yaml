@@ -433,7 +433,7 @@ paths:
   /tickets/ma-file:
     get:
       tags: [Tickets]
-      summary: « Ma file » du technicien (GESTIONNAIRE, ADMIN)
+      summary: « À traiter » du technicien (GESTIONNAIRE, ADMIN)
       description: >-
         Trois sections, 50 lignes au plus chacune : **à prendre** (tous les tickets `NOUVEAU`,
         une seule équipe, par priorité puis échéance), **mes tickets en cours** (technicien =

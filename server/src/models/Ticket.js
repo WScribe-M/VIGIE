@@ -121,11 +121,11 @@ ticketSchema.index({ titre: 'text', description: 'text' }, { default_language: '
 ticketSchema.index({ demandeur: 1 });
 ticketSchema.index({ suiveurs: 1 });
 ticketSchema.index({ enCopie: 1 });
-// « Ma file » : tickets nouveaux, du plus prioritaire à l'échéance la plus proche
+// « À traiter » : tickets nouveaux, du plus prioritaire à l'échéance la plus proche
 ticketSchema.index({ statut: 1, rangPriorite: -1, echeanceSla: 1 });
 // Tâche SLA : tickets ouverts dont l'échéance approche
 ticketSchema.index({ statut: 1, echeanceSla: 1 });
-// « Ma file », section En attente du demandeur (VIGIE-31) et relances (VIGIE-21) : ancienneté de l’attente
+// « À traiter », section En attente du demandeur (VIGIE-31) et relances (VIGIE-21) : ancienneté de l’attente
 ticketSchema.index({ statut: 1, dateStatut: 1 });
 // Mes tickets en cours, triés par échéance ; charge par technicien
 ticketSchema.index({ technicien: 1, statut: 1, echeanceSla: 1 });

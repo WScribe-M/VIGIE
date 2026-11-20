@@ -20,7 +20,7 @@ import { socket } from '../tempsReel/socket.js';
 import { formaterDuree, formaterDureeOuvree } from '../utils/dates.js';
 import styles from './MaFile.module.css';
 
-// « Ma file » du technicien (VIGIE-31, docs/ecrans/07-ma-file.md) : ce qu'il faut traiter maintenant.
+// « À traiter » du technicien (VIGIE-31, docs/ecrans/07-ma-file.md) : ce qu'il faut traiter maintenant.
 // Les données viennent de GET /api/tickets/ma-file ; la page se recharge à chaque ticket créé ou
 // modifié (room support), l'API restant la source de vérité.
 
@@ -319,7 +319,7 @@ export function MaFile() {
       <div className={styles.page}>
         {/* Décision du 20/11 : une seule densité (« Confort », lignes de 52 px), pas de sélecteur */}
         <div className={styles.entete}>
-          <h1 className="text-display-lg">Ma file</h1>
+          <h1 className="text-display-lg">À traiter</h1>
           <p className={styles.sousTitre}>triée par échéance, puis par priorité</p>
         </div>
 

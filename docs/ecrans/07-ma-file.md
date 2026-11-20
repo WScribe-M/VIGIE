@@ -1,4 +1,4 @@
-# 07 — Ma file
+# 07 — À traiter (anciennement « À traiter »)
 
 Route : `/ma-file` · Rôles : Gestionnaire, Administrateur · Story : VIGIE-31
 
@@ -18,7 +18,7 @@ bordure Sable, rayon 4, marges 2 × 6) ; cloche ; avatar.
 
 Contenu, colonne, écart 24 :
 
-1. **Titre** (rangée `space-between`, alignée en bas) : « Ma file » (`.text-display-lg`) et sous-titre 15
+1. **Titre** (rangée `space-between`, alignée en bas) : « À traiter » (`.text-display-lg`) et sous-titre 15
    `--color-neutral-700` (écart 4) ; à droite le **groupe segmenté** « Confort / Dense » : fond
    `--color-neutral-100`, marges 3, rayon 10, écart 2 ; segment 32 px, marges 0 12, rayon 8, 13 px ;
    actif blanc 600 `--shadow-segment` ; inactif 500 Taupe.
@@ -63,7 +63,7 @@ Contenu, colonne, écart 24 :
 
 | État       | Rendu                                                                                            |
 | ---------- | ------------------------------------------------------------------------------------------------ |
-| Vide       | Titre « Ma file » + carte EmptyState (marges 40 × 24).                                           |
+| Vide       | Titre « À traiter » + carte EmptyState (marges 40 × 24).                                         |
 | Chargement | Carte de 4 lignes squelettes : numéro 56 × 10, titre (reflet) 12 px, pastille 80 × 24.           |
 | Erreur     | Socket.io coupé : la liste reste affichée avec son heure ; ErrorState + reconnexion automatique. |
 | Temps réel | Nouveau ticket : toast **à tous les gestionnaires** + ligne surlignée 1,5 s dans « À prendre ».  |
@@ -80,3 +80,5 @@ Contenu, colonne, écart 24 :
   Le toast informe seulement (« Ouvrir »).
 - **Une seule densité** (décision du 20/11) : pas de groupe segmenté « Confort / Dense » ; les lignes ont la
   hauteur « Confort » (52 px).
+- **Nom de l’écran** (décision du 20/11) : « À traiter » au lieu de « Ma file » (« file » se lit « fichier », et deux
+  sections sur trois montrent les tickets de toute l’équipe). La route reste `/ma-file`.
