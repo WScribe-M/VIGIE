@@ -1,5 +1,4 @@
 import {
-  CircleAlert,
   Clock,
   Inbox,
   LoaderCircle,
@@ -8,7 +7,7 @@ import {
   WifiOff,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { appelerApi } from '../api.js';
 import { Button } from '../composants/Button.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
@@ -66,7 +65,7 @@ function detailSla(sla, minutesParJour) {
   return sla.niveau === 'EN_RETARD' ? `de ${duree}` : `reste ${duree}`;
 }
 
-function Ligne({ ligne, section, minutesParJour, nouveau, onPrendre, prise }) {
+function Ligne({ ligne, minutesParJour, nouveau }) {
   const enRetard = ligne.sla?.niveau === 'EN_RETARD';
   return (
     <tr className={`${enRetard ? styles.enRetard : ''} ${nouveau ? styles.surbrillance : ''}`}>
@@ -108,28 +107,18 @@ function Ligne({ ligne, section, minutesParJour, nouveau, onPrendre, prise }) {
       <td className={styles.demandeur}>
         {ligne.demandeur && `${ligne.demandeur.prenom} ${ligne.demandeur.nom}`}
       </td>
+      {/* Décision du 20/11 : pas de « Prendre en charge » dans la liste. On ouvre le ticket et on
+          s'assigne depuis la fiche, après l'avoir lu (fiche 07 : écart signalé). */}
       <td className={styles.action}>
-        {section === 'aPrendre' ? (
-          <Button
-            variante="secondaire"
-            taille="sm"
-            className={styles.boutonPrendre}
-            chargement={prise === ligne._id && 'Prise en charge…'}
-            onClick={() => onPrendre(ligne)}
-          >
-            Prendre en charge
-          </Button>
-        ) : (
-          <Link to={`/tickets/${ligne._id}`} className={styles.lienOuvrir}>
-            Ouvrir
-          </Link>
-        )}
+        <Link to={`/tickets/${ligne._id}`} className={styles.lienOuvrir}>
+          Ouvrir
+        </Link>
       </td>
     </tr>
   );
 }
 
-function Section({ section, lignes, total, minutesParJour, nouveaux, onPrendre, prise }) {
+function Section({ section, lignes, total, minutesParJour, nouveaux }) {
   return (
     <section className={styles.carte} aria-labelledby={`section-${section.cle}`}>
       <div className={styles.enteteSection}>
@@ -160,11 +149,8 @@ function Section({ section, lignes, total, minutesParJour, nouveaux, onPrendre, 
                 <Ligne
                   key={ligne._id}
                   ligne={ligne}
-                  section={section.cle}
                   minutesParJour={minutesParJour}
                   nouveau={nouveaux.has(ligne._id)}
-                  onPrendre={onPrendre}
-                  prise={prise}
                 />
               ))}
             </tbody>
@@ -208,15 +194,12 @@ const heureMinute = (date) =>
   date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
 export function MaFile() {
-  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [erreur, setErreur] = useState(false);
   const [majLe, setMajLe] = useState(null);
   const [connecte, setConnecte] = useState(socket.connected);
   const [densite, setDensite] = useState(lireDensite);
   const [nouveaux, setNouveaux] = useState(new Set());
-  const [prise, setPrise] = useState(null);
-  const [erreurPrise, setErreurPrise] = useState(null);
   const idsConnus = useRef(null);
 
   // Les états ne changent que dans la réponse de l'API, jamais directement dans l'effet
@@ -269,23 +252,6 @@ export function MaFile() {
       localStorage.setItem(CLE_DENSITE, valeur);
     } catch {
       // Préférence non retenue (navigation privée) : sans conséquence
-    }
-  }
-
-  async function prendre(ligne) {
-    setPrise(ligne._id);
-    setErreurPrise(null);
-    try {
-      await appelerApi(`/tickets/${ligne._id}/prise-en-charge`, { methode: 'POST' });
-      navigate(`/tickets/${ligne._id}`);
-    } catch (err) {
-      setErreurPrise(
-        err.status === 409
-          ? `${ligne.reference} est déjà pris en charge par un collègue.`
-          : err.message,
-      );
-      setPrise(null);
-      charger();
     }
   }
 
@@ -347,13 +313,6 @@ export function MaFile() {
           />
         </div>
 
-        {erreurPrise && (
-          <p className={styles.bandeau} role="alert">
-            <CircleAlert size={18} strokeWidth={TRAIT_ICONE} aria-hidden="true" />
-            {erreurPrise}
-          </p>
-        )}
-
         {vide ? (
           <EmptyState
             icone={Inbox}
@@ -369,8 +328,6 @@ export function MaFile() {
               total={compteurs[section.cle]}
               minutesParJour={minutesParJour}
               nouveaux={nouveaux}
-              onPrendre={prendre}
-              prise={prise}
             />
           ))
         )}

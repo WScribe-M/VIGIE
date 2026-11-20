@@ -44,7 +44,7 @@ Contenu, colonne, écart 24 :
 
 | Section                 | Tri                             | Colonne SLA | Action par ligne               |
 | ----------------------- | ------------------------------- | ----------- | ------------------------------ |
-| À prendre               | prise en charge la plus proche  | Échéance    | Prendre en charge              |
+| À prendre               | prise en charge la plus proche  | Échéance    | Ouvrir (⚠ décision du 20/11)   |
 | Mes tickets en cours    | par échéance, puis par priorité | Résolution  | Ouvrir                         |
 | En attente du demandeur | ancienneté                      | Ancienneté  | Relancer (> 3 jours) ou Ouvrir |
 
@@ -76,3 +76,6 @@ Contenu, colonne, écart 24 :
 - Colonne « Prise en charge » avec « reste 28 min » : il n'existe qu'une échéance SLA (résolution, cadrage
   9.2) ; la colonne s'appelle « Échéance » et affiche le SlaBadge de l'échéance de résolution (décision 9.11).
 - KPI « capacité cible : 10 » : aucune règle ne fixe cette cible ; à valider ou retirer.
+- **Pas de « Prendre en charge » dans la liste ni dans le toast** (décision du 20/11) : chaque ligne propose
+  « Ouvrir » ; le technicien lit le ticket puis s’assigne depuis la fiche (« Prendre en charge », VIGIE-7).
+  Le toast informe seulement (« Ouvrir »).
