@@ -4,8 +4,13 @@ import { describe, it } from 'node:test';
 process.env.MONGODB_URI ??= 'mongodb://localhost:27017/vigie-test';
 process.env.JWT_SECRET ??= 'secret-de-test';
 
-const { indicateursHistorique, minutesSuspendues, preparerHistorique, trierHistorique } =
-  await import('../../src/services/historiqueService.js');
+const {
+  indicateursHistorique,
+  masquerConcernes,
+  minutesSuspendues,
+  preparerHistorique,
+  trierHistorique,
+} = await import('../../src/services/historiqueService.js');
 
 // Horaires du cadrage (9.2) : du lundi au vendredi, de 9 h à 18 h (en minutes depuis minuit)
 const HORAIRES = { jours: [1, 2, 3, 4, 5], debut: 9 * 60, fin: 18 * 60, seuilAlerte: 0.75 };
@@ -164,5 +169,32 @@ describe('minutesSuspendues (suspension du SLA en heures ouvrées)', () => {
   it('compte une attente en cours jusqu’à maintenant', () => {
     const { suspensions } = indicateursHistorique(VIE_COMPLETE.slice(0, 5));
     assert.equal(minutesSuspendues(suspensions, le(20, 17), HORAIRES), 60);
+  });
+});
+
+describe('masquerConcernes (VIGIE-15)', () => {
+  const awa = { _id: 'awa', prenom: 'Awa', nom: 'Diallo' };
+  const lea = { _id: 'lea', prenom: 'Léa', nom: 'Martin' };
+  const historique = [
+    { champ: 'statut', auteur: lea, ancienneValeur: null, nouvelleValeur: 'NOUVEAU' },
+    { champ: 'concerne', auteur: awa, ancienneValeur: null, nouvelleValeur: 'awa' },
+  ];
+
+  it('cache à un client qui d’autre s’est déclaré concerné', () => {
+    const vu = masquerConcernes(historique, { id: 'lea', role: 'CLIENT' });
+    assert.equal(vu[1].auteur, null);
+    assert.equal(vu[1].nouvelleValeur, null);
+    // Le reste de l'historique ne change pas
+    assert.deepEqual(vu[0], historique[0]);
+  });
+
+  it('laisse au client sa propre entrée', () => {
+    const vu = masquerConcernes(historique, { id: 'awa', role: 'CLIENT' });
+    assert.deepEqual(vu[1].auteur, awa);
+  });
+
+  it('laisse les noms au support', () => {
+    const vu = masquerConcernes(historique, { id: 'sophie', role: 'GESTIONNAIRE' });
+    assert.deepEqual(vu, historique);
   });
 });

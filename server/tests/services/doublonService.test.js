@@ -15,6 +15,7 @@ const {
   versSuggestion,
 } = await import('../../src/services/doublonService.js');
 const { Ticket } = await import('../../src/models/index.js');
+const { CHAMPS_HISTORIQUE } = await import('../../src/models/constantes.js');
 
 const CLIENT = { id: '665a1f0c2b7e4a0000000001', role: 'CLIENT' };
 const AUTRE_CLIENT = '665a1f0c2b7e4a0000000002';
@@ -254,4 +255,9 @@ describe('rejoindreTicket', () => {
     mock.method(Ticket, 'findOneAndUpdate', () => requete(null));
     await assert.rejects(rejoindreTicket(TICKET_ID, CLIENT), { status: 409 });
   });
+});
+
+// Sans cela, le schéma refuse tout save() d'un ticket rejoint (correction du domaine en 500)
+it('« concerne » est un champ d’historique autorisé par le schéma', () => {
+  assert.ok(CHAMPS_HISTORIQUE.includes(CHAMP_CONCERNE));
 });

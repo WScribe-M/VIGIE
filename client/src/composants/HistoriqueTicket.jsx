@@ -1,4 +1,4 @@
-import { CircleDot, Flag, History, PenLine, Plus, RotateCcw, User } from 'lucide-react';
+import { CircleDot, Flag, History, PenLine, Plus, RotateCcw, User, Users } from 'lucide-react';
 import { ICONES_STATUT } from '../styles/icones.js';
 import { LIBELLES_DOMAINE } from '../styles/libelles.js';
 import { formaterDateHeure } from '../utils/dates.js';
@@ -102,6 +102,27 @@ export function HistoriqueTicket({ historique = [], demandeur }) {
     .filter((entree) => !estPartieDUnePriseEnCharge(entree, historique))
     .map((entree) => ({ entree, description: decrire(entree, demandeur) }))
     .filter(({ description }) => description);
+
+  // Personnes déclarées concernées (VIGIE-15) : une seule ligne, « 3 personnes se sont déclarées
+  // concernées » (fiche 06), placée au dernier rattachement. Pas de noms : un client ne les reçoit
+  // pas pour les autres personnes (masquerConcernes côté serveur).
+  const concernes = historique.filter((entree) => entree.champ === 'concerne');
+  if (concernes.length) {
+    const derniere = concernes.at(-1);
+    const position = elements.findIndex(
+      ({ entree }) => new Date(entree.date) > new Date(derniere.date),
+    );
+    const une = concernes.length === 1;
+    elements.splice(position === -1 ? elements.length : position, 0, {
+      entree: { ...derniere, auteur: null, motif: null },
+      description: {
+        icone: Users,
+        action: une
+          ? '1 personne s’est déclarée concernée'
+          : `${concernes.length} personnes se sont déclarées concernées`,
+      },
+    });
+  }
 
   if (!elements.length) {
     return <EmptyState icone={History} titre="Aucun changement enregistré pour l’instant" />;

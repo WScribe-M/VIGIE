@@ -31,7 +31,8 @@ export const DOMAINES = [
 export const CANAUX = ['APPLICATION', 'TELEPHONE', 'EMAIL', 'DIRECT'];
 
 // Champs tracés dans l'historique d'un ticket (VIGIE-9) : statut, assignation, priorité, domaine
-export const CHAMPS_HISTORIQUE = ['statut', 'technicien', 'priorite', 'domaine'];
+// concerne : un client s'est déclaré concerné par un doublon à la saisie (VIGIE-15)
+export const CHAMPS_HISTORIQUE = ['statut', 'technicien', 'priorite', 'domaine', 'concerne'];
 
 export const TYPES_NOTIFICATION = [
   'NOUVEAU_TICKET',

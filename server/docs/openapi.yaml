@@ -1011,8 +1011,11 @@ components:
 
     ChampHistorique:
       type: string
-      description: Ce qui a changé (statut, assignation, priorité, domaine).
-      enum: [statut, technicien, priorite, domaine]
+      description: >-
+        Ce qui a changé (statut, assignation, priorité, domaine), ou « concerne » quand un client
+        se déclare concerné (VIGIE-15). Pour un CLIENT, auteur et nouvelleValeur des entrées
+        « concerne » des autres personnes sont null.
+      enum: [statut, technicien, priorite, domaine, concerne]
 
     EntreeHistorique:
       type: object
