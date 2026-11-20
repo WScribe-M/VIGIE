@@ -495,8 +495,9 @@ paths:
       summary: Suggestions de doublons pendant la saisie du titre (CLIENT)
       description: >-
         Formulaire de création, étape 1 (VIGIE-15, cadrage 9.3). Jusqu'à 3 tickets ouverts
-        (`NOUVEAU`, `EN_COURS`, `EN_ATTENTE_DEMANDEUR`) dont le titre ou la description ressemble
-        au titre saisi (index textuel en français), les plus proches d'abord. Tickets de tous les
+        (`NOUVEAU`, `EN_COURS`, `EN_ATTENTE_DEMANDEUR`) dont le titre ressemble au
+        titre saisi (index textuel en français, puis filtre sur le titre seul : un mot tapé présent
+        seulement dans la description ne suffit pas), les plus proches d'abord. Tickets de tous les
         demandeurs, mais **plan A** : titre, service, statut et date d'ouverture uniquement, jamais
         la description, le demandeur, les commentaires, les pièces jointes ni le nombre de
         personnes concernées. Moins de 3 caractères : liste vide.

@@ -11,6 +11,7 @@ const {
   preparerRattachement,
   rejoindreTicket,
   texteRecherche,
+  titreCorrespond,
   verifierRattachement,
   versSuggestion,
 } = await import('../../src/services/doublonService.js');
@@ -143,13 +144,40 @@ describe('chercherSimilaires', () => {
       $text: { $search: 'vpn ne marche plus' },
       statut: { $nin: ['TERMINE', 'ABANDONNE'] },
     });
-    assert.equal(appels.limit, SUGGESTIONS_MAX);
+    // Plus de candidats que de suggestions : le filtre sur le titre en écarte une partie
+    assert.ok(appels.limit > SUGGESTIONS_MAX);
     assert.equal(SUGGESTIONS_MAX, 3);
     assert.deepEqual(appels.sort, { score: { $meta: 'textScore' } });
     // Projection : jamais la description, les commentaires ni les pièces jointes
     assert.doesNotMatch(appels.select, /description|commentaires|piecesJointes|historique/);
     assert.equal(suggestions.length, 1);
     assert.equal('description' in suggestions[0], false);
+  });
+
+  it('écarte un ticket trouvé seulement par sa description, et garde 3 suggestions au plus', async () => {
+    const parDescription = ticketComplet({
+      _id: '665a1f0c2b7e4a00000000a9',
+      titre: 'Imprimante bloquée',
+      description: 'Awa Diallo ne peut plus imprimer',
+    });
+    const candidats = [parDescription, ...Array.from({ length: 5 }, () => ticketComplet())];
+    mock.method(Ticket, 'find', () => requete(candidats));
+    const suggestions = await chercherSimilaires('Awa Diallo VPN', CLIENT);
+    assert.equal(suggestions.length, SUGGESTIONS_MAX);
+    assert.ok(suggestions.every((s) => s.titre !== 'Imprimante bloquée'));
+  });
+});
+
+describe('titreCorrespond (titre seul, décision du 20/11)', () => {
+  it('rapproche les titres qui partagent un mot, sans tenir compte des accents ni du pluriel', () => {
+    assert.equal(titreCorrespond('Coupure VPN sur le site de Lyon', 'vpn ne marche plus'), true);
+    assert.equal(titreCorrespond('Connexions ERP impossibles', 'connexion à l’erp'), true);
+    assert.equal(titreCorrespond('Écran noir', 'ecran'), true);
+  });
+
+  it('ne rapproche pas sur un mot vide ni sur un mot absent du titre', () => {
+    assert.equal(titreCorrespond('Imprimante bloquée', 'Awa Diallo'), false);
+    assert.equal(titreCorrespond('Pas de réseau dans les bureaux', 'les pas'), false);
   });
 });
 

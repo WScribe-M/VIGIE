@@ -52,8 +52,39 @@ export function versSuggestion(ticket, utilisateur) {
   };
 }
 
-// Tickets ouverts dont le titre ou la description ressemble au titre saisi, les plus proches
-// d'abord (index textuel en français du schéma : racines des mots, mots vides ignorés).
+// Mots qui ne disent rien du problème : ils ne suffisent pas à rapprocher deux titres
+const MOTS_VIDES = new Set(
+  'les des une pas sur dans avec pour que qui est mon mes son ses par aux ont sont plus tout tous depuis'.split(
+    ' ',
+  ),
+);
+
+// Mots significatifs d'un texte, sans accents ni majuscules, réduits à leurs 5 premières lettres :
+// « connexion » et « connexions » se rapprochent, comme le fait la racine de l'index textuel
+function racines(texte) {
+  return texte
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((mot) => mot.length >= 2 && !MOTS_VIDES.has(mot))
+    .map((mot) => mot.slice(0, 5));
+}
+
+// Le titre du ticket partage-t-il au moins un mot significatif avec la recherche ?
+// L'index textuel cherche aussi dans la description (il sert à la recherche de VIGIE-6, et MongoDB
+// n'en permet qu'un par collection) : sans ce filtre, taper un nom ferait remonter le titre d'un
+// ticket dont seule la description contient ce nom (décision du 20/11 : titre seul).
+export function titreCorrespond(titre, recherche) {
+  const motsTitre = new Set(racines(titre));
+  return racines(recherche).some((mot) => motsTitre.has(mot));
+}
+
+// Candidats lus avant le filtre sur le titre : assez pour en garder 3 après
+const CANDIDATS_MAX = 20;
+
+// Tickets ouverts dont le titre ressemble au titre saisi, les plus proches d'abord (index textuel
+// en français du schéma : racines des mots, mots vides ignorés), puis filtrés sur le titre seul.
 // On ne passe pas par filtreTicketsVisibles : le but est justement de montrer des tickets d'autres
 // demandeurs. C'est la projection de versSuggestion qui protège leur contenu.
 export async function chercherSimilaires(titre, utilisateur) {
@@ -67,9 +98,12 @@ export async function chercherSimilaires(titre, utilisateur) {
     .select('titre service statut createdAt demandeur suiveurs enCopie')
     .populate('service', 'nom')
     .sort({ score: { $meta: 'textScore' } })
-    .limit(SUGGESTIONS_MAX)
+    .limit(CANDIDATS_MAX)
     .lean();
-  return tickets.map((ticket) => versSuggestion(ticket, utilisateur));
+  return tickets
+    .filter((ticket) => titreCorrespond(ticket.titre, recherche))
+    .slice(0, SUGGESTIONS_MAX)
+    .map((ticket) => versSuggestion(ticket, utilisateur));
 }
 
 // Vérifie qu'un client peut se déclarer concerné par ce ticket. Pure, pour être testée sans base.
