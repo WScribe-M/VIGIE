@@ -51,4 +51,4 @@ Grille 2 colonnes : `600px minmax(0, 1fr)`.
 
 - « Mot de passe oublié ? », « Rester connectée sur ce poste » et « Il vous reste 3 tentatives avant le blocage
   temporaire du compte » ne correspondent à aucune règle ni story : **ne pas les afficher** sans story.
-- L'encart « En direct » dépend de l'État des services (cadrage 9.10, sans story) : masqué tant qu'il n'existe pas.
+- L'encart « En direct » dépend de l'État des services, intégré à **VIGIE-42** (cadrage 9.8) : masqué tant que cette story n'est pas livrée.

@@ -12,7 +12,7 @@ Couleurs : uniquement les tokens de `client/src/styles/tokens.css`.
 | Button, IconButton                              | **Fait** | `composants-03-boutons.png`                       |
 | StatusBadge, PriorityBadge, SlaBadge            | **Fait** | voir `/styleguide`                                |
 | Avatar                                          | **Fait** | `composants-03-echanges.png`                      |
-| Sidebar                                         | **Fait** | `composants-03-barre-laterale-et-en-tete.png`     |
+| Sidebar (barre haute sous 768 px)               | **Fait** | `composants-03-barre-laterale-et-en-tete.png`     |
 | TextField, TextArea, SearchField, FileDrop      | À faire  | `composants-03-champs.png`                        |
 | ServiceSelect                                   | À faire  | `composants-03-liste-de-choix.png`                |
 | ChoiceCard, DelayEstimate                       | À faire  | `composants-03-cartes-impact-et-urgence.png`      |
@@ -112,15 +112,16 @@ titre 16/22/600 sur **2 lignes max.** ; StatusBadge 24 + SlaBadge court ; pied s
 
 ![](captures/composants-03-suivi-davancement.png)
 
-Étapes « Signalé → Pris en charge → Résolu ». Rond 28 (32 dans la fiche), bordure 2 : fait = plein Pétrole + coche
-blanche ; en cours = contour Pétrole + point 10 px, libellé 700 ; à venir = bordure `--color-neutral-300`, libellé
-500 Taupe ; en attente = étape « Votre réponse » aux couleurs du statut En attente ; abandonné = dernière étape
-« Abandonné » aux couleurs du statut Abandonné. Trait 2 px Pétrole (Sable après l'étape courante).
-Messages : « Votre demande est arrivée. Un technicien la prendra en charge … » · « Mamadou Koné s’en occupe depuis
+**4 jalons** (décision 9.11, VIGIE-7) : « Reçu → Vu par le support → Pris en charge → Terminé » ; la capture
+montre les 3 étapes de la maquette, le style reste le même. Rond 28 (32 dans la fiche), bordure 2 : fait = plein
+Pétrole + coche blanche ; en cours = contour Pétrole + point 10 px, libellé 700 ; à venir = bordure
+`--color-neutral-300`, libellé 500 Taupe. En attente du demandeur : frise sur « Pris en charge » + mention
+« En attente de votre réponse » aux couleurs du statut En attente. Abandonné : **pas de frise**, seulement le
+message avec le motif. Trait 2 px Pétrole (Sable après le jalon courant).
+Messages : « Votre demande est arrivée. Résolution prévue avant le 20/11 à 11 h. » · « Mamadou Koné s’en occupe depuis
 11:02. Prochaine étape : résolution prévue avant 16:24. » · « Le support attend votre réponse. Le délai reprendra
 dès que vous aurez répondu. » · « Résolu le 14 nov. Confirmez, ou contestez jusqu’au JJ/MM. » · « Abandonné :
 rattaché à INC-1015 (doublon). Vous suivez désormais ce ticket. »
-⚠ 3 étapes du design ou 5 jalons de VIGIE-41 : à trancher.
 
 ## TimelineItem
 

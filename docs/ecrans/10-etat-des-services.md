@@ -2,7 +2,8 @@
 
 Route proposée : `/services` · Rôles : tous (action réservée au Gestionnaire et à l'Administrateur)
 
-> ⚠ Fonctionnalité **sans story** (cadrage 9.10) : à ne coder qu'une fois la story créée et priorisée.
+> Fait partie de **VIGIE-42** (panne collective, cadrage 9.8) : un gestionnaire confirme la panne détectée et
+> écrit le message public ; le service passe « Perturbé ». À coder avec cette story.
 > L'entrée « État des services » de la barre latérale n'apparaît qu'à ce moment-là.
 
 ![Vue Gestionnaire, temps réel](captures/10-etat-des-services.png)

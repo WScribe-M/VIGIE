@@ -20,6 +20,23 @@
   padding: var(--space-8);
 }
 
+/* Mobile (docs/ecrans/14-mobile.md) : une seule colonne, barre haute collée en haut, marges de 16 px */
+@media (max-width: 768px) {
+  .mise-en-page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+
+  .mise-en-page__barre {
+    z-index: 1;
+    height: auto;
+  }
+
+  .mise-en-page__contenu {
+    padding: var(--space-4);
+  }
+}
+
 /* Connexion : formulaire de 400 px centré */
 .connexion {
   display: flex;

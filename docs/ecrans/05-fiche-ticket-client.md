@@ -24,7 +24,7 @@ En-tête : lien retour « ← Mes demandes », cloche, avatar. Contenu, colonne,
      `--color-neutral-700`) ;
    - à droite : bouton Secondaire « Notifications activées » (`bell`) — voir ⚠.
 2. **« Où en est ma demande ? »** (ProgressTracker) : carte blanche, rayon 14, marges 24 × 28, écart 16,
-   `--shadow-xs` ; titre 16/600 ; 3 étapes en grille `repeat(3, minmax(0, 1fr))` : rond **32**, bordure 2,
+   `--shadow-xs` ; titre 16/600 ; **4 jalons** en grille `repeat(4, minmax(0, 1fr))` : rond **32**, bordure 2,
    icône 16, trait 2 px (marges 0 8) ; libellé 15 ; date 13 Taupe ; message 14/20 `--color-neutral-700` sous
    un filet `--color-neutral-100` (marge haute 14).
 3. **Deux colonnes** : grille `minmax(0, 5fr) minmax(0, 7fr)`, écart 24, alignées en haut.
@@ -42,7 +42,13 @@ Sous l'en-tête : bandeau fond `--color-status-en-attente-bg`, bordure `--color-
 rayon 14, marges 18 × 20, écart 12 ; titre 16/600 `--color-status-en-attente-strong` avec
 `message-circle-question` 20 ; la question du technicien dans une bulle blanche (rayon 12, marges 12 × 14,
 14/20 ; nom 600 · date Taupe) ; rangée : Primaire « Répondre » + note 13 `--color-status-en-attente-strong`.
-L'en-tête affiche SlaBadge « Suspendu » (forme `circle-pause`, sans fond).
+L'en-tête affiche SlaBadge « Suspendu » (forme `circle-pause`, sans fond). La frise reste sur « Pris en charge »,
+avec la mention « En attente de votre réponse ».
+
+### Variante « Abandonné »
+
+Pas de frise : un message avec le motif d'abandon (par exemple « Abandonné : rattaché à INC-1015 (doublon). Vous
+suivez désormais ce ticket. »).
 
 ### Variante « Terminé »
 
@@ -51,7 +57,7 @@ Carte blanche, marges 20, écart 16 :
 - « Le problème est-il résolu ? » 16/600 + message de clôture 14/20 `--color-neutral-700` ;
 - « Votre satisfaction » 13/600 : 5 étoiles en boutons 40 × 40, rayon 10, icône `star` 20 ; étoile pleine
   `--color-rating-fg` sur `--color-rating-bg`, bordure `--color-rating-border` ; vide `--color-neutral-400`
-  sur blanc, bordure Sable ; puis « 4/5 · Satisfaite » 14/600 ;
+  sur blanc, bordure Sable ; puis « 4/5 » 14/600 ;
 - Primaire « Confirmer la résolution » + Secondaire « Contester » ;
 - sous un filet : « Motif de la contestation * (si vous contestez) », zone de texte 64 px.
 
@@ -59,7 +65,7 @@ Carte blanche, marges 20, écart 16 :
 
 - Méta : « INC-1024 · signalé par vous le 17 nov. 2026, 10:24 »
 - « 9 personnes concernées » · « Notifications activées » · « Où en est ma demande ? »
-- Étapes : « Signalé » · « Pris en charge » · « Résolu » ; message : « Mamadou Koné s’en occupe depuis 11:02. Prochaine étape : résolution prévue avant 16:24. »
+- Jalons : « Reçu » · « Vu par le support » · « Pris en charge » · « Terminé » (les captures montrent les 3 étapes de la maquette) ; message : « Mamadou Koné s’en occupe depuis 11:02. Prochaine étape : résolution prévue avant 16:24. »
 - Informations : « Service » (`globe` selon le service) · « Technicien » (`user`) · « Signalé le » (`calendar`) · « Échéance » (`clock`) · « Concernés » (`users`, « 9 personnes, dont vous ») · « Pièce jointe » (`paperclip`) · « Description »
 - Onglets : « Échanges » · « Historique » ; en-tête de bulle : « Mamadou Koné · Gestionnaire · 11:02 », « Vous · Client · 11:20 »
 - « Mamadou Koné est en train d’écrire… » · champ : « Écrire un message au support… »
@@ -81,7 +87,8 @@ Carte blanche, marges 20, écart 16 :
 - « Sans nouvelles d’ici le 23/11, le ticket sera clôturé. » → **aucune clôture automatique** (cadrage 3.1) :
   « Sans réponse de votre part, nous vous relancerons le JJ/MM. » (relance après 3 jours).
 - « Vous pouvez contester jusqu’au 21/11 » → **15 jours** après le passage en Terminé (cadrage 3.1).
-- Suivi en 3 étapes (design) ou 5 jalons « Reçu → Vu par le support → Pris en charge → En cours → Terminé »
-  (VIGIE-41, cadrage 9.8) : **à trancher** avant de coder le ProgressTracker.
+- Suivi (décision 9.11) : **4 jalons** « Reçu → Vu par le support → Pris en charge → Terminé », et non les
+  3 étapes de la maquette ; codé avec la fiche ticket (**VIGIE-7**), champ `vuParSupportLe`.
+- « 4/5 · Satisfaite » → « 4/5 » : formulation neutre, sans accord (décision 9.11).
 - « Notifications activées » (suivre ou non le ticket) : sans story.
 - Notes internes : jamais affichées ici (filtrées par l'API, jamais émises vers un Client).

@@ -1,24 +1,42 @@
-import { ArrowRight, Bell, Copy, Ellipsis, Plus, Search, Trash } from 'lucide-react';
+import {
+  Activity,
+  ArrowRight,
+  Bell,
+  ChartColumn,
+  Copy,
+  Ellipsis,
+  House,
+  Inbox,
+  Plus,
+  Search,
+  Server,
+  Ticket,
+  Trash,
+  Users,
+} from 'lucide-react';
 import { Avatar } from '../composants/Avatar.jsx';
 import { Button, IconButton } from '../composants/Button.jsx';
 import { PriorityBadge } from '../composants/PriorityBadge.jsx';
 import { Sidebar } from '../composants/Sidebar.jsx';
 import { SlaBadge } from '../composants/SlaBadge.jsx';
 import { StatusBadge } from '../composants/StatusBadge.jsx';
+import { LIBELLES_PRIORITE, LIBELLES_SLA, LIBELLES_STATUT } from '../styles/libelles.js';
 import styles from './Styleguide.module.css';
 
 // Page de développement uniquement (absente du build de production) : catalogue des
 // composants du design system, à comparer avec les captures de docs/ecrans/.
 // Les données sont celles de la démo du handoff.
 
-const STATUTS = ['NOUVEAU', 'EN_COURS', 'EN_ATTENTE_DEMANDEUR', 'TERMINE', 'ABANDONNE'];
-const PRIORITES = ['BASSE', 'MOYENNE', 'HAUTE', 'CRITIQUE'];
-const SLA = [
-  { niveau: 'DANS_LES_TEMPS', detail: 'reste 2 h' },
-  { niveau: 'ECHEANCE_PROCHE', detail: 'reste 25 min' },
-  { niveau: 'EN_RETARD', detail: 'de 3 h' },
-  { niveau: 'SUSPENDU', detail: 'depuis 4 j' },
-];
+// Valeurs lues dans libelles.js : jamais réécrites à la main (elles suivent l'API)
+const STATUTS = Object.keys(LIBELLES_STATUT);
+const PRIORITES = Object.keys(LIBELLES_PRIORITE);
+const DETAILS_SLA = {
+  DANS_LES_TEMPS: 'reste 2 h',
+  ECHEANCE_PROCHE: 'reste 25 min',
+  EN_RETARD: 'de 3 h',
+  SUSPENDU: 'depuis 4 j',
+};
+const SLA = Object.keys(LIBELLES_SLA).map((niveau) => ({ niveau, detail: DETAILS_SLA[niveau] }));
 
 const COULEURS = [
   {
@@ -111,36 +129,37 @@ const BARRES = [
   {
     utilisateur: { prenom: 'Awa', nom: 'Diallo', role: 'CLIENT', paire: 1 },
     entrees: [
-      { chemin: '/demo/mes-demandes', libelle: 'Mes demandes', actif: true },
-      { chemin: '/demo/nouveau', libelle: 'Nouveau ticket' },
-      { chemin: '/demo/services', libelle: 'État des services' },
+      { chemin: '/demo/mes-demandes', libelle: 'Mes demandes', icone: House, actif: true },
+      { chemin: '/demo/nouveau', libelle: 'Nouveau ticket', icone: Plus },
+      { chemin: '/demo/services', libelle: 'État des services', icone: Activity },
     ],
   },
   {
     utilisateur: { prenom: 'Mamadou', nom: 'Koné', role: 'GESTIONNAIRE', paire: 2 },
     entrees: [
-      { chemin: '/demo/ma-file', libelle: 'Ma file', compteur: 3, actif: true },
-      { chemin: '/demo/tickets', libelle: 'Tous les tickets' },
-      { chemin: '/demo/nouveau', libelle: 'Nouveau ticket' },
-      { chemin: '/demo/pilotage', libelle: 'Pilotage' },
-      { chemin: '/demo/services', libelle: 'État des services' },
+      { chemin: '/demo/ma-file', libelle: 'Ma file', icone: Inbox, compteur: 3, actif: true },
+      { chemin: '/demo/tickets', libelle: 'Tous les tickets', icone: Ticket },
+      { chemin: '/demo/nouveau', libelle: 'Nouveau ticket', icone: Plus },
+      { chemin: '/demo/pilotage', libelle: 'Pilotage', icone: ChartColumn },
+      { chemin: '/demo/services', libelle: 'État des services', icone: Activity },
     ],
   },
   {
     utilisateur: { prenom: 'Karim', nom: 'Benali', role: 'ADMIN', paire: 4 },
     entrees: [
-      { chemin: '/demo/ma-file', libelle: 'Ma file', compteur: 2 },
-      { chemin: '/demo/tickets', libelle: 'Tous les tickets' },
-      { chemin: '/demo/nouveau', libelle: 'Nouveau ticket' },
-      { chemin: '/demo/pilotage', libelle: 'Pilotage' },
-      { chemin: '/demo/services', libelle: 'État des services' },
+      { chemin: '/demo/ma-file', libelle: 'Ma file', icone: Inbox, compteur: 2 },
+      { chemin: '/demo/tickets', libelle: 'Tous les tickets', icone: Ticket },
+      { chemin: '/demo/nouveau', libelle: 'Nouveau ticket', icone: Plus },
+      { chemin: '/demo/pilotage', libelle: 'Pilotage', icone: ChartColumn },
+      { chemin: '/demo/services', libelle: 'État des services', icone: Activity },
       {
         chemin: '/demo/utilisateurs',
         libelle: 'Utilisateurs',
+        icone: Users,
         section: 'Administration',
         actif: true,
       },
-      { chemin: '/demo/catalogue', libelle: 'Services' },
+      { chemin: '/demo/catalogue', libelle: 'Services', icone: Server },
     ],
   },
   {
@@ -149,11 +168,12 @@ const BARRES = [
       {
         chemin: '/demo/tickets',
         libelle: 'Tous les tickets',
+        icone: Ticket,
         etiquette: 'Lecture seule',
         actif: true,
       },
-      { chemin: '/demo/pilotage', libelle: 'Pilotage' },
-      { chemin: '/demo/services', libelle: 'État des services' },
+      { chemin: '/demo/pilotage', libelle: 'Pilotage', icone: ChartColumn },
+      { chemin: '/demo/services', libelle: 'État des services', icone: Activity },
     ],
   },
 ];

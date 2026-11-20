@@ -16,7 +16,9 @@ html {
 body {
   margin: 0;
   font-size: var(--text-body-md-size);
-  line-height: var(--text-body-md-line);
+  /* Interligne sans unité (≈ 20 px pour 14 px) : un titre sans classe qui passe sur deux lignes ne se
+     chevauche pas ; les classes de typographie.css gardent leurs interlignes exacts en px */
+  line-height: 1.43;
 }
 
 /* Les champs et boutons héritent de Figtree au lieu de la police du système */
@@ -38,9 +40,11 @@ a:hover {
   color: var(--color-brand-800);
 }
 
-/* Focus visible partout ; les composants sur fond blanc utilisent --shadow-focus-on-surface */
+/* Focus visible partout ; les composants sur fond blanc utilisent --shadow-focus-on-surface.
+   Contour transparent plutôt que `outline: none` : invisible normalement, il réapparaît en mode
+   contraste élevé de Windows, qui n'affiche pas les box-shadow */
 :focus-visible {
-  outline: none;
+  outline: 2px solid transparent;
   box-shadow: var(--shadow-focus);
 }
 

@@ -92,7 +92,7 @@ rond 16) : choisi fond `--color-brand-50` ; titre 14/600 + méta 12 Taupe ; Seco
 ## Règles
 
 - Menu de statut = transitions du cadrage (3.1). Retour à Nouveau impossible.
-- La **note interne** n'est jamais renvoyée à un Client par l'API ni émise vers lui (room `ticket:<id>:interne`).
+- La **note interne** (VIGIE-47) n'est jamais renvoyée à un Client par l'API ni émise vers lui (room `ticket:<id>:interne`).
 - La présence est une aide visuelle, pas un verrou ; la prise en charge reste atomique (`409`).
 
 ## ⚠ Écarts avec les règles

@@ -24,6 +24,8 @@ const COULEURS = {
  */
 export function StatusBadge({ statut, taille = 24 }) {
   const Icone = ICONES_STATUT[statut];
+  // Statut absent ou inconnu : ne rien afficher plutôt que faire planter toute la page
+  if (!Icone) return null;
   const { classe, icone } = TAILLES[taille] ?? TAILLES[24];
 
   return (

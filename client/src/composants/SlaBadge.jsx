@@ -31,6 +31,8 @@ function texteComplet(niveau, detail) {
  */
 export function SlaBadge({ niveau, detail, court = false, taille = 24 }) {
   const Icone = ICONES_SLA[niveau];
+  // Niveau absent (ticket terminé) ou inconnu : ne rien afficher plutôt que faire planter toute la page
+  if (!Icone) return null;
   const { classe, icone } = TAILLES[taille] ?? TAILLES[24];
   const complet = texteComplet(niveau, detail);
   const affiche = court && detail ? detail : complet;

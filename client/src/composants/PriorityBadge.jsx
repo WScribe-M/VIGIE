@@ -41,6 +41,9 @@ function BarresSignal({ actives }) {
  * @param taille   24 (par défaut) | 26
  */
 export function PriorityBadge({ priorite, taille = 24 }) {
+  // Priorité absente ou inconnue : ne rien afficher plutôt qu'un badge vide
+  if (!LIBELLES_PRIORITE[priorite]) return null;
+
   return (
     <span className={`${styles.badge} ${taille === 26 ? styles.t26 : ''} ${COULEURS[priorite]}`}>
       <BarresSignal actives={BARRES_ACTIVES[priorite]} />

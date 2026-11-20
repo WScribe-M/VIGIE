@@ -113,7 +113,7 @@
 
   /* Voile des modales et surbrillance temps réel */
   --color-overlay: rgba(42, 36, 32, 0.4);
-  --color-highlight: #e3eff0;
+  --color-highlight: var(--color-brand-100);
 
   /* Typographie : famille unique */
   --font-family: 'Figtree', sans-serif;
@@ -195,9 +195,11 @@
   --shadow-fab: 0 8px 20px -8px rgba(31, 92, 104, 0.6); /* bouton « + » central du mobile */
 
   /* Focus clavier : jamais supprimé, jamais remplacé par un simple changement de couleur */
-  --shadow-focus: 0 0 0 2px #faf6ef, 0 0 0 4px #2e7381; /* sur fond Lin */
-  --shadow-focus-on-surface: 0 0 0 2px #ffffff, 0 0 0 4px #2e7381; /* sur fond blanc */
-  --shadow-focus-inset: inset 0 0 0 2px #2e7381; /* lignes de tableau, onglets */
+  --shadow-focus:
+    0 0 0 2px var(--color-neutral-50), 0 0 0 4px var(--color-brand-500); /* sur fond Lin */
+  --shadow-focus-on-surface:
+    0 0 0 2px var(--color-neutral-0), 0 0 0 4px var(--color-brand-500); /* sur fond blanc */
+  --shadow-focus-inset: inset 0 0 0 2px var(--color-brand-500); /* lignes de tableau, onglets */
   --shadow-field-focus: 0 0 0 3px rgba(46, 115, 129, 0.25); /* champ actif */
 
   /* Densité et mise en page */

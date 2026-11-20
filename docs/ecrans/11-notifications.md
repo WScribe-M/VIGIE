@@ -37,4 +37,4 @@ plafond « 99+ » ; **jamais rouge**. Ouverte : fond `--color-brand-100`, icône
 - Chaque notification est enregistrée en base puis émise (`notification:new`, room `user:<id>`) ; à la
   (re)connexion, les non lues sont relues par l'API (cadrage 5).
 - Correspondance des filtres (proposition, à valider) : Tickets = nouveau ticket, mise à jour, changement de statut ; Commentaires =
-  nouveau commentaire, attente de réponse ; Délais = `ALERTE_SLA`, `RELANCE` ; Services = état des services (sans story).
+  nouveau commentaire, attente de réponse ; Délais = `ALERTE_SLA`, `RELANCE` ; Services = état des services (VIGIE-42).

@@ -154,3 +154,14 @@
   overflow: hidden;
   border-radius: var(--radius-lg);
 }
+
+/* Sous 768 px, la barre latérale devient une barre haute : une par ligne */
+@media (max-width: 768px) {
+  .barres {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .barre {
+    height: auto;
+  }
+}

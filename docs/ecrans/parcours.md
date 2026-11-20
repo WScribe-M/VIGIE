@@ -18,8 +18,8 @@ ordre ; les écrans complets sont dans leurs fiches.
 3. « Je suis aussi concerné » : le bouton devient « Vous êtes concerné » (`check`, fond `--color-brand-100`),
    le compteur de concernés augmente, et un encart de succès apparaît (fond `--color-status-termine-bg`, texte
    `--color-status-termine-strong`, rayon 12, marges 16, écart 12, entrée 280 ms) :
-   « **Vous suivez maintenant INC-1027** Pas besoin de créer un nouveau ticket : vous serez prévenu(e) à chaque
-   avancée. 10 personnes sont concernées. » + lien « Voir le ticket ».
+   « **Vous suivez maintenant INC-1027** Pas besoin de créer un nouveau ticket : chaque avancée vous sera
+   notifiée. 10 personnes sont concernées. » + lien « Voir le ticket ».
    Le client devient **suiveur** (cadrage 3.1) ; il voit alors le ticket complet.
 
 ⚠ Le nombre de personnes concernées n'apparaît **qu'après** avoir rejoint : avant, la suggestion respecte le
@@ -37,7 +37,7 @@ plan A du cadrage 9.3 (titre, service, statut, date).
    … » et le bouton « Prendre en charge ».
 2. Clic sur « Prendre en charge » (appel REST, prise en charge atomique) : le bouton devient « Pris en charge
    par vous » (désactivé). **Côté Client, sans recharger** (`ticket:updated`) : toast « **Mamadou Koné** a pris
-   en charge votre demande · à l’instant », statut « En cours », étape « Pris en charge » cochée avec le nom.
+   en charge votre demande · à l’instant », statut « En cours », jalon « Pris en charge » atteint avec le nom (4 jalons, voir [05](05-fiche-ticket-client.md)).
    Puis « Mamadou Koné est en train d’écrire… » (`typing:start`).
 3. Le message arrive (`comment:created`) : « Bonjour Léa, je m’en occupe. Le pare-feu du site de Lyon redémarre,
    retour sous 20 min. »

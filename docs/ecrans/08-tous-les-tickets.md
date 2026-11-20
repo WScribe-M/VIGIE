@@ -60,5 +60,6 @@ Bandeau : fond `--color-neutral-200`, rayon 10, marges 10 × 14, écart 10, `eye
 
 ## ⚠ Écarts avec les règles
 
-- « Prise en charge · reste 25 min » sur les tickets Nouveau : une seule échéance SLA (cadrage 9.2).
+- « Prise en charge · reste 25 min » sur les tickets Nouveau : une seule échéance SLA (cadrage 9.2) ; afficher
+  l'échéance de résolution, comme pour les autres tickets (décision 9.11).
 - Lecteur : « export CSV autorisé » dans la maquette, sans story.

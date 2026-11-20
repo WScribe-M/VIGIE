@@ -9,6 +9,7 @@ export function paireAvatar(identifiant) {
   return (somme % NOMBRE_DE_PAIRES) + 1;
 }
 
-export function initiales(prenom = '', nom = '') {
-  return `${prenom.trim().charAt(0)}${nom.trim().charAt(0)}`.toUpperCase();
+// `?? ''` et non une valeur par défaut : l'API renvoie souvent `null`, que les valeurs par défaut ne remplacent pas
+export function initiales(prenom, nom) {
+  return `${(prenom ?? '').trim().charAt(0)}${(nom ?? '').trim().charAt(0)}`.toUpperCase();
 }

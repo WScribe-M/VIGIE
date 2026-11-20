@@ -38,7 +38,7 @@ Contenu, colonne, écart 24 :
 - Phrase d'état (exemple) : « Votre VPN est entre de bonnes mains : Mamadou Koné s’en occupe depuis 11:02. »
 - Cartes : « En cours » · « Attendent ma réponse » · « Terminés à confirmer » ; détail = titres des tickets
   séparés par « · », puis « depuis hier » ou « jusqu’au JJ/MM ».
-- « Mes tickets récents » · « Voir tout » · « Tickets que je suis » · « Signalés par d’autres, vous êtes concernée »
+- « Mes tickets récents » · « Voir tout » · « Tickets que je suis » · « Signalés par d’autres, que vous suivez » (⚠ maquette : « vous êtes concernée » ; formulation neutre, cadrage 9.11)
 - Méta d'une ligne : « INC-1024 · Mamadou Koné · nouveau message, à l’instant » ;
   « … · votre réponse est attendue depuis hier, 17:15 » ; « … · résolution prévue demain, 12:00 » ;
   « INC-1018 · résolu le 14 nov. · à confirmer avant le JJ/MM » ; suivi : « INC-1027 · signalé par Léa Martin · » + `users` + nombre.
@@ -60,5 +60,5 @@ Contenu, colonne, écart 24 :
 
 - « jusqu’au 21/11 » et « à confirmer avant le 21/11 » : la contestation dure **15 jours** (cadrage 3.1) →
   date affichée = passage en Terminé + 15 jours (exemple : 29/11).
-- Carte « État des services » : fonctionnalité sans story (cadrage 9.10) ; la colonne de droite reste vide ou
-  est retirée tant qu'elle n'existe pas.
+- Carte « État des services » : fait partie de **VIGIE-42** (cadrage 9.8) ; la colonne de droite est retirée tant
+  que cette story n'est pas livrée.

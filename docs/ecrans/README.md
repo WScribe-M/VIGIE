@@ -30,7 +30,9 @@ mot pour mot.
 └───────────┴──────────────────────────────────────────────────────────────┘
 ```
 
-- **Barre latérale** : composant `Sidebar` (fait). Élément actif = page courante.
+- **Barre latérale** : composant `Sidebar` (fait). Élément actif = page courante. Entrées : celles de
+  `client/src/auth/roles.js`, ajoutées story par story (jamais de lien vers une page qui n'existe pas). Sous
+  768 px, elle devient une barre haute.
 - **En-tête** (PageHeader, à construire) : fond Lin, filet bas `--color-neutral-200`. De gauche à droite :
   - sur une page de détail, un lien retour `arrow-left` 16 px + nom de la page parente, 14/400, écart 6 ;
   - selon l'écran : la présence (fiche Gestionnaire) ou « En direct · 4 collègues connectés » (Ma file),
@@ -47,24 +49,24 @@ mot pour mot.
 route ou son nom. Lire la fiche **avant de coder**, puis ses captures (`captures/`, avec l'outil de lecture
 d'images). Une story d'interface absente du tableau : trouver l'écran concerné et **ajouter sa clé ici**.
 
-| #   | Écran (fiche)                                                | Route                         | Stories                                                                                | Rôles                                 |
-| --- | ------------------------------------------------------------ | ----------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------- |
-| 01  | [Connexion](01-connexion.md)                                 | `/connexion`                  | VIGIE-2                                                                                | tous                                  |
-| 02  | [Mes demandes](02-mes-demandes.md)                           | `/mes-demandes`               | VIGIE-18                                                                               | Client                                |
-| 03  | [Créer un ticket](03-creer-un-ticket.md)                     | `/tickets/nouveau` (proposée) | VIGIE-3 (description guidée), VIGIE-15 (doublons), VIGIE-35 (pièces jointes), VIGIE-42 | Client                                |
-| 04  | [Créer un ticket pour un tiers](04-creer-pour-un-tiers.md)   | `/tickets/nouveau` (proposée) | —                                                                                      | Gestionnaire, Administrateur          |
-| 05  | [Fiche ticket Client](05-fiche-ticket-client.md)             | `/tickets/:id` (proposée)     | VIGIE-41 (suivi), VIGIE-25 (satisfaction), VIGIE-13                                    | Client                                |
-| 06  | [Fiche ticket Gestionnaire](06-fiche-ticket-gestionnaire.md) | `/tickets/:id` (proposée)     | VIGIE-17 (présence), VIGIE-13 (« en train d'écrire… »), VIGIE-44 (résolution)          | Gestionnaire, Administrateur, Lecteur |
-| 07  | [Ma file](07-ma-file.md)                                     | `/ma-file`                    | VIGIE-31                                                                               | Gestionnaire, Administrateur          |
-| 08  | [Tous les tickets](08-tous-les-tickets.md)                   | `/tickets` (proposée)         | —                                                                                      | Gestionnaire, Administrateur, Lecteur |
-| 09  | [Pilotage](09-pilotage.md)                                   | `/pilotage`                   | VIGIE-32                                                                               | Gestionnaire, Administrateur, Lecteur |
-| 10  | [État des services](10-etat-des-services.md)                 | `/services` (proposée)        | aucune (sans story, cadrage 9.10)                                                      | tous                                  |
-| 11  | [Notifications](11-notifications.md)                         | panneau de l'en-tête          | —                                                                                      | tous                                  |
-| 12  | [Administration](12-administration.md)                       | `/administration`             | VIGIE-37 (utilisateurs), VIGIE-4 (services)                                            | Administrateur                        |
-| 13  | [Erreurs 403 et 404](13-erreurs.md)                          | toute route                   | —                                                                                      | tous                                  |
-| 14  | [Mobile 390 px](14-mobile.md)                                | mêmes routes                  | —                                                                                      | Client                                |
-| —   | [Parcours interactifs](parcours.md)                          | —                             | —                                                                                      | Client, Gestionnaire                  |
-| —   | [Composants](composants.md)                                  | `/styleguide` (développement) | —                                                                                      | —                                     |
+| #   | Écran (fiche)                                                | Route                         | Stories                                                                                                                             | Rôles                                 |
+| --- | ------------------------------------------------------------ | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| 01  | [Connexion](01-connexion.md)                                 | `/connexion`                  | VIGIE-2                                                                                                                             | tous                                  |
+| 02  | [Mes demandes](02-mes-demandes.md)                           | `/mes-demandes`               | VIGIE-18                                                                                                                            | Client                                |
+| 03  | [Créer un ticket](03-creer-un-ticket.md)                     | `/tickets/nouveau` (proposée) | VIGIE-3 (description guidée), VIGIE-15 (doublons), VIGIE-35 (pièces jointes), VIGIE-42                                              | Client                                |
+| 04  | [Créer un ticket pour un tiers](04-creer-pour-un-tiers.md)   | `/tickets/nouveau` (proposée) | —                                                                                                                                   | Gestionnaire, Administrateur          |
+| 05  | [Fiche ticket Client](05-fiche-ticket-client.md)             | `/tickets/:id` (proposée)     | VIGIE-7 (fiche, frise), VIGIE-41 (suivi), VIGIE-25 (satisfaction), VIGIE-13                                                         | Client                                |
+| 06  | [Fiche ticket Gestionnaire](06-fiche-ticket-gestionnaire.md) | `/tickets/:id` (proposée)     | VIGIE-17 (présence), VIGIE-13 (« en train d'écrire… »), VIGIE-44 (résolution), VIGIE-5 (requalification), VIGIE-47 (notes internes) | Gestionnaire, Administrateur, Lecteur |
+| 07  | [Ma file](07-ma-file.md)                                     | `/ma-file`                    | VIGIE-31                                                                                                                            | Gestionnaire, Administrateur          |
+| 08  | [Tous les tickets](08-tous-les-tickets.md)                   | `/tickets` (proposée)         | —                                                                                                                                   | Gestionnaire, Administrateur, Lecteur |
+| 09  | [Pilotage](09-pilotage.md)                                   | `/pilotage`                   | VIGIE-32                                                                                                                            | Gestionnaire, Administrateur, Lecteur |
+| 10  | [État des services](10-etat-des-services.md)                 | `/services` (proposée)        | VIGIE-42 (panne collective)                                                                                                         | tous                                  |
+| 11  | [Notifications](11-notifications.md)                         | panneau de l'en-tête          | —                                                                                                                                   | tous                                  |
+| 12  | [Administration](12-administration.md)                       | `/administration`             | VIGIE-37 (utilisateurs), VIGIE-4 (services)                                                                                         | Administrateur                        |
+| 13  | [Erreurs 403 et 404](13-erreurs.md)                          | toute route                   | —                                                                                                                                   | tous                                  |
+| 14  | [Mobile 390 px](14-mobile.md)                                | mêmes routes                  | —                                                                                                                                   | Client                                |
+| —   | [Parcours interactifs](parcours.md)                          | —                             | —                                                                                                                                   | Client, Gestionnaire                  |
+| —   | [Composants](composants.md)                                  | `/styleguide` (développement) | —                                                                                                                                   | —                                     |
 
 ## Données de démonstration
 

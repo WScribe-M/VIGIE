@@ -70,14 +70,14 @@ Contenu, colonne, écart 24 :
 
 - Étapes : « Décrire le problème » · « Évaluer la situation »
 - Champs : « Titre * » · « Description * » (placeholder « Que se passe-t-il ? Depuis quand ? Qu’avez-vous déjà essayé ? ») · « Service concerné * » · « Pièces jointes (facultatif) »
-- Panneau : « Ce problème est peut-être déjà signalé » · « 2 tickets ouverts ressemblent à « vpn ne marche plus ». Rejoignez-en un : vous serez prévenu(e) de chaque avancée. » · « Je suis aussi concerné » · « Ce n’est pas le même problème ? Continuez votre déclaration. »
+- Panneau : « Ce problème est peut-être déjà signalé » · « 2 tickets ouverts ressemblent à « vpn ne marche plus ». Rejoignez-en un : chaque avancée vous sera signalée. » · « Je suis aussi concerné » · « Ce n’est pas le même problème ? Continuez votre déclaration. »
 - Encart : « N’indiquez jamais de mot de passe dans un ticket. Le support ne vous le demandera pas. »
 - Questions : « Qui est touché ? » (Moi seul / Mon équipe / Toute l’entreprise) · « Pouvez-vous continuer à travailler ? » (Je peux continuer / Mode dégradé / Je suis bloqué) ; descriptions dans `libelles.js` et [composants.md](composants.md).
-- Délai : « Délai de traitement estimé » · explication « Calculé à partir de vos réponses (mon équipe, je suis bloqué(e)). Le support peut l’ajuster. »
+- Délai : « Délai de traitement estimé » · valeur = **échéance SLA** : « Résolution prévue avant le 20/11 à 11 h » · explication « Calculé à partir de vos réponses : priorité Haute. Le support peut l’ajuster. »
 - Récapitulatif : « Récapitulatif » · « Modifier » · « Titre » · « Service » · « Description » · note « La priorité n’est pas à choisir : elle est calculée à partir de l’impact et de l’urgence. »
 - Boutons : « Annuler » · « Continuer » · « Retour » · « Créer le ticket » → « Création… »
 - Erreurs : bandeau « **2 champs à compléter** avant de continuer. » ; « Le titre est obligatoire. » ; « Choisissez un service, ou « Autre / je ne sais pas ». » ; placeholder du service vide « Aucun service choisi ».
-- Confirmation : icône `circle-check` 32 `--color-feedback-success-fg` · « Ticket INC-1028 créé » (20/600) · « Un technicien le prendra en charge … Vous serez prévenu(e) ici et par e-mail à chaque étape. » · Primaire « Suivre ma demande ».
+- Confirmation : icône `circle-check` 32 `--color-feedback-success-fg` · « Ticket INC-1028 créé » (20/600) · « Résolution prévue avant le 20/11 à 11 h. Chaque étape vous sera notifiée ici et par e-mail. » · Primaire « Suivre ma demande ».
 
 ## États
 
@@ -100,8 +100,8 @@ Contenu, colonne, écart 24 :
   (cadrage 9.4 : png, jpg, pdf, txt, log, csv, docx, xlsx).
 - **Suggestions de doublons** (cadrage 9.3, plan A : titre, service, statut, date d'ouverture uniquement) :
   méta « Signalé il y a 12 min · VPN » au lieu de « 9 personnes concernées » ou « Mamadou Koné s’en occupe ».
-- **Délai estimé** : « Prise en charge sous 30 min · résolution avant 17:50 ». La résolution = échéance SLA
-  (cadrage 9.2) ; la prise en charge suit l'estimation en fourchette de VIGIE-41 (cadrage 9.8, rien sous
-  10 tickets comparables). Libellé exact de la fourchette **à valider** avec l'équipe.
-- Textes au féminin dans la maquette (« prévenue », « bloquée ») : accorder selon l'utilisateur ou écrire
-  une forme neutre — à décider.
+- **Délai estimé** (décision 9.11) : pas de « Prise en charge sous 30 min » ; on affiche l'**échéance SLA**
+  (cadrage 9.2) : « Résolution prévue avant le 20/11 à 11 h ». Vaut aussi pour l'envoi, la confirmation et le
+  toast de succès (« INC-1028 · résolution prévue avant le 20/11 à 11 h »).
+- **Formulations neutres** (décision 9.11) : pas d'accord au féminin (« prévenue », « bloquée ») ; textes
+  reformulés sans accord, comme ci-dessus.

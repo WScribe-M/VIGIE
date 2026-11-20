@@ -7,6 +7,8 @@
   width: var(--layout-sidebar-width);
   height: 100%;
   padding: 20px 12px 12px;
+  /* Petit écran ou zoom à 150 % : la barre défile, le bouton de déconnexion reste atteignable */
+  overflow-y: auto;
   background: var(--color-neutral-900);
 }
 
@@ -156,4 +158,80 @@
 
 .deconnexion:hover {
   background: var(--color-sidebar-item-active-bg);
+}
+
+/*
+ * Mobile (docs/ecrans/14-mobile.md) : sous 768 px, la barre latérale devient une barre haute de 56 px,
+ * comme la barre haute du mobile (logo, actions, avatar). Les entrées gardent seulement leur icône ;
+ * le libellé reste lu par les lecteurs d'écran. Cibles tactiles de 44 px.
+ */
+@media (max-width: 768px) {
+  .barre {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-1);
+    width: 100%;
+    height: 56px;
+    padding: 0 var(--space-4);
+    /* Beaucoup d'entrées : la barre défile horizontalement au lieu de comprimer les cibles de 44 px */
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .logo {
+    margin-right: auto;
+    padding: 0;
+    font-size: 24px;
+  }
+
+  .section,
+  .espace,
+  .etiquette {
+    display: none;
+  }
+
+  .logo,
+  .entree,
+  .pied {
+    flex: none;
+  }
+
+  .entree {
+    position: relative;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  .libelle,
+  .identite {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .compteur {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 11px;
+  }
+
+  .pied {
+    gap: var(--space-1);
+    padding: 0 0 0 var(--space-2);
+    border-top: 0;
+  }
+
+  .deconnexion {
+    width: 44px;
+    height: 44px;
+  }
 }

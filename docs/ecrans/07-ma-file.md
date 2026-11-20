@@ -74,5 +74,5 @@ Contenu, colonne, écart 24 :
 - Sous-titre « Réseau et postes de travail · … » et « nouveaux tickets de votre domaine » : **une seule
   équipe support** → pas de filtre par domaine ; description de section « nouveaux tickets ».
 - Colonne « Prise en charge » avec « reste 28 min » : il n'existe qu'une échéance SLA (résolution, cadrage
-  9.2). Afficher l'échéance SLA, ou l'estimation de VIGIE-41 si l'équipe le décide.
+  9.2) ; la colonne s'appelle « Échéance » et affiche le SlaBadge de l'échéance de résolution (décision 9.11).
 - KPI « capacité cible : 10 » : aucune règle ne fixe cette cible ; à valider ou retirer.

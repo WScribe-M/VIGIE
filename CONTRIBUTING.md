@@ -114,6 +114,18 @@ router.post('/', autoriser('ADMIN'), creer); // ADMIN uniquement
 
 - Pour les tickets, toujours appliquer les règles de `services/visibiliteService.js` : `filtreTicketsVisibles(utilisateur)` dans les recherches, `peutVoirTicket(utilisateur, ticket)` pour un ticket précis.
 
+### Requêtes MongoDB
+
+Le schéma et les index ont été conçus à partir des requêtes de l'application (cadrage 9.10). Pour qu'ils servent :
+
+- **Listes** : ne charger que les champs affichés, avec `.select(...)` et `.lean()`. Un ticket embarque commentaires et historique : sans projection, une liste transporte des documents entiers.
+- **`populate`** : toujours limité aux champs utiles, par exemple `.populate('demandeur', 'nom prenom')`.
+- **Trier par priorité sur `rangPriorite`**, jamais sur `prioriteFinale` : le texte se trie par ordre alphabétique (BASSE, CRITIQUE, HAUTE, MOYENNE).
+- **Champs tenus à jour ensemble** : `prioriteFinale` avec `rangPriorite` (`RANG_PRIORITE` de `constantes.js`), et `statut` avec `dateStatut`. Avec `ticket.save()`, le rang est recalculé automatiquement ; avec `updateOne` ou `findOneAndUpdate`, il faut écrire les deux champs.
+- **Transitions et modifications concurrentes** : `optimisticConcurrency` ne protège que `ticket.save()`. Avec `updateOne` ou `findOneAndUpdate`, mettre l'état attendu dans le filtre (`{ _id, statut: 'EN_COURS' }`) et renvoyer `409` si rien n'a été modifié.
+- **Numéro de ticket** : attribué par `prochainNumeroTicket()` (`services/numeroService.js`), affiché avec `formaterNumero()` (VIG-0042), lu dans une recherche avec `lireNumero()`.
+- Un nouvel index se déclare dans le schéma, avec un commentaire qui cite la requête qu'il sert. Au démarrage, `syncIndexes()` aligne la base : rien à faire à la main.
+
 ### Sécurité (non négociable)
 
 - **Droits et visibilité vérifiés côté serveur**, à chaque route. Masquer un bouton dans l'interface ne protège rien.

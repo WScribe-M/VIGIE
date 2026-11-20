@@ -1,7 +1,7 @@
 import { LogOut } from 'lucide-react';
 import { Fragment } from 'react';
 import { NavLink } from 'react-router';
-import { ICONES_NAVIGATION, TAILLE_ICONE, TRAIT_ICONE } from '../styles/icones.js';
+import { TAILLE_ICONE, TRAIT_ICONE } from '../styles/icones.js';
 import { LIBELLES_ROLE } from '../styles/libelles.js';
 import { Avatar } from './Avatar.jsx';
 import styles from './Sidebar.module.css';
@@ -21,7 +21,8 @@ function Logo() {
 
 /**
  * Barre latérale par rôle (docs/ecrans/composants.md, capture composants-03-barre-laterale-et-en-tete).
- * @param entrees     [{ chemin, libelle, compteur?, etiquette?, section?, actif? }]
+ * @param entrees     [{ chemin, libelle, icone, compteur?, etiquette?, section?, actif? }] (voir PAGES, roles.js)
+ *                    `icone` est un composant Lucide.
  *                    `section` ouvre un groupe (« Administration »), `etiquette` ajoute « Lecture seule »,
  *                    `actif` force l'état actif (page /styleguide) ; sinon, la route courante décide.
  * @param utilisateur { id, prenom, nom, role }
@@ -32,7 +33,7 @@ export function Sidebar({ entrees, utilisateur, onDeconnexion }) {
       <Logo />
 
       {entrees.map((entree) => {
-        const Icone = ICONES_NAVIGATION[entree.libelle];
+        const Icone = entree.icone;
         return (
           <Fragment key={entree.chemin}>
             {entree.section && <span className={styles.section}>{entree.section}</span>}

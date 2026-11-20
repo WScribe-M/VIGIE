@@ -18,6 +18,9 @@ La barre d'état « 15:52 ●●● 5G » (44 px) fait partie de la maquette du 
   zoom automatique).
 - Marges latérales 16 px. Pas de barre latérale.
 - Barre haute 56 px, marges 0 16 (écrans d'étape : 0 8) ; barre basse ou pied collant fond blanc, filet haut Sable.
+- **Déjà en place** : sous 768 px, `Sidebar` devient une barre haute de 56 px (logo, entrées en icônes de 44 px,
+  avatar, déconnexion) et le contenu passe sur une colonne avec des marges de 16 px. La **barre d'onglets
+  basse** de la maquette (ci-dessous) reste à construire avec Mes demandes (VIGIE-18).
 
 ## Mes demandes
 
@@ -46,7 +49,7 @@ La barre d'état « 15:52 ●●● 5G » (44 px) fait partie de la maquette du 
     concerné * » en liste 48 px « Choisir un service ».
   - étape 2 : questions 16/600 ; **cartes de choix en liste** (une par ligne) : hauteur min. 56, marges 10 × 14,
     rayon 12, écart 12, icône 20, titre 15/600, rond 20 à droite ; délai estimé (fond `--color-brand-100`,
-    marges 14, écart 10, `clock` 20, « Délai estimé » 13/600, valeur 16/600).
+    marges 14, écart 10, `clock` 20, « Délai estimé » 13/600, valeur 16/600 : « Résolution prévue avant le 20/11 à 11 h »).
 - **Pied collant** : marges `12px 16px 28px` ; Primaire pleine largeur 48 px, 16/600 (« Continuer », « Créer le ticket »).
 
 ## Fiche ticket Client
@@ -57,11 +60,12 @@ La barre d'état « 15:52 ●●● 5G » (44 px) fait partie de la maquette du 
   bulles avec avatar 28 (marges 10 × 12) ; « Mamadou écrit… » 12 Taupe.
 - **Champ de réponse collant** : marges `10px 12px 28px`, écart 8 ; `paperclip` 44 × 44 ; champ 44 px rayon 22
   (pilule), 15 px, « Votre message… » ; bouton d'envoi rond 44 Pétrole, icône 18.
-- Terminé : « Le problème est-il résolu ? », message de clôture, étoiles et « 4/5 · Satisfaite », boutons
+- Terminé : « Le problème est-il résolu ? », message de clôture, étoiles et « 4/5 », boutons
   « Confirmer la résolution » / « Contester » pleine largeur (voir capture).
 
 ## ⚠ Écarts avec les règles
 
 Les mêmes que le bureau : « Contestation possible jusqu’au 21/11 » → 15 jours ; « Peut-être déjà signalé » :
-méta limitée au service et à la date (« INC-1027 · il y a 12 min · VPN ») ; « Prise en charge sous 30 min » :
-voir [03](03-creer-un-ticket.md).
+méta limitée au service et à la date (« INC-1027 · il y a 12 min · VPN ») ; « Prise en charge sous 30 min » →
+échéance SLA (voir [03](03-creer-un-ticket.md)) ; suivi vertical en **4 jalons** (voir
+[05](05-fiche-ticket-client.md)) ; formulations neutres.

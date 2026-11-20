@@ -1,9 +1,8 @@
 // Icônes Lucide associées aux valeurs métier (handoff de design).
 // Toujours avec TRAIT_ICONE, jamais dans un cercle coloré, jamais seules pour porter un état.
+// Les icônes de navigation sont dans PAGES (client/src/auth/roles.js), avec chaque page.
 import {
-  Activity,
   Building2,
-  ChartColumn,
   CircleCheck,
   CircleDot,
   CirclePause,
@@ -14,8 +13,6 @@ import {
   Database,
   Gauge,
   Globe,
-  House,
-  Inbox,
   LoaderCircle,
   Mail,
   MapPin,
@@ -23,10 +20,7 @@ import {
   Monitor,
   OctagonX,
   Phone,
-  Plus,
   Printer,
-  Server,
-  Ticket,
   User,
   Users,
 } from 'lucide-react';
@@ -71,17 +65,3 @@ const ICONES_SERVICE = {
 export function iconeService(nomService) {
   return ICONES_SERVICE[nomService] ?? CircleQuestionMark;
 }
-
-// Entrées de la barre latérale, par libellé (docs/ecrans/composants.md, capture composants-03-barre-laterale-et-en-tete)
-export const ICONES_NAVIGATION = {
-  'Mes demandes': House,
-  'Ma file': Inbox,
-  'Tous les tickets': Ticket,
-  'Nouveau ticket': Plus,
-  Pilotage: ChartColumn,
-  'État des services': Activity,
-  Utilisateurs: Users,
-  Services: Server,
-  // Page provisoire de VIGIE-2 : le design la découpe en « Utilisateurs » et « Services »
-  Administration: Users,
-};
