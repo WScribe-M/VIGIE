@@ -31,19 +31,16 @@ const SECTIONS = [
   {
     cle: 'aPrendre',
     titre: 'À prendre',
-    description: 'nouveaux tickets',
     colonneSla: 'Échéance',
   },
   {
     cle: 'enCours',
     titre: 'Mes tickets en cours',
-    description: 'par échéance, puis par priorité',
     colonneSla: 'Résolution',
   },
   {
     cle: 'enAttente',
     titre: 'En attente du demandeur',
-    description: 'délai suspendu · relancez au-delà de 3 jours',
     colonneSla: 'Ancienneté',
   },
 ];
@@ -117,7 +114,6 @@ function Section({ section, lignes, total, minutesParJour, nouveaux }) {
           {section.titre}
         </h2>
         <span className={`${styles.compteurSection} chiffres`}>{total}</span>
-        <span className={styles.descriptionSection}>{section.description}</span>
       </div>
       {lignes.length ? (
         <div className={styles.defilement}>
@@ -318,7 +314,7 @@ export function MaFile() {
       <PageHeader gauche={enDirect} />
       <div className={styles.page}>
         {/* Décision du 20/11 : une seule densité (« Confort », lignes de 52 px), pas de sélecteur */}
-        {/* Pas de sous-titre (décision du 20/11) : le tri est indiqué dans chaque section */}
+        {/* Ni sous-titre ni description de section (décision du 20/11) */}
         <h1 className={`text-display-lg ${styles.titrePage}`}>À traiter</h1>
 
         {/* Temps réel coupé : la liste reste affichée avec son heure (fiche 07, état erreur) */}

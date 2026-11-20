@@ -27,7 +27,7 @@ Contenu, colonne, écart 24 :
    libellé 13/600 + icône 18 à droite ; chiffre **32/36/600** tabulaire ; détail 13 `--color-neutral-700`.
    La carte « Alertes SLA » a libellé, icône et chiffre en `--color-sla-retard-fg`.
 3. **3 sections** (carte blanche, rayon 14, `--shadow-xs`) : en-tête marges 16 × 20, écart 10 : titre 17/600,
-   compteur (pastille 20 px, `--color-neutral-100`, 12/600), description 13 Taupe.
+   compteur (pastille 20 px, `--color-neutral-100`, 12/600).
    - **En-tête de tableau** 36 px, fond Lin, filets Sable, 12/600 Taupe.
    - **Grille des lignes** : `72px minmax(0, 1fr) 176px 88px 240px 110px auto`, écart 14, marges
      `4px 20px 4px 17px`, hauteur min. 44 (dense) / 52 (confort), liseré gauche 3 px (rouge si en retard),
@@ -51,7 +51,7 @@ Contenu, colonne, écart 24 :
 ## Textes exacts
 
 - KPI : « À prendre » (`inbox`, « dont 2 Critique ») · « Mes tickets en cours » (`loader-circle`) · « Alertes SLA » (`clock`, « 1 en retard · 1 échéance proche ») · « En attente du demandeur » (`message-circle-question`, « le plus ancien : depuis 4 j »)
-- Sections : « À prendre » · « Mes tickets en cours » (« par échéance, puis par priorité ») · « En attente du demandeur » (« délai suspendu · relancez au-delà de 3 jours »)
+- Sections : « À prendre » · « Mes tickets en cours » · « En attente du demandeur »
 - Colonnes : « N° » · « Titre » · « Statut » · « Priorité » · « Échéance » / « Résolution » / « Ancienneté » · « Demandeur »
 - Actions : « Prendre en charge » · « Ouvrir » · « Relancer » ; étiquette « Nouveau · à l’instant »
 - Toast : « En direct · à l’instant » · « Nouveau ticket · Critique · VPN » · « INC-1027 · Coupure VPN sur le site de Lyon · signalé par Léa Martin, 9 concernés » · « Ouvrir » (⚠ décision du 20/11 : le toast informe, il n’a pas de bouton « Prendre en charge » ; la prise en charge se fait depuis la ligne ou la fiche, où l’état réel du ticket est visible)
@@ -70,7 +70,7 @@ Contenu, colonne, écart 24 :
 ## ⚠ Écarts avec les règles
 
 - Sous-titre « Réseau et postes de travail · … » et « nouveaux tickets de votre domaine » : **une seule
-  équipe support** → pas de filtre par domaine ; description de section « nouveaux tickets ».
+  équipe support** → pas de filtre par domaine.
 - Colonne « Prise en charge » avec « reste 28 min » : il n'existe qu'une échéance SLA (résolution, cadrage
   9.2) ; la colonne s'appelle « Échéance » et affiche le SlaBadge de l'échéance de résolution (décision 9.11).
 - KPI « capacité cible : 10 » : aucune règle ne fixe cette cible ; à valider ou retirer.
@@ -81,5 +81,5 @@ Contenu, colonne, écart 24 :
   hauteur « Confort » (52 px).
 - **Nom de l’écran** (décision du 20/11) : « À traiter » au lieu de « Ma file » (« file » se lit « fichier », et deux
   sections sur trois montrent les tickets de toute l’équipe). La route reste `/ma-file`.
-- **Pas de sous-titre** sous « À traiter » (décision du 20/11) : le tri est indiqué dans la description de chaque
-  section.
+- **Pas de sous-titre ni de description de section** (décision du 20/11) : la page n’affiche que « À traiter », puis
+  pour chaque section son titre et son compteur.
