@@ -4,13 +4,24 @@ import { creerService, deduireDomaine, listerServices, modifierService } from '.
 import { initialiserServices, SERVICES_INITIAUX } from '../scripts/seedServices.js';
 const ID = '507f1f77bcf86cd799439011';
 
+// Simule la chaîne find().select().collation().sort().lean() de Mongoose
+function requete(resultat) {
+  const chaine = {
+    select: () => chaine,
+    collation: () => chaine,
+    sort: () => chaine,
+    lean: async () => resultat,
+  };
+  return chaine;
+}
+
 test('la liste publique exclut les services inactifs', async () => {
   let filtreRecu;
 
   const modele = {
     find(filtre) {
       filtreRecu = filtre;
-      return { sort: async () => [] };
+      return requete([]);
     },
   };
 
@@ -22,16 +33,12 @@ test('la liste publique exclut les services inactifs', async () => {
 test('le service Autre apparaît en dernier dans le catalogue', async () => {
   const modele = {
     find() {
-      return {
-        async sort() {
-          return [
-            { nom: 'Autre / je ne sais pas' },
-            { nom: 'ERP' },
-            { nom: 'Messagerie' },
-            { nom: 'VPN' },
-          ];
-        },
-      };
+      return requete([
+        { nom: 'Autre / je ne sais pas' },
+        { nom: 'ERP' },
+        { nom: 'Messagerie' },
+        { nom: 'VPN' },
+      ]);
     },
   };
 
@@ -43,14 +50,13 @@ test('le service Autre apparaît en dernier dans le catalogue', async () => {
   );
 });
 
-
 test('la liste ADMIN inclut les services inactifs', async () => {
   let filtreRecu;
 
   const modele = {
     find(filtre) {
       filtreRecu = filtre;
-      return { sort: async () => [] };
+      return requete([]);
     },
   };
 
@@ -180,10 +186,7 @@ test('le service Autre ne peut pas être désactivé', async () => {
     },
   };
 
-  await assert.rejects(
-    modifierService(ID, { actif: false }, modele),
-    { status: 400 },
-  );
+  await assert.rejects(modifierService(ID, { actif: false }, modele), { status: 400 });
 
   assert.equal(service.actif, true);
 });
@@ -274,4 +277,23 @@ test('le seed peut être relancé sans créer de doublons', async () => {
   await initialiserServices(modele);
 
   assert.equal(servicesEnBase.get('VPN').domaine, 'INFRASTRUCTURE');
+});
+
+test('le seed retrouve un service créé avec d’autres majuscules', async () => {
+  // Simulation de l’index : avec la collation, « vpn » et « VPN » sont le même nom
+  const servicesEnBase = new Map([['vpn', { nom: 'vpn', domaine: 'RESEAU' }]]);
+  const modele = {
+    async updateOne(filtre, modification, options) {
+      assert.ok(options.collation, 'le seed doit utiliser la collation de l’index');
+      const cle = filtre.nom.toLowerCase();
+      if (!servicesEnBase.has(cle)) {
+        servicesEnBase.set(cle, { ...modification.$setOnInsert });
+      }
+    },
+  };
+
+  await initialiserServices(modele);
+
+  assert.equal(servicesEnBase.size, 6);
+  assert.equal(servicesEnBase.get('vpn').nom, 'vpn');
 });

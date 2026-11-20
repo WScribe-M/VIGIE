@@ -8,8 +8,8 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "test": "node --test",
-"seed:services": "node src/scripts/seedServices.js",
-"utilisateur": "node src/scripts/creerUtilisateur.js"
+    "seed:services": "node src/scripts/seedServices.js",
+    "utilisateur": "node src/scripts/creerUtilisateur.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
