@@ -117,3 +117,59 @@ server/
 - [IA/rapport-ia.md](IA/rapport-ia.md) : rapport d'utilisation de l'IA (dossier, partie 4).
 - **Documentation de l'API** : http://localhost:3000/api/docs une fois l'API lancée (`npm run dev`), source dans [server/docs/openapi.yaml](server/docs/openapi.yaml).
 - Backlog et tableau Kanban : [Jira — projet VIGIE](https://matheagaveriaux.atlassian.net/jira/software/projects/VIGIE/boards/1)
+
+## Données de démonstration (VIGIE-23)
+
+Le projet fournit un script générant 300 tickets de démonstration répartis sur six mois, avec différents services, statuts, priorités, commentaires, historiques, échéances SLA, réouvertures et doublons.
+
+Les priorités et échéances sont calculées par les services métier de VIGIE. Les tickets comprennent également des affectations à des gestionnaires et, pour certains tickets terminés, une note de satisfaction.
+
+### Génération
+
+Démarrer MongoDB et configurer la connexion à une **base locale de développement ou de test dédiée**.
+
+**PowerShell (Windows)**, à la racine du projet :
+
+```powershell
+$env:CONFIRMER_SEED_DEMO="OUI"
+npm run seed
+```
+
+**Bash (Linux/macOS)** :
+
+```bash
+CONFIRMER_SEED_DEMO=OUI npm run seed
+```
+
+La variable `CONFIRMER_SEED_DEMO=OUI` est obligatoire : sans elle, le script refuse de générer les données.
+
+Le mot de passe initial des comptes est `DemoVigie2026!` par défaut. Il peut être personnalisé avec la variable d'environnement `SEED_MOT_DE_PASSE`.
+
+Exemple PowerShell :
+
+```powershell
+$env:SEED_MOT_DE_PASSE="MonMotDePasseDeTest2026!"
+$env:CONFIRMER_SEED_DEMO="OUI"
+npm run seed
+```
+
+### Comptes de démonstration
+
+| Adresse                         | Rôle         |
+| ------------------------------- | ------------ |
+| `admin.demo@vigie.test`         | ADMIN        |
+| `gestionnaire.demo@vigie.test`  | GESTIONNAIRE |
+| `gestionnaire2.demo@vigie.test` | GESTIONNAIRE |
+| `gestionnaire3.demo@vigie.test` | GESTIONNAIRE |
+| `lecteur.demo@vigie.test`       | LECTEUR      |
+| `client.demo@vigie.test`        | CLIENT       |
+| `client2.demo@vigie.test`       | CLIENT       |
+| `client3.demo@vigie.test`       | CLIENT       |
+
+### Sécurité et relance
+
+Le script initialise les services nécessaires et crée les comptes de démonstration.
+
+Il ne supprime pas les données existantes. S'il détecte des tickets issus d'une génération précédente, notamment ceux associés aux comptes de démonstration, il annule la génération pour éviter les doublons.
+
+**Attention :** ne jamais exécuter ce script sur une base de production. Utiliser une base de développement ou de test dédiée, car les comptes de démonstration disposent d'un mot de passe connu par défaut.
