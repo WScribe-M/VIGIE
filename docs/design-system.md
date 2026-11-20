@@ -76,7 +76,7 @@ fiches), puis on l'utilise. Un nouveau composant ? On le construit d'après
 ## Décisions du 20/11
 
 - **Priorité Critique sans pastille pleine** : comme les autres priorités, barres de signal et libellé, en rouge (`--color-priority-critique`). Les listes restent lisibles et ne se confondent pas avec les alertes SLA.
-- **Échéance dans les tableaux** : texte court (« Reste 2 h 09 », « Retard de 3 h », « Depuis 4 j ») avec l’option `texte` du `SlaBadge` ; le libellé complet reste lu par les lecteurs d’écran et affiché en infobulle.
+- **Échéance dans les tableaux** : texte court (« Reste 2 h », « Retard de 3 h », « Depuis 4 j ») avec l’option `texte` du `SlaBadge` ; le libellé complet reste lu par les lecteurs d’écran et affiché en infobulle.
 
 ## Interdits
 

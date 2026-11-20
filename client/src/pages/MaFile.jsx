@@ -56,7 +56,7 @@ function detailSla(sla, minutesParJour) {
   return sla.niveau === 'EN_RETARD' ? `de ${duree}` : `reste ${duree}`;
 }
 
-// Texte visible, court et direct (décision du 20/11) : « Reste 2 h 09 », « Retard de 3 h »,
+// Texte visible, court et direct (décision du 20/11) : « Reste 2 h », « Retard de 3 h »,
 // « Depuis 4 j ». Le niveau se voit à la couleur, au fond et à l'icône ; le libellé complet
 // (« Échéance proche · reste 25 min ») reste lu par les lecteurs d'écran et en infobulle.
 function texteSla(sla, minutesParJour) {

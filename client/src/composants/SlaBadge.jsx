@@ -27,7 +27,7 @@ function texteComplet(niveau, detail) {
  * @param niveau DANS_LES_TEMPS | ECHEANCE_PROCHE | EN_RETARD | SUSPENDU
  * @param detail temps formaté en fr-FR : « reste 2 h », « de 3 h » (en retard), « depuis 4 j »
  * @param court  n'affiche que le détail (cartes, mobile) ; le libellé reste lu par les lecteurs d'écran
- * @param texte  texte visible à la place du libellé (« Reste 2 h 09 », « Retard de 3 h ») ; le libellé
+ * @param texte  texte visible à la place du libellé (« Reste 2 h », « Retard de 3 h ») ; le libellé
  *               complet reste lu par les lecteurs d'écran et affiché en infobulle
  * @param taille 24 (par défaut) | 26 | 28
  */
