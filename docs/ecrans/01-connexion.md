@@ -23,7 +23,6 @@ Grille 2 colonnes : `600px minmax(0, 1fr)`.
     de 40 ; mot de passe avec bouton `eye` 18 px Taupe ;
   - case « Rester connecté(e) » 14 px `--color-neutral-700`, case 18 px rayon 4 — voir ⚠ ;
   - bouton principal **pleine largeur, 48 px**, 15/600 ;
-  - pied 13/20 Taupe, centré.
 
 ## Textes exacts
 
@@ -33,7 +32,6 @@ Grille 2 colonnes : `600px minmax(0, 1fr)`.
 - Titre « Connexion » · sous-titre « Utilisez votre compte de l’entreprise. »
 - Champs : « Adresse e-mail professionnelle » · « Mot de passe » (bouton `eye` pour afficher le mot de passe)
 - Bouton : « Se connecter » → en chargement « Connexion… »
-- Pied : « Pas de compte ? Contactez le support au 4400. » (numéro du support à configurer)
 - Erreur (bandeau danger) : « **Adresse e-mail ou mot de passe incorrect.** » ; sous le champ : « Vérifiez la saisie (majuscules activées ?). »
 - Indisponible : « Vigie est momentanément injoignable » · « En cas d’urgence, appelez le support au 4400. Nous réessayons automatiquement. » · bouton « Réessayer » (`refresh-cw`) · icône `wifi-off` 32 px.
 
@@ -56,3 +54,4 @@ Grille 2 colonnes : `600px minmax(0, 1fr)`.
   serveur ; dans l’état « injoignable », nouvel essai automatique toutes les 10 s. Champ vide : message sous le
   champ (« Indiquez votre adresse e-mail. », « Indiquez votre mot de passe. », textes ajoutés, absents de la
   maquette). Sous 768 px, le panneau devient un bandeau (logo et promesse, sans l’accroche).
+- **Pas de pied « Pas de compte ? Contactez le support au 4400. »** (décision du 20/11).

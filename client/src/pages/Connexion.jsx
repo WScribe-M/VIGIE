@@ -169,8 +169,6 @@ export function Connexion() {
                 Se connecter
               </Button>
             </form>
-
-            <p className={styles.pied}>Pas de compte ? Contactez le support au 4400.</p>
           </div>
         )}
       </main>

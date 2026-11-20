@@ -112,14 +112,6 @@
   font-size: 15px;
 }
 
-.pied {
-  margin: 0;
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--color-neutral-600);
-  text-align: center;
-}
-
 /* API injoignable */
 .indisponible {
   gap: var(--space-3);
