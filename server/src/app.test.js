@@ -47,6 +47,16 @@ describe('routage de l’API', () => {
     assert.equal(corps.message, 'Authentification requise');
   });
 
+  it('le renouvellement du jeton exige un jeton valide (401)', async () => {
+    const { status } = await appeler('/auth/renouveler', { method: 'POST' });
+    assert.equal(status, 401);
+    const invalide = await appeler('/auth/renouveler', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer jeton-invalide' },
+    });
+    assert.equal(invalide.status, 401);
+  });
+
   it('la connexion refuse un corps incomplet (400)', async () => {
     const { status } = await appeler('/auth/connexion', {
       method: 'POST',

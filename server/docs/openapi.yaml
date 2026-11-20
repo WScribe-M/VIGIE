@@ -94,6 +94,28 @@ paths:
         '401':
           $ref: '#/components/responses/NonAuthentifie'
 
+  /auth/renouveler:
+    post:
+      tags: [Authentification]
+      summary: Renouveler le jeton avant son expiration
+      description: >-
+        Le jeton actuel doit être encore valide. Le compte est relu en base : un compte désactivé
+        reçoit 401, et un rôle modifié est pris en compte dans le nouveau jeton. Le client appelle
+        cette route quelques minutes avant l'expiration, puis reconnecte Socket.io avec le nouveau jeton.
+      responses:
+        '200':
+          description: Nouveau jeton, avec une durée de validité complète.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [jeton]
+                properties:
+                  jeton:
+                    type: string
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+
 components:
   securitySchemes:
     bearerAuth:

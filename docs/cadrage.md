@@ -90,15 +90,15 @@ Authentification JWT pour le MVP, quatre rôles globaux : `ADMIN`, `GESTIONNAIRE
 
 ## 5. Temps réel : conception Socket.io
 
-- **Authentification** : le JWT est transmis dans le handshake ; un middleware le vérifie, sinon la connexion est refusée. Identité et rôle lus dans le jeton. À expiration, reconnexion avec un jeton renouvelé.
+- **Authentification** : le JWT est transmis dans le handshake ; un middleware le vérifie, ainsi que le compte (actif, rôle inchangé), sinon la connexion est refusée. Identité et rôle lus dans le jeton. Le serveur ferme la connexion à l'expiration du jeton ; le client renouvelle son jeton avant (`POST /api/auth/renouveler`) et se reconnecte avec le nouveau.
 - **Rooms** (droits vérifiés côté serveur) :
 
-| Room          | Accès                                            | Événements                                                          |
-| ------------- | ------------------------------------------------ | ------------------------------------------------------------------- |
-| `user:<id>`   | La personne concernée (automatique)              | Notifications personnelles, alerte SLA                              |
-| `ticket:<id>` | Créateur, suiveurs, GESTIONNAIRE, LECTEUR, ADMIN | Commentaire, « en train d'écrire… », présence, changement de statut |
-| `support`     | GESTIONNAIRE, ADMIN                              | Nouveau ticket (badge et son), mise à jour de « Ma file »           |
-| `pilotage`    | GESTIONNAIRE, LECTEUR, ADMIN                     | Compteurs et retards                                                |
+| Room          | Accès                                                       | Événements                                                          |
+| ------------- | ----------------------------------------------------------- | ------------------------------------------------------------------- |
+| `user:<id>`   | La personne concernée (automatique)                         | Notifications personnelles, alerte SLA                              |
+| `ticket:<id>` | Demandeur, suiveurs, en copie, GESTIONNAIRE, LECTEUR, ADMIN | Commentaire, « en train d'écrire… », présence, changement de statut |
+| `support`     | GESTIONNAIRE, ADMIN                                         | Nouveau ticket (badge et son), mise à jour de « Ma file »           |
+| `pilotage`    | GESTIONNAIRE, LECTEUR, ADMIN                                | Compteurs et retards                                                |
 
 - **Persistance** : chaque notification est d'abord enregistrée en base, puis émise. À la (re)connexion, le client récupère les non lues par l'API. Les événements éphémères ne sont pas conservés.
 - **Source de vérité** : l'API REST. Après une coupure, le client se resynchronise par l'API.
