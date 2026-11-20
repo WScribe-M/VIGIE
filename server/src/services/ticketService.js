@@ -4,6 +4,7 @@ import { DOMAINES, IMPACTS, RANG_PRIORITE, URGENCES } from '../models/constantes
 import { Ticket } from '../models/index.js';
 import { emettre, ROOM_PILOTAGE, ROOM_SUPPORT, roomTicket } from '../socket/index.js';
 import { ErreurHttp } from '../utils/ErreurHttp.js';
+import { masquerConcernes, preparerHistorique } from './historiqueService.js';
 import { formaterNumero, prochainNumeroTicket } from './numeroService.js';
 import { calculerPriorite, verifierRequalification } from './prioriteService.js';
 import { deduireDomaine } from './serviceService.js';
@@ -28,7 +29,8 @@ export const RUBRIQUES_DESCRIPTION = [
 const CHAMPS_CREATION = ['titre', 'description', 'service', 'impact', 'urgence'];
 
 // Lecture d'un ticket et liste : uniquement les champs affichés (CONTRIBUTING, Requêtes MongoDB).
-// Ni commentaires, ni historique, ni pièces jointes : chaque story les ajoutera avec ses droits.
+// Ni commentaires ni pièces jointes : chaque story les ajoutera avec ses droits. L'historique
+// (VIGIE-9) n'est lu que par lireTicket, jamais dans une liste.
 const CHAMPS_FICHE =
   'numero titre description service domaine impact urgence prioriteCalculee prioriteFinale statut dateStatut echeanceSla demandeur technicien createdAt updatedAt dateCloture datePriseEnCharge vuParSupportLe resolution';
 // Rôles du support : ils font avancer les tickets (une seule équipe, cadrage 3.1)
@@ -201,14 +203,14 @@ export async function lireTicket(id, utilisateur) {
     .populate('demandeur', 'nom prenom')
     .populate('technicien', 'nom prenom')
     .populate('resolution.auteur', 'nom prenom')
+    .populate('historique.auteur', 'nom prenom')
     .lean();
   if (!ticket || !peutVoirTicket(utilisateur, ticket)) {
     throw new ErreurHttp(404, 'Ticket introuvable');
   }
   await marquerVuParSupport(ticket, utilisateur);
 
-  // Motif du dernier abandon, affiché à la place de la frise (fiche 05). L'historique complet
-  // sera renvoyé par VIGIE-9 ; ici on n'en garde que ce motif.
+  // Motif du dernier abandon, affiché à la place de la frise (fiche 05)
   if (ticket.statut === 'ABANDONNE') {
     const abandon = ticket.historique.findLast(
       (entree) => entree.champ === 'statut' && entree.nouvelleValeur === 'ABANDONNE',
@@ -220,10 +222,15 @@ export async function lireTicket(id, utilisateur) {
     ticket.transitionsPossibles = transitionsDuMenu(ticket.statut);
   }
 
-  // suiveurs, enCopie et historique ne servent qu'aux calculs ci-dessus : on ne les renvoie pas
+  // Historique (VIGIE-9), affiché sur la fiche par ordre chronologique. Tous ceux qui voient le
+  // ticket le voient : il ne contient que des changements de statut, d'assignation, de priorité et
+  // de domaine (jamais de note interne), et leurs motifs s'adressent aussi au demandeur. Seule
+  // exception : un client ne voit pas qui d'autre s'est déclaré concerné (VIGIE-15).
+  ticket.historique = masquerConcernes(await preparerHistorique(ticket.historique), utilisateur);
+
+  // suiveurs et enCopie ne servent qu'au contrôle de visibilité : on ne les renvoie pas
   delete ticket.suiveurs;
   delete ticket.enCopie;
-  delete ticket.historique;
   return avecReference(ticket);
 }
 

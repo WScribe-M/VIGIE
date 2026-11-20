@@ -20,7 +20,9 @@ import { Button, IconButton } from '../composants/Button.jsx';
 import { Select, TextArea, TextField } from '../composants/Champs.jsx';
 import { ChoiceGroup } from '../composants/ChoiceCard.jsx';
 import { DelayEstimate } from '../composants/DelayEstimate.jsx';
+import { DuplicatePanel } from '../composants/DuplicatePanel.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
+import { HistoriqueTicket } from '../composants/HistoriqueTicket.jsx';
 import { MenuStatut } from '../composants/MenuStatut.jsx';
 import { Modal } from '../composants/Modal.jsx';
 import { PriorityBadge } from '../composants/PriorityBadge.jsx';
@@ -203,6 +205,70 @@ const AVATARS = [
   ['Claire', 'Fontaine'],
 ];
 
+// Historique de la capture composants-03-frise.png, au format de GET /api/tickets/:id
+const AWA = { _id: 'awa', prenom: 'Awa', nom: 'Diallo' };
+const MAMADOU = { _id: 'mamadou', prenom: 'Mamadou', nom: 'Koné' };
+const HISTORIQUE_DEMO = [
+  {
+    _id: '1',
+    auteur: AWA,
+    champ: 'statut',
+    ancienneValeur: null,
+    nouvelleValeur: 'NOUVEAU',
+    date: '2026-11-17T09:24:00Z',
+  },
+  {
+    _id: '2',
+    auteur: MAMADOU,
+    champ: 'statut',
+    ancienneValeur: 'NOUVEAU',
+    nouvelleValeur: 'EN_COURS',
+    date: '2026-11-17T10:02:00Z',
+  },
+  {
+    _id: '3',
+    auteur: MAMADOU,
+    champ: 'technicien',
+    ancienneValeur: null,
+    nouvelleValeur: MAMADOU,
+    date: '2026-11-17T10:02:00Z',
+  },
+  {
+    _id: '4',
+    auteur: MAMADOU,
+    champ: 'priorite',
+    ancienneValeur: 'MOYENNE',
+    nouvelleValeur: 'HAUTE',
+    motif: 'Deux sites touchés, l’équipe commerciale ne peut plus accéder au CRM.',
+    date: '2026-11-17T10:05:00Z',
+  },
+  {
+    _id: '5',
+    auteur: MAMADOU,
+    champ: 'domaine',
+    ancienneValeur: 'APPLICATIF',
+    nouvelleValeur: 'RESEAU',
+    date: '2026-11-17T10:42:00Z',
+  },
+  {
+    _id: '6',
+    auteur: MAMADOU,
+    champ: 'statut',
+    ancienneValeur: 'EN_COURS',
+    nouvelleValeur: 'TERMINE',
+    date: '2026-11-17T14:10:00Z',
+  },
+  {
+    _id: '7',
+    auteur: AWA,
+    champ: 'statut',
+    ancienneValeur: 'TERMINE',
+    nouvelleValeur: 'EN_COURS',
+    motif: 'Le CRM est de nouveau inaccessible depuis Lyon.',
+    date: '2026-11-17T15:38:00Z',
+  },
+];
+
 function Bloc({ titre, note, children }) {
   return (
     <section className={styles.bloc}>
@@ -353,6 +419,43 @@ function DemoOnglets() {
       <Tabs libelle="Fiche ticket" onglets={ONGLETS_FICHE} valeur={fiche} onChange={setFiche}>
         <p className="text-body-sm texte-secondaire">Sans icône : fiche ticket</p>
       </Tabs>
+    </div>
+  );
+}
+
+// Suggestions de doublons de la démo : titre, service, statut, date d'ouverture (cadrage 9.3)
+const SUGGESTIONS_DEMO = [
+  {
+    _id: 'demo-1027',
+    titre: 'Coupure VPN sur le site de Lyon',
+    service: { nom: 'VPN' },
+    statut: 'EN_COURS',
+    createdAt: new Date(Date.now() - 12 * 60000).toISOString(),
+  },
+  {
+    _id: 'demo-1024',
+    titre: 'VPN inaccessible',
+    service: { nom: 'VPN' },
+    statut: 'EN_COURS',
+    createdAt: new Date(Date.now() - 3 * 3600000).toISOString(),
+  },
+];
+
+function DoublonsDemo() {
+  const [rejoints, setRejoints] = useState({ 'demo-1024': { concernes: 4 } });
+  return (
+    <div className={styles.colonneDemo}>
+      <DuplicatePanel
+        recherche="vpn ne marche plus"
+        etat="resultats"
+        suggestions={SUGGESTIONS_DEMO}
+        rejoints={rejoints}
+        onRejoindre={({ _id }) => setRejoints({ ...rejoints, [_id]: { concernes: 10 } })}
+      />
+      <DuplicatePanel etat="attente" />
+      <DuplicatePanel etat="chargement" />
+      <DuplicatePanel etat="resultats" suggestions={[]} />
+      <DuplicatePanel etat="erreur" onReessayer={() => {}} />
     </div>
   );
 }
@@ -562,6 +665,15 @@ export function Styleguide() {
       </Bloc>
 
       <Bloc
+        titre="Historique"
+        note="TimelineItem · qui, quoi, quand · ordre chronologique · avant → après"
+      >
+        <div className={styles.carteDemo}>
+          <HistoriqueTicket historique={HISTORIQUE_DEMO} demandeur={AWA} />
+        </div>
+      </Bloc>
+
+      <Bloc
         titre="Changer le statut et fenêtre modale"
         note="Statuts possibles fournis par l'API · <dialog> natif : focus piégé, Échap ferme"
       >
@@ -584,6 +696,13 @@ export function Styleguide() {
           <Skeleton largeur="60%" />
           <Skeleton largeur={80} hauteur={26} rond />
         </div>
+      </Bloc>
+
+      <Bloc
+        titre="Panneau « Ce problème est peut-être déjà signalé »"
+        note="Dès 3 caractères, 300 ms après la dernière frappe · 1 à 3 tickets"
+      >
+        <DoublonsDemo />
       </Bloc>
 
       <Bloc titre="Avatars" note="24 · 32 · 36 · 40 px · une paire de couleurs par personne">

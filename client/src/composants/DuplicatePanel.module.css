@@ -1,0 +1,157 @@
+/* Panneau de doublons (docs/ecrans/03-creer-un-ticket.md, composants.md : DuplicatePanel,
+   captures composants-03-suggestion-de-doublon et parcours-1-*) */
+
+/* Encadré des états attente, chargement, vide et erreur : bordure Sable, rayon 14, marges 18 */
+.encadre {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-neutral-600);
+}
+
+/* Moins de 3 caractères : simple invitation, en pointillés sur le fond Lin */
+.attente {
+  border-style: dashed;
+  border-color: var(--color-neutral-300);
+  background: transparent;
+}
+
+/* Icône et texte sur une ligne (vide, erreur) */
+.ligne {
+  flex-direction: row;
+  align-items: flex-start;
+  color: var(--color-neutral-700);
+}
+
+.ligne > svg {
+  flex-shrink: 0;
+  color: var(--color-neutral-600);
+}
+
+.ligne > .iconeErreur {
+  color: var(--color-feedback-danger-fg);
+}
+
+.texteErreur {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.texteErreur p {
+  margin: 0;
+}
+
+/* Panneau : bordure brand-200, fond brand-50, rayon 14, marges 20, écart 14 */
+.panneau {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: var(--space-5);
+  border: 1px solid var(--color-brand-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-brand-50);
+}
+
+.entete {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.icone {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-brand-600);
+}
+
+.titrePanneau {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.texte {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-neutral-700);
+}
+
+.liste {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Carte de ticket : blanche, bordure Sable, rayon 12, marges 14, écart 10 */
+.carte {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-popover);
+  background: var(--color-neutral-0);
+}
+
+.titre {
+  overflow: hidden;
+  max-width: 100%;
+  margin: 0;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-neutral-600);
+}
+
+/* Après « Je suis aussi concerné » : fond Pétrole clair, coche (parcours 1, étape 3) */
+.concerne {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-control);
+  background: var(--color-brand-100);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-brand-700);
+}
+
+.erreur {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-feedback-danger-fg);
+}
+
+/* Mobile (fiche 14) : bouton pleine largeur, cible de 44 px */
+@media (max-width: 768px) {
+  .bouton,
+  .concerne {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+}

@@ -39,7 +39,13 @@ export function delaiMinutes(priorite, horaires = config.sla) {
 // les heures ouvrées. Un ticket créé le vendredi à 17 h en Critique (4 h) est dû le lundi à 12 h.
 // Fonction pure (horaires injectables) pour être testée sans dépendre de la configuration.
 export function calculerEcheance(debut, priorite, horaires = config.sla) {
-  let restant = delaiMinutes(priorite, horaires) * MINUTE;
+  return ajouterMinutesOuvrees(debut, delaiMinutes(priorite, horaires), horaires);
+}
+
+// La date atteinte après « minutes » minutes ouvrées à partir de « debut » (aussi utilisée par le
+// seed de démonstration pour placer les événements pendant les heures de travail)
+export function ajouterMinutesOuvrees(debut, minutes, horaires = config.sla) {
+  let restant = minutes * MINUTE;
   let curseur = new Date(debut);
 
   // Au plus un an de recherche : protège d'une boucle sans fin si la configuration était vide

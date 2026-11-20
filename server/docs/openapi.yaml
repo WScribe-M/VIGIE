@@ -489,6 +489,49 @@ paths:
         '403':
           $ref: '#/components/responses/Interdit'
 
+  /tickets/similaires:
+    get:
+      tags: [Tickets]
+      summary: Suggestions de doublons pendant la saisie du titre (CLIENT)
+      description: >-
+        Formulaire de création, étape 1 (VIGIE-15, cadrage 9.3). Jusqu'à 3 tickets ouverts
+        (`NOUVEAU`, `EN_COURS`, `EN_ATTENTE_DEMANDEUR`) dont le titre ressemble au
+        titre saisi (index textuel en français, puis filtre sur le titre seul : un mot tapé présent
+        seulement dans la description ne suffit pas), les plus proches d'abord. Tickets de tous les
+        demandeurs, mais **plan A** : titre, service, statut et date d'ouverture uniquement, jamais
+        la description, le demandeur, les commentaires, les pièces jointes ni le nombre de
+        personnes concernées. Moins de 3 caractères : liste vide.
+      parameters:
+        - in: query
+          name: titre
+          required: true
+          schema:
+            type: string
+            maxLength: 120
+          example: vpn ne marche plus
+      responses:
+        '200':
+          description: 0 à 3 suggestions.
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 3
+                items:
+                  $ref: '#/components/schemas/SuggestionDoublon'
+        '400':
+          description: Titre qui n'est pas un texte (paramètre répété).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Titre : texte attendu'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+
   /tickets/{id}:
     get:
       tags: [Tickets]
@@ -509,6 +552,52 @@ paths:
           $ref: '#/components/responses/NonAuthentifie'
         '404':
           $ref: '#/components/responses/Introuvable'
+
+  /tickets/{id}/suiveurs:
+    post:
+      tags: [Tickets]
+      summary: « Je suis aussi concerné » (CLIENT)
+      description: >-
+        Le client connecté (lu dans le jeton, jamais dans le corps) devient suiveur d'un ticket
+        ouvert, sans créer de ticket (VIGIE-15) : il voit alors le ticket complet et en suit
+        l'avancement. Le rattachement est tracé dans l'historique (champ `concerne`) et compte
+        comme un **doublon évité**. Sans effet s'il suit déjà le ticket (pas compté deux fois).
+        Émet `suiveur:ajoute` (`_id`, `concernes`) dans `ticket:<id>` et `support`.
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      responses:
+        '200':
+          description: Ticket rejoint.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  reference:
+                    type: string
+                    example: VIG-0027
+                  concernes:
+                    type: integer
+                    description: Le demandeur et les suiveurs, connu seulement après avoir rejoint.
+                    example: 10
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '409':
+          description: >-
+            Ticket clos (`TERMINE` ou `ABANDONNE`), ticket déclaré par le client lui-même, ou
+            ticket clos entre-temps.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Ce ticket est clos : déclarez un nouveau ticket'
 
   /tickets/{id}/domaine:
     patch:
@@ -921,6 +1010,43 @@ components:
         prenom:
           type: string
 
+    ChampHistorique:
+      type: string
+      description: >-
+        Ce qui a changé (statut, assignation, priorité, domaine), ou « concerne » quand un client
+        se déclare concerné (VIGIE-15). Pour un CLIENT, auteur et nouvelleValeur des entrées
+        « concerne » des autres personnes sont null.
+      enum: [statut, technicien, priorite, domaine, concerne]
+
+    EntreeHistorique:
+      type: object
+      description: >-
+        Un changement tracé (VIGIE-9). Les entrées ne sont jamais modifiées ni supprimées. Valeurs
+        selon le champ : `statut` → un Statut (ancienne valeur `null` à la création), `priorite` →
+        une Priorite, `domaine` → un Domaine, `technicien` → une Personne (ou `null`).
+      properties:
+        _id:
+          type: string
+        date:
+          type: string
+          format: date-time
+        auteur:
+          $ref: '#/components/schemas/Personne'
+        champ:
+          $ref: '#/components/schemas/ChampHistorique'
+        ancienneValeur:
+          nullable: true
+          description: Valeur avant le changement.
+          example: MOYENNE
+        nouvelleValeur:
+          nullable: true
+          description: Valeur après le changement.
+          example: HAUTE
+        motif:
+          type: string
+          description: Présent seulement quand un motif a été saisi (abandon, requalification…).
+          example: Deux sites touchés, l'équipe commerciale ne peut plus accéder au CRM.
+
     TypeNotification:
       type: string
       enum:
@@ -1023,6 +1149,30 @@ components:
         sla:
           $ref: '#/components/schemas/NiveauSla'
 
+    SuggestionDoublon:
+      type: object
+      description: Plan A du cadrage 9.3 ; `_id` sert seulement à « Je suis aussi concerné ».
+      properties:
+        _id:
+          type: string
+        titre:
+          type: string
+        service:
+          type: object
+          nullable: true
+          properties:
+            nom:
+              type: string
+        statut:
+          $ref: '#/components/schemas/Statut'
+        createdAt:
+          type: string
+          format: date-time
+          description: Date d'ouverture.
+        dejaConcerne:
+          type: boolean
+          description: Le client suit déjà ce ticket (demandeur, suiveur ou en copie).
+
     TicketResume:
       type: object
       properties:
@@ -1120,6 +1270,13 @@ components:
               type: string
               nullable: true
               description: Présent seulement pour un ticket `ABANDONNE`.
+            historique:
+              type: array
+              description: >-
+                Historique (timeline) du ticket, par ordre chronologique (VIGIE-9) : qui a modifié
+                quoi et quand. Lecture seule : aucune route ne permet de le modifier.
+              items:
+                $ref: '#/components/schemas/EntreeHistorique'
             transitionsPossibles:
               type: array
               description: >-

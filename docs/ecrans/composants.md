@@ -16,11 +16,11 @@ Couleurs : uniquement les tokens de `client/src/styles/tokens.css`.
 | TextField, TextArea (SearchField, FileDrop : à faire)                       | **Fait** | `composants-03-champs.png`                        |
 | ServiceSelect                                                               | À faire  | `composants-03-liste-de-choix.png`                |
 | ChoiceCard (ChoiceGroup), DelayEstimate                                     | **Fait** | `composants-03-cartes-impact-et-urgence.png`      |
-| DuplicatePanel                                                              | À faire  | `composants-03-suggestion-de-doublon.png`         |
+| DuplicatePanel                                                              | **Fait** | `composants-03-suggestion-de-doublon.png`         |
 | TicketRow                                                                   | À faire  | `composants-03-ligne-de-ticket.png`               |
 | TicketCard                                                                  | À faire  | `composants-03-carte-de-ticket.png`               |
 | ProgressTracker                                                             | **Fait** | `composants-03-suivi-davancement.png`             |
-| TimelineItem                                                                | À faire  | `composants-03-frise.png`                         |
+| TimelineItem                                                                | **Fait** | `composants-03-frise.png`                         |
 | CommentBubble, TypingIndicator, PresenceAvatars                             | À faire  | `composants-03-echanges.png`                      |
 | NotificationBell, NotificationPanel (panneau simple, sans filtres par type) | **Fait** | `composants-03-notifications.png`                 |
 | Toast (variante « nouveau ticket » ; succès et erreur : à faire)            | **Fait** | `composants-03-toasts.png`                        |
@@ -129,6 +129,8 @@ rattaché à INC-1015 (doublon). Vous suivez désormais ce ticket. »
 
 Voir [06](06-fiche-ticket-gestionnaire.md), Historique. Changement de statut : deux StatusBadge 24 reliés par
 `arrow-right` 14 Taupe ; changement de priorité : deux priorités sans fond reliées de même.
+Codé dans `TimelineItem.jsx` (VIGIE-9) ; `HistoriqueTicket.jsx` traduit les entrées de l’API en éléments de
+frise (la prise en charge, tracée en deux entrées statut + technicien, n’en affiche qu’une).
 
 ## CommentBubble, TypingIndicator, PresenceAvatars
 
