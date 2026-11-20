@@ -45,6 +45,19 @@ export async function preparerHistorique(historique = [], modele = User) {
   );
 }
 
+// Entrées « concerne » (VIGIE-15) vues par un CLIENT : il sait combien de personnes sont concernées
+// (fiche 05, « 9 personnes concernées ») mais pas lesquelles, comme les suggestions de doublons
+// ne montrent jamais le demandeur (cadrage 9.3). Sa propre entrée reste nominative.
+export function masquerConcernes(historique, utilisateur) {
+  if (utilisateur.role !== 'CLIENT') return historique;
+  const estLui = (personne) => String(personne?._id ?? personne) === String(utilisateur.id);
+  return historique.map((entree) =>
+    entree.champ === 'concerne' && !estLui(entree.auteur)
+      ? { ...entree, auteur: null, nouvelleValeur: null }
+      : entree,
+  );
+}
+
 // Ce que l'historique permet de calculer (critère de VIGIE-9), pour les stories qui l'utiliseront :
 // SLA et suspension (VIGIE-20), délais du pilotage (VIGIE-24), requalifications (VIGIE-26),
 // réouvertures (VIGIE-30). Pure : l'historique suffit, sans relire le ticket.

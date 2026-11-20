@@ -16,7 +16,7 @@ Couleurs : uniquement les tokens de `client/src/styles/tokens.css`.
 | TextField, TextArea (SearchField, FileDrop : à faire)                       | **Fait** | `composants-03-champs.png`                        |
 | ServiceSelect                                                               | À faire  | `composants-03-liste-de-choix.png`                |
 | ChoiceCard (ChoiceGroup), DelayEstimate                                     | **Fait** | `composants-03-cartes-impact-et-urgence.png`      |
-| DuplicatePanel                                                              | À faire  | `composants-03-suggestion-de-doublon.png`         |
+| DuplicatePanel                                                              | **Fait** | `composants-03-suggestion-de-doublon.png`         |
 | TicketRow                                                                   | À faire  | `composants-03-ligne-de-ticket.png`               |
 | TicketCard                                                                  | À faire  | `composants-03-carte-de-ticket.png`               |
 | ProgressTracker                                                             | **Fait** | `composants-03-suivi-davancement.png`             |

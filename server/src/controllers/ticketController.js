@@ -1,3 +1,4 @@
+import { chercherSimilaires, rejoindreTicket } from '../services/doublonService.js';
 import {
   changerStatut,
   corrigerDomaine,
@@ -46,4 +47,13 @@ export async function requalifier(req, res) {
 
 export async function file(req, res) {
   res.json(await maFile(req.utilisateur));
+}
+
+// Doublons à la saisie (VIGIE-15)
+export async function similaires(req, res) {
+  res.json(await chercherSimilaires(req.query.titre, req.utilisateur));
+}
+
+export async function rejoindre(req, res) {
+  res.json(await rejoindreTicket(req.params.id, req.utilisateur));
 }

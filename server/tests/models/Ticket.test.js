@@ -138,6 +138,25 @@ describe('historique du ticket', () => {
     assert.equal(ticket.historique[1].ancienneValeur, 'APPLICATIF');
     assert.equal(ticket.isModified('historique'), true);
   });
+
+  // VIGIE-15 : la correction du domaine fait un save() complet ; il échouait (500) sur un ticket
+  // déjà rejoint par « Je suis aussi concerné » tant que « concerne » n'était pas un champ autorisé
+  it('reste valide avec une entrée « concerne » quand on ajoute une entrée', async () => {
+    const client = id();
+    const ticket = ticketValide({
+      historique: [
+        entree({
+          champ: 'concerne',
+          auteur: client,
+          ancienneValeur: null,
+          nouvelleValeur: client,
+          motif: undefined,
+        }),
+      ],
+    });
+    ticket.historique.push(entree({ champ: 'domaine', ancienneValeur: 'APPLICATIF' }));
+    await ticket.validate();
+  });
 });
 
 describe('schéma Notification', () => {

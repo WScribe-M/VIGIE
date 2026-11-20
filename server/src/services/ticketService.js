@@ -4,7 +4,7 @@ import { DOMAINES, IMPACTS, RANG_PRIORITE, URGENCES } from '../models/constantes
 import { Ticket } from '../models/index.js';
 import { emettre, ROOM_PILOTAGE, ROOM_SUPPORT, roomTicket } from '../socket/index.js';
 import { ErreurHttp } from '../utils/ErreurHttp.js';
-import { preparerHistorique } from './historiqueService.js';
+import { masquerConcernes, preparerHistorique } from './historiqueService.js';
 import { formaterNumero, prochainNumeroTicket } from './numeroService.js';
 import { calculerPriorite, verifierRequalification } from './prioriteService.js';
 import { deduireDomaine } from './serviceService.js';
@@ -224,8 +224,9 @@ export async function lireTicket(id, utilisateur) {
 
   // Historique (VIGIE-9), affiché sur la fiche par ordre chronologique. Tous ceux qui voient le
   // ticket le voient : il ne contient que des changements de statut, d'assignation, de priorité et
-  // de domaine (jamais de note interne), et leurs motifs s'adressent aussi au demandeur.
-  ticket.historique = await preparerHistorique(ticket.historique);
+  // de domaine (jamais de note interne), et leurs motifs s'adressent aussi au demandeur. Seule
+  // exception : un client ne voit pas qui d'autre s'est déclaré concerné (VIGIE-15).
+  ticket.historique = masquerConcernes(await preparerHistorique(ticket.historique), utilisateur);
 
   // suiveurs et enCopie ne servent qu'au contrôle de visibilité : on ne les renvoie pas
   delete ticket.suiveurs;
