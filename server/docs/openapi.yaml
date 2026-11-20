@@ -26,6 +26,8 @@ tags:
   - name: Authentification
   - name: Services
     description: Catalogue des services IT ; le domaine technique du ticket en est déduit.
+  - name: Tickets
+    description: Déclaration et suivi des incidents.
 security:
   - bearerAuth: []
 
@@ -229,6 +231,132 @@ paths:
         '409':
           $ref: '#/components/responses/NomServiceDejaPris'
 
+  /tickets:
+    post:
+      tags: [Tickets]
+      summary: Déclarer un incident
+      description: >-
+        Le demandeur est l'utilisateur connecté (lu dans le jeton). Il ne choisit ni la priorité, ni
+        le délai : la priorité est calculée à partir de l'impact et de l'urgence (matrice du cadrage
+        9.1) et l'échéance SLA en heures ouvrées (9.2). Le domaine est déduit du service ; « Autre /
+        je ne sais pas » donne `A_QUALIFIER`. Le ticket est créé au statut `NOUVEAU`, avec un numéro
+        lisible (`reference`, VIG-0042). Interdit au `LECTEUR`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreationTicket'
+      responses:
+        '201':
+          description: Ticket créé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: >-
+            Champ manquant ou invalide, service inconnu ou désactivé, ou champ non autorisé
+            (priorité, délai, statut, demandeur…).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Champ non autorisé : priorite'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+    get:
+      tags: [Tickets]
+      summary: Tickets visibles, les plus récents d'abord
+      description: >-
+        Un `CLIENT` reçoit les tickets dont il est demandeur, suiveur ou en copie (« Mes
+        demandes ») ; les autres rôles reçoivent tous les tickets. Liste minimale de VIGIE-3 : les
+        50 plus récents, sans filtre ni pagination (VIGIE-6).
+      responses:
+        '200':
+          description: Tickets visibles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TicketResume'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+
+  /tickets/{id}:
+    get:
+      tags: [Tickets]
+      summary: Lire un ticket
+      description: >-
+        Mêmes règles de visibilité que la liste. Un ticket que l'utilisateur ne peut pas voir répond
+        `404`, comme un ticket inexistant, pour ne pas révéler quels tickets existent.
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      responses:
+        '200':
+          description: Le ticket.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+
+  /tickets/{id}/domaine:
+    patch:
+      tags: [Tickets]
+      summary: Corriger le domaine technique (GESTIONNAIRE, ADMIN)
+      description: >-
+        Par exemple pour qualifier un ticket « Autre / je ne sais pas ». La correction est tracée
+        dans l'historique (ancienne et nouvelle valeur, auteur, date).
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [domaine]
+              properties:
+                domaine:
+                  $ref: '#/components/schemas/Domaine'
+      responses:
+        '200':
+          description: Ticket mis à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Domaine invalide, ou déjà celui du ticket.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Domaine technique invalide
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '409':
+          description: Le ticket a été modifié par quelqu'un d'autre entre-temps.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Le ticket a été modifié entre-temps : rechargez-le'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -236,6 +364,15 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Jeton reçu à la connexion (valable 8 h par défaut, `JWT_EXPIRES_IN`).
+
+  parameters:
+    IdTicket:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+      description: Identifiant MongoDB du ticket.
 
   responses:
     NonAuthentifie:
@@ -351,3 +488,128 @@ components:
         actif:
           type: boolean
           description: Un service désactivé n'est plus proposé à la création d'un ticket.
+
+    Impact:
+      type: string
+      description: "Qui est touché ? FAIBLE : moi seul, MOYEN : mon équipe, FORT : toute l'entreprise."
+      enum: [FAIBLE, MOYEN, FORT]
+
+    Urgence:
+      type: string
+      description: 'Pouvez-vous continuer ? FAIBLE : je peux continuer, MOYENNE : mode dégradé, HAUTE : je suis bloqué.'
+      enum: [FAIBLE, MOYENNE, HAUTE]
+
+    Priorite:
+      type: string
+      enum: [BASSE, MOYENNE, HAUTE, CRITIQUE]
+
+    Statut:
+      type: string
+      enum: [NOUVEAU, EN_COURS, EN_ATTENTE_DEMANDEUR, TERMINE, ABANDONNE]
+
+    CreationTicket:
+      type: object
+      required: [titre, description, service, impact, urgence]
+      additionalProperties: false
+      properties:
+        titre:
+          type: string
+          maxLength: 120
+          example: VPN inaccessible depuis le site de Lyon
+        description:
+          type: object
+          description: >-
+            Description guidée (cadrage 9.9). Le serveur assemble les réponses en un texte à
+            rubriques fixes ; « messageErreur » vide devient « Non précisé ».
+          required: [probleme, depuis]
+          properties:
+            probleme:
+              type: string
+              maxLength: 2000
+              description: Que se passe-t-il ?
+              example: Le client VPN affiche « connexion refusée »
+            depuis:
+              type: string
+              maxLength: 2000
+              description: Depuis quand ?
+              example: Ce matin, 8 h 30
+            messageErreur:
+              type: string
+              maxLength: 2000
+              description: Quel message d'erreur ? (facultatif)
+              example: Erreur 809
+        service:
+          type: string
+          description: Identifiant d'un service actif du catalogue (GET /services).
+          example: 665a1f0c2b7e4a0012345678
+        impact:
+          $ref: '#/components/schemas/Impact'
+        urgence:
+          $ref: '#/components/schemas/Urgence'
+
+    Personne:
+      type: object
+      nullable: true
+      properties:
+        _id:
+          type: string
+        nom:
+          type: string
+        prenom:
+          type: string
+
+    TicketResume:
+      type: object
+      properties:
+        _id:
+          type: string
+        numero:
+          type: integer
+          example: 42
+        reference:
+          type: string
+          example: VIG-0042
+        titre:
+          type: string
+        service:
+          type: object
+          properties:
+            _id:
+              type: string
+            nom:
+              type: string
+        statut:
+          $ref: '#/components/schemas/Statut'
+        prioriteFinale:
+          $ref: '#/components/schemas/Priorite'
+        echeanceSla:
+          type: string
+          format: date-time
+          description: Échéance de résolution, en heures ouvrées.
+        createdAt:
+          type: string
+          format: date-time
+          description: Date d'ouverture.
+
+    Ticket:
+      allOf:
+        - $ref: '#/components/schemas/TicketResume'
+        - type: object
+          properties:
+            description:
+              type: string
+              example: "Que se passe-t-il ?\nLe client VPN affiche « connexion refusée »\n\nDepuis quand ?\nCe matin, 8 h 30\n\nQuel message d'erreur ?\nErreur 809"
+            domaine:
+              $ref: '#/components/schemas/Domaine'
+            impact:
+              $ref: '#/components/schemas/Impact'
+            urgence:
+              $ref: '#/components/schemas/Urgence'
+            dateStatut:
+              type: string
+              format: date-time
+              description: Entrée dans le statut actuel.
+            demandeur:
+              $ref: '#/components/schemas/Personne'
+            technicien:
+              $ref: '#/components/schemas/Personne'
