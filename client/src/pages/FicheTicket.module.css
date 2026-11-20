@@ -159,6 +159,16 @@
   color: var(--color-feedback-danger-fg);
 }
 
+/* « Calculée : » + priorité sans fond, au-dessus de la liste (capture composants-03-modales) */
+.calculee {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-neutral-600);
+}
+
 @media (max-width: 768px) {
   .ligne {
     grid-template-columns: 120px minmax(0, 1fr);
