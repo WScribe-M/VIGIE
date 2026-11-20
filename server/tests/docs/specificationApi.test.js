@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { DOMAINES, IMPACTS, PRIORITES, ROLES, STATUTS, URGENCES } from '../models/constantes.js';
-import { specificationApi } from './specificationApi.js';
+import {
+  DOMAINES,
+  IMPACTS,
+  PRIORITES,
+  ROLES,
+  STATUTS,
+  URGENCES,
+} from '../../src/models/constantes.js';
+import { specificationApi } from '../../src/docs/specificationApi.js';
 
 // Le YAML ne peut pas importer constantes.js : ces tests évitent que la documentation
 // annonce des valeurs ou des liens qui n'existent plus.

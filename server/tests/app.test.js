@@ -4,7 +4,7 @@ import { after, before, describe, it } from 'node:test';
 process.env.MONGODB_URI ??= 'mongodb://localhost:27017/vigie-test';
 process.env.JWT_SECRET ??= 'secret-de-test';
 
-const { app } = await import('./app.js');
+const { app } = await import('../src/app.js');
 
 // Serveur HTTP réel sur un port libre, sans base de données
 let serveur;
@@ -95,7 +95,7 @@ describe('documentation de l’API', () => {
 describe('droits sur /api/tickets (sans base : les middlewares répondent avant)', () => {
   const ID = '665a1f0c2b7e4a0000000001';
   const entetes = async (role) => {
-    const { creerJeton } = await import('./services/jetonService.js');
+    const { creerJeton } = await import('../src/services/jetonService.js');
     return {
       Authorization: `Bearer ${creerJeton({ _id: ID, role })}`,
       'Content-Type': 'application/json',

@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 process.env.MONGODB_URI ??= 'mongodb://localhost:27017/vigie-test';
 process.env.JWT_SECRET ??= 'secret-de-test';
 
-const { calculerEcheance } = await import('./slaService.js');
+const { calculerEcheance } = await import('../../src/services/slaService.js');
 
 // Horaires du cadrage (9.2) : du lundi au vendredi, de 9 h à 18 h (en minutes depuis minuit)
 const HORAIRES = { jours: [1, 2, 3, 4, 5], debut: 9 * 60, fin: 18 * 60 };

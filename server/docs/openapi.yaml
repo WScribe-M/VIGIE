@@ -1,7 +1,7 @@
 # Documentation de l'API VIGIE, affichée sur /api/docs (Swagger UI).
 # Règle de la Definition of Done : toute route ajoutée ou modifiée est décrite ici, dans la même PR.
 # Les valeurs autorisées (enum) doivent rester identiques à server/src/models/constantes.js :
-# un test (src/docs/specificationApi.test.js) le vérifie.
+# un test (server/tests/docs/specificationApi.test.js) le vérifie.
 openapi: 3.0.3
 info:
   title: API VIGIE

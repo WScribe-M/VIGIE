@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import mongoose from 'mongoose';
-import { Notification } from './Notification.js';
-import { Ticket } from './Ticket.js';
+import { Notification } from '../../src/models/Notification.js';
+import { Ticket } from '../../src/models/Ticket.js';
 
 // Validation sans base de données : on vérifie le schéma conçu à partir des requêtes (cadrage 9.10)
 

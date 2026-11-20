@@ -165,7 +165,8 @@ client/src/
 ### Tests
 
 - Outil : le module natif `node:test` (aucune dépendance). Lancer : `npm test`.
-- Fichiers `*.test.js` à côté du code testé, par exemple `services/priorite.test.js`.
+- Fichiers `*.test.js` dans `server/tests/`, avec **la même arborescence que `server/src/`** : le test de `src/services/ticketService.js` est `tests/services/ticketService.test.js` et importe `../../src/services/ticketService.js`. Le code de production reste ainsi séparé des tests ; `npm test` (`node --test`) trouve les fichiers `*.test.js` tout seul.
+- Un test qui importe `config/env.js` (directement ou non) définit d'abord `MONGODB_URI` et `JWT_SECRET`, puis importe le module avec `await import(…)` : voir `tests/app.test.js`.
 - À tester en priorité : la matrice de priorité, le calcul SLA en heures ouvrées, les transitions de statut, la prise en charge atomique, les règles de visibilité (dont les notes internes, jamais visibles d'un client), le délai de contestation de 15 jours.
 
 ### Style

@@ -4,8 +4,9 @@ import { describe, it } from 'node:test';
 process.env.MONGODB_URI ??= 'mongodb://localhost:27017/vigie-test';
 process.env.JWT_SECRET ??= 'secret-de-test';
 
-const { authentifier, autoriser, interdireEcritureLecteur } = await import('./auth.js');
-const { creerJeton } = await import('../services/jetonService.js');
+const { authentifier, autoriser, interdireEcritureLecteur } =
+  await import('../../src/middlewares/auth.js');
+const { creerJeton } = await import('../../src/services/jetonService.js');
 
 // Simule req / res / next d'Express
 function appeler(middleware, req) {

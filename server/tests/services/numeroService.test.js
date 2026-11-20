@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { formaterNumero, lireNumero, prochainNumeroTicket } from './numeroService.js';
+import {
+  formaterNumero,
+  lireNumero,
+  prochainNumeroTicket,
+} from '../../src/services/numeroService.js';
 
 describe('numéro lisible des tickets', () => {
   it('formate sur quatre chiffres avec le préfixe VIG', () => {

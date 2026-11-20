@@ -6,8 +6,8 @@ process.env.MONGODB_URI ??= 'mongodb://localhost:27017/vigie-test';
 process.env.JWT_SECRET ??= 'secret-de-test';
 
 const { composerDescription, estimerTicket, preparerTicket, validerCreation } =
-  await import('./ticketService.js');
-const { Ticket } = await import('../models/index.js');
+  await import('../../src/services/ticketService.js');
+const { Ticket } = await import('../../src/models/index.js');
 
 const SERVICE = '665a1f0c2b7e4a0000000051';
 const CLIENT = { id: '665a1f0c2b7e4a0000000001', role: 'CLIENT' };

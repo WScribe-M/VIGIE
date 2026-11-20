@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { creerService, deduireDomaine, listerServices, modifierService } from './serviceService.js';
-import { initialiserServices, SERVICES_INITIAUX } from '../scripts/seedServices.js';
+import {
+  creerService,
+  deduireDomaine,
+  listerServices,
+  modifierService,
+} from '../../src/services/serviceService.js';
+import { initialiserServices, SERVICES_INITIAUX } from '../../src/scripts/seedServices.js';
 const ID = '507f1f77bcf86cd799439011';
 
 // Simule la chaîne find().select().collation().sort().lean() de Mongoose

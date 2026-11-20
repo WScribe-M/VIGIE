@@ -84,6 +84,8 @@ server/
   src/app.js         application Express (routes, erreurs)
   docs/openapi.yaml  documentation de l'API (OpenAPI), affichée sur /api/docs
   src/index.js       démarrage : connexion à la base puis écoute
+  src/socket/        temps réel : authentification Socket.io et rooms
+  tests/             tests node:test, même arborescence que src/
 ```
 
 ## Documentation
