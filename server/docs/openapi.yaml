@@ -520,6 +520,68 @@ paths:
               example:
                 message: 'Le ticket a été modifié entre-temps : rechargez-le'
 
+  /tickets/{id}/priorite:
+    patch:
+      tags: [Tickets]
+      summary: Requalifier la priorité (GESTIONNAIRE, ADMIN)
+      description: >-
+        Remplace `prioriteFinale` (et son rang de tri) ; `prioriteCalculee`, déduite de la matrice
+        impact × urgence, ne change pas. L'échéance SLA est recalculée **à partir de la
+        requalification**, avec le délai complet de la nouvelle priorité en heures ouvrées
+        (Critique 4 h, Haute 1 jour, Moyenne 3 jours, Basse 5 jours ; cadrage 9.2), et l'alerte SLA
+        repart de zéro. Motif obligatoire, de 10 à 500 caractères. Tracé dans l'historique
+        (ancienne et nouvelle valeur, auteur, date, motif) ; émet `ticket:modifie`. Impossible sur
+        un ticket `TERMINE` ou `ABANDONNE`. Le demandeur ne peut jamais modifier la priorité.
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [priorite, motif]
+              properties:
+                priorite:
+                  $ref: '#/components/schemas/Priorite'
+                motif:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+                  description: Raison de la requalification, expliquée au demandeur.
+                  example: Toute la comptabilité est bloquée, clôture mensuelle aujourd'hui
+      responses:
+        '200':
+          description: Ticket requalifié, avec sa nouvelle échéance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Priorité inconnue ou déjà celle du ticket, motif absent, trop court ou trop long.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Indiquez un motif (10 caractères minimum).
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '409':
+          description: >-
+            Ticket clos, ou priorité changée entre la lecture et l'écriture (requalification d'un
+            collègue).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Ticket clos : la priorité ne peut plus être requalifiée'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -768,6 +830,12 @@ components:
               $ref: '#/components/schemas/Impact'
             urgence:
               $ref: '#/components/schemas/Urgence'
+            prioriteCalculee:
+              allOf:
+                - $ref: '#/components/schemas/Priorite'
+              description: >-
+                Déduite de l'impact et de l'urgence à la création ; `prioriteFinale` en diffère
+                après une requalification.
             dateStatut:
               type: string
               format: date-time

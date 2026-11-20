@@ -141,6 +141,17 @@ describe('droits sur /api/tickets (sans base : les middlewares répondent avant)
     }
   });
 
+  it('seul le support requalifie la priorité (403 pour CLIENT et LECTEUR)', async () => {
+    for (const role of ['CLIENT', 'LECTEUR']) {
+      const { status } = await appeler(`/tickets/${ID}/priorite`, {
+        method: 'PATCH',
+        headers: await entetes(role),
+        body: JSON.stringify({ priorite: 'CRITIQUE', motif: 'Toute la comptabilité est bloquée' }),
+      });
+      assert.equal(status, 403, role);
+    }
+  });
+
   it('une création invalide répond 400 sans toucher à la base', async () => {
     const { status, corps } = await appeler('/tickets', {
       method: 'POST',
