@@ -54,7 +54,7 @@ Contenu, colonne, écart 24 :
 - Sections : « À prendre » · « Mes tickets en cours » · « En attente du demandeur »
 - Colonnes : « N° » · « Titre » · « Priorité » · « Échéance » / « Résolution » / « Ancienneté » · « Demandeur »
 - Actions : « Prendre en charge » · « Ouvrir » · « Relancer » ; étiquette « Nouveau · à l’instant »
-- Toast : « En direct · à l’instant » · « Nouveau ticket · Critique · VPN » · « INC-1027 · Coupure VPN sur le site de Lyon · signalé par Léa Martin, 9 concernés » · « Ouvrir » (⚠ décision du 20/11 : le toast informe, il n’a pas de bouton « Prendre en charge » ; la prise en charge se fait depuis la ligne ou la fiche, où l’état réel du ticket est visible)
+- Toast : « En direct · à l’instant » · « Nouveau ticket · Critique · VPN » · « INC-1027 · Coupure VPN sur le site de Lyon · signalé par Léa Martin, 9 concernés » (⚠ décision du 20/11 : le toast informe, sans bouton ; un clic sur le toast ouvre le ticket ; la prise en charge se fait depuis la ligne ou la fiche, où l’état réel du ticket est visible)
 - Vide : `inbox` · « Aucun ticket à prendre » · « Bonne nouvelle : la file est vide. Les nouveaux tickets apparaîtront ici en direct. » · Secondaire « Voir tous les tickets »
 - Erreur : `wifi-off` `--color-feedback-danger-fg` · « Mises à jour en direct interrompues » · « La liste affichée date de 15:47. Nouvelle tentative dans 5 s… » · Secondaire « Réessayer maintenant »
 
