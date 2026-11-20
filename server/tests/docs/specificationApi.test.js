@@ -6,6 +6,7 @@ import {
   PRIORITES,
   ROLES,
   STATUTS,
+  TYPES_NOTIFICATION,
   URGENCES,
 } from '../../src/models/constantes.js';
 import { specificationApi } from '../../src/docs/specificationApi.js';
@@ -59,6 +60,10 @@ describe('documentation OpenAPI', () => {
     assert.deepEqual(schemas.Urgence.enum, URGENCES);
     assert.deepEqual(schemas.Priorite.enum, PRIORITES);
     assert.deepEqual(schemas.Statut.enum, STATUTS);
+  });
+
+  it('les types de notification sont ceux de constantes.js', () => {
+    assert.deepEqual(specificationApi.components.schemas.TypeNotification.enum, TYPES_NOTIFICATION);
   });
 
   it('seules la santé et la connexion sont publiques', () => {
