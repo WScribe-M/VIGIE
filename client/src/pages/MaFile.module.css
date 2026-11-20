@@ -7,26 +7,6 @@
   padding-top: var(--space-8);
 }
 
-/* En-tête : « En direct » à gauche */
-.enDirect {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: 13px;
-  color: var(--color-neutral-700);
-}
-
-.pointDirect {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-full);
-  background: var(--color-brand-600);
-}
-
-.pointCoupe {
-  background: var(--color-feedback-danger-fg);
-}
-
 .titrePage {
   margin: 0;
 }

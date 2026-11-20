@@ -83,3 +83,5 @@ Contenu, colonne, écart 24 :
   sections sur trois montrent les tickets de toute l’équipe). La route reste `/ma-file`.
 - **Pas de sous-titre ni de description de section** (décision du 20/11) : la page n’affiche que « À traiter », puis
   pour chaque section son titre et son compteur.
+- **Pas d’indicateur « En direct · N collègues connectés »** dans l’en-tête (décision du 20/11) : seul le bandeau
+  « Mises à jour en direct interrompues » s’affiche, quand le temps réel est coupé.

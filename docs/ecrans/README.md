@@ -35,7 +35,7 @@ mot pour mot.
   768 px, elle devient une barre haute.
 - **En-tête** (PageHeader, à construire) : fond Lin, filet bas `--color-neutral-200`. De gauche à droite :
   - sur une page de détail, un lien retour `arrow-left` 16 px + nom de la page parente, 14/400, écart 6 ;
-  - selon l'écran : la présence (fiche Gestionnaire) ou « En direct · 4 collègues connectés » (À traiter),
+  - selon l'écran : la présence (fiche Gestionnaire) (« En direct » retiré de « À traiter » le 20/11),
     13/400 avec un point Pétrole de 8 px ;
   - un espace flexible ;
   - la recherche 360 × 40 (Client : « Rechercher une demande… » ; Gestionnaire : « Rechercher un ticket,

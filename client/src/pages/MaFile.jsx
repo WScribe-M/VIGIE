@@ -229,16 +229,6 @@ export function MaFile() {
     };
   }, [charger]);
 
-  const enDirect = (
-    <span className={styles.enDirect}>
-      <span
-        className={`${styles.pointDirect} ${connecte ? '' : styles.pointCoupe}`}
-        aria-hidden="true"
-      />
-      {connecte ? 'En direct' : 'Hors connexion'}
-    </span>
-  );
-
   let contenu;
   if (erreur && !file) {
     contenu = (
@@ -311,7 +301,8 @@ export function MaFile() {
 
   return (
     <>
-      <PageHeader gauche={enDirect} />
+      {/* Pas d'indicateur « En direct » (décision du 20/11) : seul le bandeau de coupure s'affiche */}
+      <PageHeader />
       <div className={styles.page}>
         {/* Décision du 20/11 : une seule densité (« Confort », lignes de 52 px), pas de sélecteur */}
         {/* Ni sous-titre ni description de section (décision du 20/11) */}
