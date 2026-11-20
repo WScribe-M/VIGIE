@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { accueilDuRole } from '../auth/roles.js';
+import { Button } from '../composants/Button.jsx';
 
 export function Connexion() {
   const { utilisateur, connexion } = useAuth();
@@ -30,8 +31,8 @@ export function Connexion() {
 
   return (
     <main className="connexion">
-      <h1>VIGIE</h1>
-      <p>Gestion des incidents IT</p>
+      <h1 className="text-display-xl">vigie</h1>
+      <p className="texte-secondaire">Un incident signalé une fois, suivi par tous.</p>
       <form onSubmit={soumettre}>
         <label>
           E-mail
@@ -58,9 +59,9 @@ export function Connexion() {
             {erreur}
           </p>
         )}
-        <button type="submit" disabled={envoi}>
-          {envoi ? 'Connexion…' : 'Se connecter'}
-        </button>
+        <Button type="submit" chargement={envoi ? 'Connexion…' : undefined}>
+          Se connecter
+        </Button>
       </form>
     </main>
   );

@@ -1,0 +1,381 @@
+import {
+  Activity,
+  ArrowRight,
+  Bell,
+  ChartColumn,
+  Copy,
+  Ellipsis,
+  House,
+  Inbox,
+  Plus,
+  Search,
+  Server,
+  Ticket,
+  Trash,
+  Users,
+} from 'lucide-react';
+import { Avatar } from '../composants/Avatar.jsx';
+import { Button, IconButton } from '../composants/Button.jsx';
+import { PriorityBadge } from '../composants/PriorityBadge.jsx';
+import { Sidebar } from '../composants/Sidebar.jsx';
+import { SlaBadge } from '../composants/SlaBadge.jsx';
+import { StatusBadge } from '../composants/StatusBadge.jsx';
+import { LIBELLES_PRIORITE, LIBELLES_SLA, LIBELLES_STATUT } from '../styles/libelles.js';
+import styles from './Styleguide.module.css';
+
+// Page de développement uniquement (absente du build de production) : catalogue des
+// composants du design system, à comparer avec les captures de docs/ecrans/.
+// Les données sont celles de la démo du handoff.
+
+// Valeurs lues dans libelles.js : jamais réécrites à la main (elles suivent l'API)
+const STATUTS = Object.keys(LIBELLES_STATUT);
+const PRIORITES = Object.keys(LIBELLES_PRIORITE);
+const DETAILS_SLA = {
+  DANS_LES_TEMPS: 'reste 2 h',
+  ECHEANCE_PROCHE: 'reste 25 min',
+  EN_RETARD: 'de 3 h',
+  SUSPENDU: 'depuis 4 j',
+};
+const SLA = Object.keys(LIBELLES_SLA).map((niveau) => ({ niveau, detail: DETAILS_SLA[niveau] }));
+
+const COULEURS = [
+  {
+    famille: 'Marque — Pétrole',
+    prefixe: '--color-brand-',
+    cles: [50, 100, 200, 300, 400, 500, 600, 700, 800, 900],
+  },
+  {
+    famille: 'Neutres chauds',
+    prefixe: '--color-neutral-',
+    cles: [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900],
+  },
+  { famille: 'Graphiques', prefixe: '--color-chart-', cles: [1, 2, 3, 4, 5, 6] },
+];
+
+const TYPOGRAPHIE = [
+  ['text-display-xl', 'Bonjour Awa.'],
+  ['text-display-lg', 'Mes demandes'],
+  ['text-heading-lg', 'Évaluation de la situation'],
+  ['text-heading-md', 'État des services'],
+  ['text-heading-sm', 'VPN inaccessible'],
+  ['text-body-lg', 'Impossible de me connecter au VPN depuis ce matin.'],
+  ['text-body-md', 'Mamadou Koné a pris en charge votre demande.'],
+  ['text-body-sm', 'INC-1024 · Awa Diallo · il y a 5 min'],
+  ['text-label', 'Service concerné'],
+  ['text-caption', '17 nov. 2026, 10:24'],
+  ['text-numeric-xl', '24 · 4,6/5 · 12 %'],
+];
+
+const ETATS_BOUTON = [
+  ['Par défaut', undefined],
+  ['Survol', 'survol'],
+  ['Focus clavier', 'focus'],
+  ['Actif', 'actif'],
+  ['Désactivé', 'desactive'],
+  ['Chargement', 'chargement'],
+];
+
+const BOUTONS = [
+  {
+    variante: 'primaire',
+    nom: 'Primaire',
+    libelle: 'Nouveau ticket',
+    icone: Plus,
+    chargement: 'Création…',
+  },
+  { variante: 'secondaire', nom: 'Secondaire', libelle: 'Annuler', chargement: 'Chargement…' },
+  {
+    variante: 'tertiaire',
+    nom: 'Tertiaire',
+    libelle: 'Voir tout',
+    icone: ArrowRight,
+    chargement: 'Chargement…',
+  },
+  {
+    variante: 'danger',
+    nom: 'Danger',
+    libelle: 'Désactiver',
+    icone: Trash,
+    chargement: 'Désactivation…',
+  },
+];
+
+const LIGNES_DEMO = [
+  {
+    id: 'INC-1022',
+    titre: 'Accès à l’ERP impossible',
+    statut: 'NOUVEAU',
+    priorite: 'CRITIQUE',
+    sla: { niveau: 'ECHEANCE_PROCHE', detail: 'reste 25 min' },
+  },
+  {
+    id: 'INC-1024',
+    titre: 'VPN inaccessible',
+    statut: 'EN_COURS',
+    priorite: 'HAUTE',
+    sla: { niveau: 'EN_RETARD', detail: 'de 3 h' },
+  },
+  {
+    id: 'INC-1023',
+    titre: 'Imprimante en panne (Bât. A)',
+    statut: 'EN_ATTENTE_DEMANDEUR',
+    priorite: 'MOYENNE',
+    sla: { niveau: 'SUSPENDU' },
+  },
+];
+
+// Barres latérales des quatre rôles, telles que dessinées dans le handoff (capture composants-03-barre-laterale-et-en-tete)
+const BARRES = [
+  {
+    utilisateur: { prenom: 'Awa', nom: 'Diallo', role: 'CLIENT', paire: 1 },
+    entrees: [
+      { chemin: '/demo/mes-demandes', libelle: 'Mes demandes', icone: House, actif: true },
+      { chemin: '/demo/nouveau', libelle: 'Nouveau ticket', icone: Plus },
+      { chemin: '/demo/services', libelle: 'État des services', icone: Activity },
+    ],
+  },
+  {
+    utilisateur: { prenom: 'Mamadou', nom: 'Koné', role: 'GESTIONNAIRE', paire: 2 },
+    entrees: [
+      { chemin: '/demo/ma-file', libelle: 'Ma file', icone: Inbox, compteur: 3, actif: true },
+      { chemin: '/demo/tickets', libelle: 'Tous les tickets', icone: Ticket },
+      { chemin: '/demo/nouveau', libelle: 'Nouveau ticket', icone: Plus },
+      { chemin: '/demo/pilotage', libelle: 'Pilotage', icone: ChartColumn },
+      { chemin: '/demo/services', libelle: 'État des services', icone: Activity },
+    ],
+  },
+  {
+    utilisateur: { prenom: 'Karim', nom: 'Benali', role: 'ADMIN', paire: 4 },
+    entrees: [
+      { chemin: '/demo/ma-file', libelle: 'Ma file', icone: Inbox, compteur: 2 },
+      { chemin: '/demo/tickets', libelle: 'Tous les tickets', icone: Ticket },
+      { chemin: '/demo/nouveau', libelle: 'Nouveau ticket', icone: Plus },
+      { chemin: '/demo/pilotage', libelle: 'Pilotage', icone: ChartColumn },
+      { chemin: '/demo/services', libelle: 'État des services', icone: Activity },
+      {
+        chemin: '/demo/utilisateurs',
+        libelle: 'Utilisateurs',
+        icone: Users,
+        section: 'Administration',
+        actif: true,
+      },
+      { chemin: '/demo/catalogue', libelle: 'Services', icone: Server },
+    ],
+  },
+  {
+    utilisateur: { prenom: 'Claire', nom: 'Fontaine', role: 'LECTEUR', paire: 6 },
+    entrees: [
+      {
+        chemin: '/demo/tickets',
+        libelle: 'Tous les tickets',
+        icone: Ticket,
+        etiquette: 'Lecture seule',
+        actif: true,
+      },
+      { chemin: '/demo/pilotage', libelle: 'Pilotage', icone: ChartColumn },
+      { chemin: '/demo/services', libelle: 'État des services', icone: Activity },
+    ],
+  },
+];
+
+const AVATARS = [
+  ['Awa', 'Diallo'],
+  ['Mamadou', 'Koné'],
+  ['Léa', 'Martin'],
+  ['Karim', 'Benali'],
+  ['Sophie', 'Laurent'],
+  ['Claire', 'Fontaine'],
+];
+
+function Bloc({ titre, note, children }) {
+  return (
+    <section className={styles.bloc}>
+      <div className={styles.entete}>
+        <h2 className="text-heading-lg">{titre}</h2>
+        {note && <span className="text-body-sm texte-secondaire">{note}</span>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function LigneDemo({ ligne }) {
+  return (
+    <div className={`${styles.ligne} ${ligne.sla.niveau === 'EN_RETARD' ? styles.enRetard : ''}`}>
+      <span className="text-body-sm texte-secondaire chiffres">{ligne.id}</span>
+      <span className={styles.titreLigne}>{ligne.titre}</span>
+      <span className={styles.badges}>
+        <StatusBadge statut={ligne.statut} taille={26} />
+        <PriorityBadge priorite={ligne.priorite} taille={26} />
+        <SlaBadge {...ligne.sla} taille={26} />
+      </span>
+    </div>
+  );
+}
+
+export function Styleguide() {
+  return (
+    <div className={styles.page}>
+      <header className={styles.titre}>
+        <span className="text-label texte-secondaire">
+          Développement uniquement · à comparer avec les maquettes
+        </span>
+        <h1 className="text-display-lg">Design system</h1>
+      </header>
+
+      <Bloc titre="Couleurs" note="Tokens de styles/tokens.css">
+        {COULEURS.map(({ famille, prefixe, cles }) => (
+          <div key={famille} className={styles.famille}>
+            <span className="text-label">{famille}</span>
+            <div className={styles.nuancier}>
+              {cles.map((cle) => (
+                <div key={cle} className={styles.nuance}>
+                  <span
+                    className={styles.pastille}
+                    style={{ background: `var(${prefixe}${cle})` }}
+                  />
+                  <span className="text-caption texte-secondaire">
+                    {prefixe}
+                    {cle}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </Bloc>
+
+      <Bloc titre="Typographie" note="Figtree · une classe par usage (styles/typographie.css)">
+        {TYPOGRAPHIE.map(([classe, exemple]) => (
+          <div key={classe} className={styles.typo}>
+            <span className="text-label">.{classe}</span>
+            <span className={classe}>{exemple}</span>
+          </div>
+        ))}
+      </Bloc>
+
+      <Bloc titre="Boutons" note="Hauteur 40 (md) · 32 (sm) · une seule action primaire par écran">
+        <div className={styles.grilleBoutons}>
+          <span />
+          {ETATS_BOUTON.map(([nom]) => (
+            <span key={nom} className="text-caption texte-secondaire">
+              {nom}
+            </span>
+          ))}
+          {BOUTONS.map((bouton) => (
+            <div key={bouton.variante} className={styles.rangee}>
+              <span className="text-label">{bouton.nom}</span>
+              {ETATS_BOUTON.map(([nom, etat]) => (
+                <div key={nom}>
+                  <Button
+                    variante={bouton.variante}
+                    icone={bouton.icone}
+                    etat={etat}
+                    disabled={etat === 'desactive'}
+                    chargement={etat === 'chargement' ? bouton.chargement : undefined}
+                  >
+                    {bouton.libelle}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className={styles.ligneOutils}>
+          <Button variante="secondaire" taille="sm" icone={Copy}>
+            Je suis aussi concerné
+          </Button>
+          <IconButton icone={Search} libelle="Rechercher" />
+          <IconButton icone={Bell} libelle="Notifications" etat="survol" />
+          <IconButton icone={Ellipsis} libelle="Plus d’actions" etat="focus" />
+        </div>
+      </Bloc>
+
+      <Bloc
+        titre="Statut"
+        note="Pastille : fond teinté, bordure, icône et libellé · hauteurs 24 · 26 · 28"
+      >
+        {[24, 26, 28].map((taille) => (
+          <div key={taille} className={styles.rangeeBadges}>
+            <span className="text-caption texte-secondaire">{taille} px</span>
+            {STATUTS.map((statut) => (
+              <StatusBadge key={statut} statut={statut} taille={taille} />
+            ))}
+          </div>
+        ))}
+      </Bloc>
+
+      <Bloc
+        titre="Priorité"
+        note="Barres de signal sans fond · seule Critique est une pastille pleine"
+      >
+        {[24, 26].map((taille) => (
+          <div key={taille} className={styles.rangeeBadges}>
+            <span className="text-caption texte-secondaire">{taille} px</span>
+            {PRIORITES.map((priorite) => (
+              <PriorityBadge key={priorite} priorite={priorite} taille={taille} />
+            ))}
+          </div>
+        ))}
+      </Bloc>
+
+      <Bloc
+        titre="Délai (SLA)"
+        note="Étiquette rectangulaire · fond teinté seulement quand il faut agir"
+      >
+        {[24, 26, 28].map((taille) => (
+          <div key={taille} className={styles.rangeeBadges}>
+            <span className="text-caption texte-secondaire">{taille} px</span>
+            {SLA.map((sla) => (
+              <SlaBadge key={sla.niveau} {...sla} taille={taille} />
+            ))}
+          </div>
+        ))}
+        <div className={styles.rangeeBadges}>
+          <span className="text-caption texte-secondaire">Court</span>
+          <SlaBadge niveau="ECHEANCE_PROCHE" detail="reste 34 min" court />
+          <SlaBadge niveau="SUSPENDU" court />
+        </div>
+      </Bloc>
+
+      <Bloc
+        titre="Une ligne, trois formes"
+        note="Puis la même ligne en niveaux de gris : la forme et le libellé portent l’information"
+      >
+        <div className={styles.tableau}>
+          {LIGNES_DEMO.map((ligne) => (
+            <LigneDemo key={ligne.id} ligne={ligne} />
+          ))}
+        </div>
+        <div className={`${styles.tableau} ${styles.gris}`}>
+          {LIGNES_DEMO.map((ligne) => (
+            <LigneDemo key={ligne.id} ligne={ligne} />
+          ))}
+        </div>
+      </Bloc>
+
+      <Bloc titre="Avatars" note="24 · 32 · 36 · 40 px · une paire de couleurs par personne">
+        {[24, 32, 36, 40].map((taille) => (
+          <div key={taille} className={styles.rangeeBadges}>
+            <span className="text-caption texte-secondaire">{taille} px</span>
+            {AVATARS.map(([prenom, nom], index) => (
+              <Avatar key={nom} prenom={prenom} nom={nom} paire={index + 1} taille={taille} />
+            ))}
+            <Avatar taille={taille} />
+          </div>
+        ))}
+      </Bloc>
+
+      <Bloc titre="Barre latérale par rôle" note="248 px · Encre brune · le menu dépend du rôle">
+        {/* Les liens de démonstration ne doivent pas quitter la page */}
+        <div className={styles.barres} onClickCapture={(event) => event.preventDefault()}>
+          {BARRES.map(({ utilisateur, entrees }) => (
+            <div key={utilisateur.role} className={styles.barre}>
+              <Sidebar entrees={entrees} utilisateur={utilisateur} onDeconnexion={() => {}} />
+            </div>
+          ))}
+        </div>
+      </Bloc>
+    </div>
+  );
+}

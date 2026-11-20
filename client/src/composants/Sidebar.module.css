@@ -1,0 +1,237 @@
+/* Barre latérale (docs/ecrans/composants.md, capture composants-03-barre-laterale-et-en-tete) : 248 px, Encre brune, menu selon le rôle */
+
+.barre {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: var(--layout-sidebar-width);
+  height: 100%;
+  padding: 20px 12px 12px;
+  /* Petit écran ou zoom à 150 % : la barre défile, le bouton de déconnexion reste atteignable */
+  overflow-y: auto;
+  background: var(--color-neutral-900);
+}
+
+.logo {
+  padding: 0 8px 28px;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  color: var(--color-neutral-50);
+  white-space: nowrap;
+}
+
+.symbole {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.1em;
+  vertical-align: baseline;
+  fill: var(--color-brand-100);
+}
+
+.section {
+  padding: 16px 12px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-sidebar-section);
+}
+
+.entree {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  color: var(--color-neutral-300);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+/* Survol non dessiné dans le handoff : on reprend le fond de l'élément actif */
+.entree:hover {
+  background: var(--color-sidebar-item-active-bg);
+  color: var(--color-neutral-300);
+}
+
+.icone {
+  flex: none;
+  color: var(--color-neutral-400);
+}
+
+.actif,
+.actif:hover {
+  background: var(--color-sidebar-item-active-bg);
+  color: var(--color-neutral-0);
+  font-weight: 600;
+}
+
+.actif .icone {
+  color: var(--color-brand-300);
+}
+
+.libelle {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.compteur {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-300);
+  color: var(--color-brand-900);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.etiquette {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-xs);
+  background: var(--color-neutral-700);
+  color: var(--color-neutral-200);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: normal; /* comme la maquette : l'étiquette reste dans son cadre sur 2 lignes */
+}
+
+.espace {
+  flex: 1;
+}
+
+.pied {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px 4px;
+  border-top: 1px solid var(--color-sidebar-divider);
+}
+
+.identite {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nom {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--color-neutral-50);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role {
+  font-size: 12px;
+  line-height: normal;
+  color: var(--color-neutral-400);
+}
+
+.deconnexion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-neutral-400);
+  cursor: pointer;
+}
+
+.deconnexion:hover {
+  background: var(--color-sidebar-item-active-bg);
+}
+
+/*
+ * Mobile (docs/ecrans/14-mobile.md) : sous 768 px, la barre latérale devient une barre haute de 56 px,
+ * comme la barre haute du mobile (logo, actions, avatar). Les entrées gardent seulement leur icône ;
+ * le libellé reste lu par les lecteurs d'écran. Cibles tactiles de 44 px.
+ */
+@media (max-width: 768px) {
+  .barre {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-1);
+    width: 100%;
+    height: 56px;
+    padding: 0 var(--space-4);
+    /* Beaucoup d'entrées : la barre défile horizontalement au lieu de comprimer les cibles de 44 px */
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .logo {
+    margin-right: auto;
+    padding: 0;
+    font-size: 24px;
+  }
+
+  .section,
+  .espace,
+  .etiquette {
+    display: none;
+  }
+
+  .logo,
+  .entree,
+  .pied {
+    flex: none;
+  }
+
+  .entree {
+    position: relative;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  .libelle,
+  .identite {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .compteur {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 11px;
+  }
+
+  .pied {
+    gap: var(--space-1);
+    padding: 0 0 0 var(--space-2);
+    border-top: 0;
+  }
+
+  .deconnexion {
+    width: 44px;
+    height: 44px;
+  }
+}

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { ROLES } from '../models/constantes.js';
+import { DOMAINES, ROLES } from '../models/constantes.js';
 import { specificationApi } from './specificationApi.js';
 
 // Le YAML ne peut pas importer constantes.js : ces tests évitent que la documentation
@@ -40,6 +40,10 @@ describe('documentation OpenAPI', () => {
 
   it('les rôles sont ceux de constantes.js', () => {
     assert.deepEqual(specificationApi.components.schemas.Role.enum, ROLES);
+  });
+
+  it('les domaines sont ceux de constantes.js', () => {
+    assert.deepEqual(specificationApi.components.schemas.Domaine.enum, DOMAINES);
   });
 
   it('seules la santé et la connexion sont publiques', () => {

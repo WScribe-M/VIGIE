@@ -1,7 +1,7 @@
 # Documentation de l'API VIGIE, affichée sur /api/docs (Swagger UI).
 # Règle de la Definition of Done : toute route ajoutée ou modifiée est décrite ici, dans la même PR.
 # Les valeurs autorisées (enum) doivent rester identiques à server/src/models/constantes.js :
-# un test (src/docs/openapi.test.js) le vérifie.
+# un test (src/docs/specificationApi.test.js) le vérifie.
 openapi: 3.0.3
 info:
   title: API VIGIE
@@ -24,6 +24,8 @@ servers:
 tags:
   - name: Système
   - name: Authentification
+  - name: Services
+    description: Catalogue des services IT ; le domaine technique du ticket en est déduit.
 security:
   - bearerAuth: []
 
@@ -116,6 +118,139 @@ paths:
         '401':
           $ref: '#/components/responses/NonAuthentifie'
 
+  /services:
+    get:
+      tags: [Services]
+      summary: Catalogue des services actifs
+      description: >-
+        Ouvert à tout utilisateur connecté, pour choisir le service à la création d'un ticket.
+        Tri par ordre alphabétique, avec « Autre / je ne sais pas » toujours en dernier.
+      responses:
+        '200':
+          description: Services actifs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+    post:
+      tags: [Services]
+      summary: Créer un service (ADMIN)
+      description: >-
+        Le nom doit être unique, sans distinction de majuscules. Le service « Autre / je ne sais
+        pas » garde toujours le domaine `A_QUALIFIER`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nom, domaine]
+              additionalProperties: false
+              properties:
+                nom:
+                  type: string
+                  example: Téléphonie
+                domaine:
+                  $ref: '#/components/schemas/Domaine'
+      responses:
+        '201':
+          description: Service créé, actif.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '400':
+          description: Nom vide, domaine inconnu, champ non autorisé ou règle du service Autre.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Domaine technique invalide
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '409':
+          $ref: '#/components/responses/NomServiceDejaPris'
+
+  /services/admin:
+    get:
+      tags: [Services]
+      summary: Tous les services, désactivés compris (ADMIN)
+      description: Même tri que le catalogue, pour l'écran d'administration.
+      responses:
+        '200':
+          description: Tous les services.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+
+  /services/{id}:
+    patch:
+      tags: [Services]
+      summary: Modifier ou désactiver un service (ADMIN)
+      description: >-
+        Un service désactivé n'est plus proposé à la création d'un ticket ; les tickets existants
+        le gardent. Le service « Autre / je ne sais pas » ne peut être ni renommé, ni désactivé, ni
+        changer de domaine.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Identifiant MongoDB du service.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              additionalProperties: false
+              properties:
+                nom:
+                  type: string
+                domaine:
+                  $ref: '#/components/schemas/Domaine'
+                actif:
+                  type: boolean
+      responses:
+        '200':
+          description: Service modifié.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '400':
+          description: Identifiant mal formé, données invalides ou règle du service Autre.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Le service Autre ne peut pas être désactivé
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '409':
+          $ref: '#/components/responses/NomServiceDejaPris'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -149,6 +284,15 @@ components:
             $ref: '#/components/schemas/Erreur'
           example:
             message: Ressource introuvable
+
+    NomServiceDejaPris:
+      description: Un service porte déjà ce nom (sans distinction de majuscules).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+          example:
+            message: Un service portant ce nom existe déjà
 
   schemas:
     Erreur:
@@ -209,3 +353,23 @@ components:
           description: "JWT à envoyer dans l'en-tête `Authorization: Bearer <jeton>`."
         utilisateur:
           $ref: '#/components/schemas/Utilisateur'
+
+    Domaine:
+      type: string
+      description: Domaine technique, déduit du service choisi.
+      enum: [RESEAU, INFRASTRUCTURE, APPLICATIF, BASE_DE_DONNEES, A_QUALIFIER]
+
+    Service:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 665a1f0c2b7e4a0012345678
+        nom:
+          type: string
+          example: VPN
+        domaine:
+          $ref: '#/components/schemas/Domaine'
+        actif:
+          type: boolean
+          description: Un service désactivé n'est plus proposé à la création d'un ticket.
