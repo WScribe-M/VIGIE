@@ -418,7 +418,7 @@ export function Styleguide() {
 
       <Bloc
         titre="Priorité"
-        note="Barres de signal sans fond · seule Critique est une pastille pleine"
+        note="Barres de signal sans fond, Critique compris (décision du 20/11)"
       >
         {[24, 26].map((taille) => (
           <div key={taille} className={styles.rangeeBadges}>

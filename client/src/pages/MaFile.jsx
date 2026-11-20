@@ -17,7 +17,6 @@ import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
 import { PageHeader } from '../composants/PageHeader.jsx';
 import { PriorityBadge } from '../composants/PriorityBadge.jsx';
 import { SlaBadge } from '../composants/SlaBadge.jsx';
-import { StatusBadge } from '../composants/StatusBadge.jsx';
 import { IconeService, TRAIT_ICONE } from '../styles/icones.js';
 import { LIBELLES_PRIORITE } from '../styles/libelles.js';
 import { socket } from '../tempsReel/socket.js';
@@ -57,6 +56,15 @@ function detailSla(sla, minutesParJour) {
   return sla.niveau === 'EN_RETARD' ? `de ${duree}` : `reste ${duree}`;
 }
 
+// Texte visible, court et direct (décision du 20/11) : « Reste 2 h 09 », « Retard de 3 h »,
+// « Depuis 4 j ». Le niveau se voit à la couleur, au fond et à l'icône ; le libellé complet
+// (« Échéance proche · reste 25 min ») reste lu par les lecteurs d'écran et en infobulle.
+function texteSla(sla, minutesParJour) {
+  if (sla.niveau === 'SUSPENDU') return `Depuis ${formaterDuree(sla.minutes)}`;
+  const duree = formaterDureeOuvree(sla.minutes, minutesParJour);
+  return sla.niveau === 'EN_RETARD' ? `Retard de ${duree}` : `Reste ${duree}`;
+}
+
 // Décision du 20/11 : ni « Prendre en charge » ni bouton « Ouvrir » dans la liste. Toute la ligne
 // ouvre le ticket ; on s'assigne depuis la fiche, après l'avoir lu. Le titre reste un vrai lien :
 // c'est lui qu'on atteint au clavier (Tab, Entrée) et que lit le lecteur d'écran.
@@ -93,14 +101,15 @@ function Ligne({ ligne, minutesParJour, nouveau }) {
         </div>
       </td>
       <td>
-        <StatusBadge statut={ligne.statut} />
-      </td>
-      <td>
         <PriorityBadge priorite={ligne.prioriteFinale} />
       </td>
       <td>
         {ligne.sla && (
-          <SlaBadge niveau={ligne.sla.niveau} detail={detailSla(ligne.sla, minutesParJour)} />
+          <SlaBadge
+            niveau={ligne.sla.niveau}
+            detail={detailSla(ligne.sla, minutesParJour)}
+            texte={texteSla(ligne.sla, minutesParJour)}
+          />
         )}
       </td>
       <td className={styles.demandeur}>
@@ -198,7 +207,7 @@ function Section({ section, lignes, total, minutesParJour, nouveaux }) {
               <tr>
                 {entete('numero', 'N°')}
                 {entete('titre', 'Titre')}
-                <th scope="col">Statut</th>
+                {/* Pas de colonne Statut (décision du 20/11) : le titre de la section le dit déjà */}
                 {entete('priorite', 'Priorité')}
                 {entete('sla', section.colonneSla)}
                 {entete('demandeur', 'Demandeur')}

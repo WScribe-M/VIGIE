@@ -33,7 +33,7 @@ Contenu, colonne, écart 24 :
      `4px 20px 4px 17px`, hauteur min. 44 (dense) / 52 (confort), liseré gauche 3 px (rouge si en retard),
      filet bas `--color-neutral-100`.
    - Cellules : numéro 13 Taupe ; icône du service 16 + titre 14/600 tronqué + méta 12 Taupe (`users` 13 +
-     « 9 concernés ») ; StatusBadge 24 ; PriorityBadge 24 ; SlaBadge 24 ; demandeur 13 ; action sm à droite.
+     « 9 concernés ») ; PriorityBadge 24 ; SlaBadge 24 ; demandeur 13 ; action sm à droite.
    - Action : « Prendre en charge » = bouton 32 px blanc, texte et bordure `--color-brand-600` ;
      « Ouvrir » / « Relancer » = Secondaire sm.
    - Ligne arrivée en direct : étiquette « Nouveau · à l’instant » (11/700 `--color-brand-700` sur
@@ -52,7 +52,7 @@ Contenu, colonne, écart 24 :
 
 - KPI : « À prendre » (`inbox`, « dont 2 Critique ») · « Mes tickets en cours » (`loader-circle`) · « Alertes SLA » (`clock`, « 1 en retard · 1 échéance proche ») · « En attente du demandeur » (`message-circle-question`, « le plus ancien : depuis 4 j »)
 - Sections : « À prendre » · « Mes tickets en cours » · « En attente du demandeur »
-- Colonnes : « N° » · « Titre » · « Statut » · « Priorité » · « Échéance » / « Résolution » / « Ancienneté » · « Demandeur »
+- Colonnes : « N° » · « Titre » · « Priorité » · « Échéance » / « Résolution » / « Ancienneté » · « Demandeur »
 - Actions : « Prendre en charge » · « Ouvrir » · « Relancer » ; étiquette « Nouveau · à l’instant »
 - Toast : « En direct · à l’instant » · « Nouveau ticket · Critique · VPN » · « INC-1027 · Coupure VPN sur le site de Lyon · signalé par Léa Martin, 9 concernés » · « Ouvrir » (⚠ décision du 20/11 : le toast informe, il n’a pas de bouton « Prendre en charge » ; la prise en charge se fait depuis la ligne ou la fiche, où l’état réel du ticket est visible)
 - Vide : `inbox` · « Aucun ticket à prendre » · « Bonne nouvelle : la file est vide. Les nouveaux tickets apparaîtront ici en direct. » · Secondaire « Voir tous les tickets »
@@ -89,3 +89,7 @@ Contenu, colonne, écart 24 :
   Échéance / Résolution / Ancienneté et Demandeur. Un clic trie (Priorité : Critique d’abord ; échéance la plus
   proche ou attente la plus ancienne d’abord), un deuxième inverse le sens, un troisième revient à l’ordre par
   défaut. Un seul critère à la fois, propre à chaque section ; flèche dans l’en-tête et `aria-sort`.
+- **Pas de colonne Statut** (décision du 20/11) : chaque section ne contient qu’un statut (À prendre = Nouveau,
+  Mes tickets en cours = En cours, En attente du demandeur = En attente), déjà dit par son titre.
+- **Priorité Critique sans pastille pleine** et **échéance en texte court** (« Reste 2 h 09 », « Retard de 3 h »,
+  « Depuis 4 j ») : décisions du 20/11, voir `docs/design-system.md`.
