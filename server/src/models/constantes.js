@@ -30,6 +30,9 @@ export const DOMAINES = [
 // Canal d'origine : APPLICATION quand le demandeur crée lui-même le ticket
 export const CANAUX = ['APPLICATION', 'TELEPHONE', 'EMAIL', 'DIRECT'];
 
+// Champs tracés dans l'historique d'un ticket (VIGIE-9) : statut, assignation, priorité, domaine
+export const CHAMPS_HISTORIQUE = ['statut', 'technicien', 'priorite', 'domaine'];
+
 export const TYPES_NOTIFICATION = [
   'NOUVEAU_TICKET',
   'TICKET_MIS_A_JOUR',

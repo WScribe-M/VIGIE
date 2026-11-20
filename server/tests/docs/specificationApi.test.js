@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  CHAMPS_HISTORIQUE,
   DOMAINES,
   IMPACTS,
   PRIORITES,
@@ -60,6 +61,10 @@ describe('documentation OpenAPI', () => {
     assert.deepEqual(schemas.Urgence.enum, URGENCES);
     assert.deepEqual(schemas.Priorite.enum, PRIORITES);
     assert.deepEqual(schemas.Statut.enum, STATUTS);
+  });
+
+  it('les champs de l’historique sont ceux de constantes.js', () => {
+    assert.deepEqual(specificationApi.components.schemas.ChampHistorique.enum, CHAMPS_HISTORIQUE);
   });
 
   it('les types de notification sont ceux de constantes.js', () => {
