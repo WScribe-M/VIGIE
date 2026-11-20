@@ -10,14 +10,15 @@ import {
   WifiOff,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { appelerApi } from '../api.js';
 import { Button } from '../composants/Button.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
 import { PageHeader } from '../composants/PageHeader.jsx';
 import { PriorityBadge } from '../composants/PriorityBadge.jsx';
 import { SlaBadge } from '../composants/SlaBadge.jsx';
-import { IconeService, TRAIT_ICONE } from '../styles/icones.js';
+import { Tabs } from '../composants/Tabs.jsx';
+import { ICONES_STATUT, IconeService, TRAIT_ICONE } from '../styles/icones.js';
 import { LIBELLES_PRIORITE } from '../styles/libelles.js';
 import { socket } from '../tempsReel/socket.js';
 import { formaterDuree, formaterDureeOuvree } from '../utils/dates.js';
@@ -26,25 +27,46 @@ import styles from './MaFile.module.css';
 // « À traiter » du technicien (VIGIE-31, docs/ecrans/07-ma-file.md) : ce qu'il faut traiter maintenant.
 // Les données viennent de GET /api/tickets/ma-file ; la page se recharge à chaque ticket créé ou
 // modifié (room support), l'API restant la source de vérité.
+// VIGIE-50 : une partie de la file à la fois, par onglets, plutôt que trois tableaux empilés.
 
 // L'étiquette « Nouveau · à l'instant » reste une minute sur une ligne arrivée en direct
 const DUREE_NOUVEAU = 60 * 1000;
 
-const SECTIONS = [
+// Un onglet par partie de la file. `parametre` est sa valeur dans l'adresse (?onglet=…) : on
+// retrouve ainsi l'onglet quitté en revenant d'une fiche ticket. L'icône est celle du statut que
+// contient l'onglet, puisqu'il n'y a pas de colonne Statut.
+const ONGLETS = [
   {
     cle: 'aPrendre',
+    parametre: 'a-prendre',
     titre: 'À prendre',
+    icone: ICONES_STATUT.NOUVEAU,
     colonneSla: 'Échéance',
+    vide: {
+      icone: Inbox,
+      titre: 'Aucun ticket à prendre',
+      texte: 'Bonne nouvelle : la file est vide. Les nouveaux tickets apparaîtront ici en direct.',
+    },
   },
   {
     cle: 'enCours',
+    parametre: 'en-cours',
     titre: 'Mes tickets en cours',
+    icone: ICONES_STATUT.EN_COURS,
     colonneSla: 'Résolution',
+    vide: {
+      icone: LoaderCircle,
+      titre: 'Aucun ticket en cours',
+      texte: 'Prenez un ticket dans l’onglet À prendre.',
+    },
   },
   {
     cle: 'enAttente',
+    parametre: 'en-attente',
     titre: 'En attente du demandeur',
+    icone: ICONES_STATUT.EN_ATTENTE_DEMANDEUR,
     colonneSla: 'Ancienneté',
+    vide: { icone: MessageCircleQuestionMark, titre: 'Aucun ticket en attente du demandeur' },
   },
 ];
 
@@ -181,67 +203,60 @@ function EnteteTriable({ colonne, libelle, tri, onTrier }) {
   );
 }
 
-function Section({ section, lignes, total, minutesParJour, nouveaux }) {
-  const [tri, setTri] = useState(null);
+// Tableau de l'onglet actif. Le tri vient de la page : chaque onglet garde le sien quand on en change.
+function TableauOnglet({ onglet, lignes, tri, onTrier, minutesParJour, nouveaux }) {
+  if (!lignes.length) {
+    const { icone, titre, texte } = onglet.vide;
+    return <EmptyState icone={icone} titre={titre} texte={texte} />;
+  }
   const lignesTriees = trier(lignes, tri);
   const entete = (colonne, libelle) => (
-    <EnteteTriable
-      colonne={colonne}
-      libelle={libelle}
-      tri={tri}
-      onTrier={(c) => setTri(triSuivant(tri, c))}
-    />
+    <EnteteTriable colonne={colonne} libelle={libelle} tri={tri} onTrier={onTrier} />
   );
   return (
-    <section className={styles.carte} aria-labelledby={`section-${section.cle}`}>
-      <div className={styles.enteteSection}>
-        <h2 id={`section-${section.cle}`} className={styles.titreSection}>
-          {section.titre}
-        </h2>
-        <span className={`${styles.compteurSection} chiffres`}>{total}</span>
-      </div>
-      {lignes.length ? (
-        <div className={styles.defilement}>
-          <table className={styles.tableau}>
-            <thead>
-              <tr>
-                {entete('numero', 'N°')}
-                {entete('titre', 'Titre')}
-                {/* Pas de colonne Statut (décision du 20/11) : le titre de la section le dit déjà */}
-                {entete('priorite', 'Priorité')}
-                {entete('sla', section.colonneSla)}
-                {entete('demandeur', 'Demandeur')}
-              </tr>
-            </thead>
-            <tbody>
-              {lignesTriees.map((ligne) => (
-                <Ligne
-                  key={ligne._id}
-                  ligne={ligne}
-                  minutesParJour={minutesParJour}
-                  nouveau={nouveaux.has(ligne._id)}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className={styles.sectionVide}>Aucun ticket.</p>
-      )}
-    </section>
+    <div className={`${styles.carte} ${styles.defilement}`}>
+      <table className={styles.tableau}>
+        <thead>
+          <tr>
+            {entete('numero', 'N°')}
+            {entete('titre', 'Titre')}
+            {/* Pas de colonne Statut (décision du 20/11) : l'onglet le dit déjà */}
+            {entete('priorite', 'Priorité')}
+            {entete('sla', onglet.colonneSla)}
+            {entete('demandeur', 'Demandeur')}
+          </tr>
+        </thead>
+        <tbody>
+          {lignesTriees.map((ligne) => (
+            <Ligne
+              key={ligne._id}
+              ligne={ligne}
+              minutesParJour={minutesParJour}
+              nouveau={nouveaux.has(ligne._id)}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
-function Kpi({ libelle, icone: Icone, valeur, detail, alerte }) {
+// Carte KPI. Avec `onOuvrir`, la carte est un bouton qui ouvre l'onglet correspondant (VIGIE-50)
+function Kpi({ libelle, icone: Icone, valeur, detail, alerte, onOuvrir }) {
+  const Balise = onOuvrir ? 'button' : 'div';
   return (
-    <div className={`${styles.kpi} ${alerte ? styles.kpiAlerte : ''}`}>
+    <Balise
+      type={onOuvrir ? 'button' : undefined}
+      onClick={onOuvrir}
+      className={`${styles.kpi} ${alerte ? styles.kpiAlerte : ''} ${onOuvrir ? styles.kpiBouton : ''}`}
+    >
       <span className={styles.kpiLibelle}>
         {libelle}
         <Icone size={18} strokeWidth={TRAIT_ICONE} aria-hidden="true" />
       </span>
       <span className={`${styles.kpiValeur} chiffres`}>{valeur}</span>
       {detail && <span className={styles.kpiDetail}>{detail}</span>}
-    </div>
+    </Balise>
   );
 }
 
@@ -271,6 +286,22 @@ export function MaFile() {
   const [coupe, setCoupe] = useState(false);
   const [nouveaux, setNouveaux] = useState(new Set());
   const idsConnus = useRef(null);
+  // Onglet lu dans l'adresse ; « À prendre » par défaut ou si la valeur est inconnue
+  const [parametres, setParametres] = useSearchParams();
+  const onglet = ONGLETS.find((o) => o.parametre === parametres.get('onglet')) ?? ONGLETS[0];
+  // Un tri par onglet, gardé quand on change d'onglet (null = ordre de l'API)
+  const [tris, setTris] = useState({ aPrendre: null, enCours: null, enAttente: null });
+  // Nouveau ticket arrivé dans « À prendre » : signalé sur l'onglet tant qu'on ne l'a pas ouvert
+  const [nouveauAPrendre, setNouveauAPrendre] = useState(false);
+
+  function ouvrirOnglet(cle) {
+    // Le signal concerne « À prendre » : il s'éteint quand on y entre, ou quand on en sort (on y
+    // a alors déjà vu la ligne surlignée)
+    if (cle === 'aPrendre' || onglet.cle === 'aPrendre') setNouveauAPrendre(false);
+    const { parametre } = ONGLETS.find((o) => o.cle === cle);
+    // replace : changer d'onglet n'ajoute pas d'étape à « Retour »
+    setParametres(cle === 'aPrendre' ? {} : { onglet: parametre }, { replace: true });
+  }
 
   // Les états ne changent que dans la réponse de l'API, jamais directement dans l'effet
   const charger = useCallback(() => {
@@ -281,6 +312,7 @@ export function MaFile() {
         if (idsConnus.current) {
           const arrivees = ids.filter((id) => !idsConnus.current.has(id));
           if (arrivees.length) {
+            setNouveauAPrendre(true);
             setNouveaux((actuels) => new Set([...actuels, ...arrivees]));
             setTimeout(() => {
               setNouveaux(
@@ -329,10 +361,13 @@ export function MaFile() {
     contenu = <Chargement />;
   } else {
     const { compteurs, minutesParJour } = file;
-    const vide = !file.aPrendre.length && !file.enCours.length && !file.enAttente.length;
     const alertes = compteurs.enRetard + compteurs.echeanceProche;
+    // Le point ne s'affiche que si l'on regarde un autre onglet
+    const signal = nouveauAPrendre && onglet.cle !== 'aPrendre';
     contenu = (
       <>
+        {/* Les cartes qui correspondent à un onglet l'ouvrent. « Alertes SLA » compte des tickets
+            de deux onglets (À prendre et Mes tickets en cours) : elle reste une information. */}
         <div className={styles.kpis}>
           <Kpi
             libelle="À prendre"
@@ -343,8 +378,14 @@ export function MaFile() {
                 ? `dont ${compteurs.aPrendreCritiques} Critique`
                 : undefined
             }
+            onOuvrir={() => ouvrirOnglet('aPrendre')}
           />
-          <Kpi libelle="Mes tickets en cours" icone={LoaderCircle} valeur={compteurs.enCours} />
+          <Kpi
+            libelle="Mes tickets en cours"
+            icone={LoaderCircle}
+            valeur={compteurs.enCours}
+            onOuvrir={() => ouvrirOnglet('enCours')}
+          />
           <Kpi
             libelle="Alertes SLA"
             icone={Clock}
@@ -361,27 +402,34 @@ export function MaFile() {
                 ? `le plus ancien : depuis ${formaterDuree(compteurs.attenteLaPlusAncienne)}`
                 : undefined
             }
+            onOuvrir={() => ouvrirOnglet('enAttente')}
           />
         </div>
 
-        {vide ? (
-          <EmptyState
-            icone={Inbox}
-            titre="Aucun ticket à prendre"
-            texte="Bonne nouvelle : la file est vide. Les nouveaux tickets apparaîtront ici en direct."
+        <Tabs
+          libelle="Parties de la file"
+          onglets={ONGLETS.map((o) => ({
+            valeur: o.cle,
+            libelle: o.titre,
+            icone: o.icone,
+            compteur: compteurs[o.cle],
+            signal: o.cle === 'aPrendre' && signal,
+            texteSignal: 'nouveau ticket',
+          }))}
+          valeur={onglet.cle}
+          onChange={ouvrirOnglet}
+        >
+          <TableauOnglet
+            onglet={onglet}
+            lignes={file[onglet.cle]}
+            tri={tris[onglet.cle]}
+            onTrier={(colonne) =>
+              setTris({ ...tris, [onglet.cle]: triSuivant(tris[onglet.cle], colonne) })
+            }
+            minutesParJour={minutesParJour}
+            nouveaux={nouveaux}
           />
-        ) : (
-          SECTIONS.map((section) => (
-            <Section
-              key={section.cle}
-              section={section}
-              lignes={file[section.cle]}
-              total={compteurs[section.cle]}
-              minutesParJour={minutesParJour}
-              nouveaux={nouveaux}
-            />
-          ))
-        )}
+        </Tabs>
       </>
     );
   }

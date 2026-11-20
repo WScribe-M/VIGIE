@@ -30,7 +30,8 @@ import { ProgressTracker } from '../composants/ProgressTracker.jsx';
 import { Sidebar } from '../composants/Sidebar.jsx';
 import { SlaBadge } from '../composants/SlaBadge.jsx';
 import { StatusBadge } from '../composants/StatusBadge.jsx';
-import { ICONES_IMPACT, iconeService } from '../styles/icones.js';
+import { Tabs } from '../composants/Tabs.jsx';
+import { ICONES_IMPACT, ICONES_STATUT, iconeService } from '../styles/icones.js';
 import {
   DESCRIPTIONS_IMPACT,
   LIBELLES_IMPACT,
@@ -376,6 +377,52 @@ function DemoChoix() {
   );
 }
 
+// Onglets de « À traiter » (VIGIE-50) et de la fiche ticket : un état pour les manipuler
+const ONGLETS_FILE = [
+  {
+    valeur: 'aPrendre',
+    libelle: 'À prendre',
+    icone: ICONES_STATUT.NOUVEAU,
+    compteur: 3,
+    signal: true,
+    texteSignal: 'nouveau ticket',
+  },
+  {
+    valeur: 'enCours',
+    libelle: 'Mes tickets en cours',
+    icone: ICONES_STATUT.EN_COURS,
+    compteur: 4,
+  },
+  {
+    valeur: 'enAttente',
+    libelle: 'En attente du demandeur',
+    icone: ICONES_STATUT.EN_ATTENTE_DEMANDEUR,
+    compteur: 2,
+  },
+];
+const ONGLETS_FICHE = [
+  { valeur: 'echanges', libelle: 'Échanges', compteur: 5 },
+  { valeur: 'historique', libelle: 'Historique' },
+];
+
+function DemoOnglets() {
+  const [file, setFile] = useState('enCours');
+  const [fiche, setFiche] = useState('echanges');
+  return (
+    <div className={styles.colonneDemo}>
+      <Tabs libelle="Parties de la file" onglets={ONGLETS_FILE} valeur={file} onChange={setFile}>
+        <p className="text-body-sm texte-secondaire">
+          Panneau « {ONGLETS_FILE.find((o) => o.valeur === file).libelle} » · point sur « À prendre
+          » : nouveau ticket arrivé pendant qu’on regarde un autre onglet
+        </p>
+      </Tabs>
+      <Tabs libelle="Fiche ticket" onglets={ONGLETS_FICHE} valeur={fiche} onChange={setFiche}>
+        <p className="text-body-sm texte-secondaire">Sans icône : fiche ticket</p>
+      </Tabs>
+    </div>
+  );
+}
+
 // Suggestions de doublons de la démo : titre, service, statut, date d'ouverture (cadrage 9.3)
 const SUGGESTIONS_DEMO = [
   {
@@ -566,6 +613,13 @@ export function Styleguide() {
             <LigneDemo key={ligne.id} ligne={ligne} />
           ))}
         </div>
+      </Bloc>
+
+      <Bloc
+        titre="Onglets"
+        note="Style souligné · seul l’actif est surligné · ← → Début Fin au clavier"
+      >
+        <DemoOnglets />
       </Bloc>
 
       <Bloc titre="Champs" note="Libellé au-dessus · 40 px (44 dans les formulaires de création)">
