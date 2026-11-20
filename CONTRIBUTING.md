@@ -114,6 +114,19 @@ router.post('/', autoriser('ADMIN'), creer); // ADMIN uniquement
 
 - Pour les tickets, toujours appliquer les règles de `services/visibiliteService.js` : `filtreTicketsVisibles(utilisateur)` dans les recherches, `peutVoirTicket(utilisateur, ticket)` pour un ticket précis.
 
+### Temps réel (Socket.io)
+
+- Le serveur émet **après** l'enregistrement en base, avec `emettre(rooms, evenement, donnees)` (`server/src/socket/index.js`). Les noms de rooms viennent des fonctions du même fichier : `roomTicket(id)`, `roomUtilisateur(id)`, `ROOM_SUPPORT`, `ROOM_PILOTAGE`.
+
+```js
+emettre(roomTicket(ticket._id), 'commentaire:cree', commentaire);
+emettre([ROOM_SUPPORT, ROOM_PILOTAGE], 'ticket:cree', resume);
+```
+
+- **Noms d'événements en français**, au format `objet:action` : `ticket:cree`, `ticket:modifie`, `commentaire:cree`, `notification:nouvelle`.
+- Les rooms `user:<id>`, `support` et `pilotage` sont rejointes automatiquement à la connexion. La room d'un ticket se rejoint par `ticket:rejoindre` : le serveur vérifie le droit avec `peutVoirTicket`. Un utilisateur retiré des suiveurs reste dans la room jusqu'à sa déconnexion : la story qui retire un suiveur le fait sortir avec `io.in(roomUtilisateur(id)).socketsLeave(roomTicket(ticketId))`.
+- Côté client, une seule connexion : `socket` (`client/src/tempsReel/socket.js`), ouverte et fermée par `AuthContext`. Une page s'abonne avec `socket.on` dans un `useEffect` et se désabonne avec `socket.off` au démontage. À l'événement `connect` (reconnexion), elle recharge ses données par l'API.
+
 ### Requêtes MongoDB
 
 Le schéma et les index ont été conçus à partir des requêtes de l'application (cadrage 9.10). Pour qu'ils servent :

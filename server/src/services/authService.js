@@ -41,10 +41,21 @@ export async function connecter(email, motDePasse) {
   return { jeton: creerJeton(utilisateur), utilisateur: profilPublic(utilisateur) };
 }
 
-export async function profil(id) {
+async function compteActif(id) {
   const utilisateur = await User.findById(id);
   if (!utilisateur || !utilisateur.actif) {
     throw new ErreurHttp(401, 'Compte introuvable ou désactivé');
   }
-  return profilPublic(utilisateur);
+  return utilisateur;
+}
+
+export async function profil(id) {
+  return profilPublic(await compteActif(id));
+}
+
+// Nouveau jeton avant l'expiration du précédent, pour ne pas couper la session (ni le temps réel).
+// Le compte est relu en base : un compte désactivé ne peut plus prolonger sa session,
+// et un rôle modifié par l'ADMIN est pris en compte dans le nouveau jeton.
+export async function renouvelerJeton(id) {
+  return { jeton: creerJeton(await compteActif(id)) };
 }

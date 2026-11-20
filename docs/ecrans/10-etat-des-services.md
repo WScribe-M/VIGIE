@@ -34,11 +34,11 @@ En-tête : cloche et avatar. Contenu, colonne, écart 24 :
 
 ## États
 
-| État       | Rendu                                                                                         |
-| ---------- | --------------------------------------------------------------------------------------------- |
-| Chargement | Lignes squelettes.                                                                            |
-| Erreur     | ErrorState + « Réessayer ».                                                                   |
-| Temps réel | `service:status` : la ligne change d'état et se surligne ; notification de type « Services ». |
+| État       | Rendu                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------- |
+| Chargement | Lignes squelettes.                                                                          |
+| Erreur     | ErrorState + « Réessayer ».                                                                 |
+| Temps réel | `service:etat` : la ligne change d'état et se surligne ; notification de type « Services ». |
 
 ## ⚠ Écarts avec les règles
 

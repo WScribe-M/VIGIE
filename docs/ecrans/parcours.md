@@ -36,10 +36,10 @@ plan A du cadrage 9.3 (titre, service, statut, date).
 1. Côté Gestionnaire, la carte « À prendre » montre le ticket Nouveau, Critique, « Léa Martin · 9 concernés ·
    … » et le bouton « Prendre en charge ».
 2. Clic sur « Prendre en charge » (appel REST, prise en charge atomique) : le bouton devient « Pris en charge
-   par vous » (désactivé). **Côté Client, sans recharger** (`ticket:updated`) : toast « **Mamadou Koné** a pris
+   par vous » (désactivé). **Côté Client, sans recharger** (`ticket:modifie`) : toast « **Mamadou Koné** a pris
    en charge votre demande · à l’instant », statut « En cours », jalon « Pris en charge » atteint avec le nom (4 jalons, voir [05](05-fiche-ticket-client.md)).
-   Puis « Mamadou Koné est en train d’écrire… » (`typing:start`).
-3. Le message arrive (`comment:created`) : « Bonjour Léa, je m’en occupe. Le pare-feu du site de Lyon redémarre,
+   Puis « Mamadou Koné est en train d’écrire… » (`ecriture:debut`).
+3. Le message arrive (`commentaire:cree`) : « Bonjour Léa, je m’en occupe. Le pare-feu du site de Lyon redémarre,
    retour sous 20 min. »
 
 ## Parcours 3 — Contestation d'un ticket terminé

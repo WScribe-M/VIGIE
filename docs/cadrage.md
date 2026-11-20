@@ -117,30 +117,31 @@ Authentification JWT pour le MVP, quatre rôles globaux : `ADMIN`, `GESTIONNAIRE
 
 ## 5. Temps réel : conception Socket.io
 
-- **Authentification** : le JWT est transmis dans le handshake ; un middleware le vérifie, sinon la connexion est refusée. Identité et rôle lus dans le jeton. À expiration, reconnexion avec un jeton renouvelé.
+- **Authentification** : le JWT est transmis dans le handshake ; un middleware le vérifie, ainsi que le compte (actif, rôle inchangé), sinon la connexion est refusée. Identité et rôle lus dans le jeton. Le serveur ferme la connexion à l'expiration du jeton ; le client renouvelle son jeton avant (`POST /api/auth/renouveler`) et se reconnecte avec le nouveau.
 - **Rooms** (droits vérifiés côté serveur) :
 
-| Room                  | Accès                                               | Événements                                                          |
-| --------------------- | --------------------------------------------------- | ------------------------------------------------------------------- |
-| `user:<id>`           | La personne concernée (automatique)                 | Notifications personnelles, alerte SLA                              |
-| `ticket:<id>`         | Créateur, suiveurs, GESTIONNAIRE, LECTEUR, ADMIN    | Commentaire, « en train d'écrire… », présence, changement de statut |
-| `ticket:<id>:interne` | GESTIONNAIRE, LECTEUR, ADMIN ayant ouvert le ticket | **Notes internes** uniquement                                       |
-| `support`             | GESTIONNAIRE, ADMIN                                 | Nouveau ticket (badge et son), mise à jour de « Ma file »           |
-| `pilotage`            | GESTIONNAIRE, LECTEUR, ADMIN                        | Compteurs et retards                                                |
+| Room                  | Accès                                                       | Événements                                                          |
+| --------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------- |
+| `user:<id>`           | La personne concernée (automatique)                         | Notifications personnelles, alerte SLA                              |
+| `ticket:<id>`         | Demandeur, suiveurs, en copie, GESTIONNAIRE, LECTEUR, ADMIN | Commentaire, « en train d'écrire… », présence, changement de statut |
+| `ticket:<id>:interne` | GESTIONNAIRE, LECTEUR, ADMIN ayant ouvert le ticket         | **Notes internes** uniquement                                       |
+| `support`             | GESTIONNAIRE, ADMIN                                         | Nouveau ticket (badge et son), mise à jour de « Ma file »           |
+| `pilotage`            | GESTIONNAIRE, LECTEUR, ADMIN                                | Compteurs et retards                                                |
 
-- **Notes internes** : quand un utilisateur non `CLIENT` rejoint `ticket:<id>`, le serveur l'ajoute aussi à `ticket:<id>:interne`. Une note interne n'est émise **que** dans cette room, jamais dans `ticket:<id>` ni dans `user:<id>` d'un client.
-- **Événements** (noms suggérés par le handoff de design, à confirmer dans la story Socket.io) :
+- **Notes internes** (VIGIE-47) : quand un utilisateur non `CLIENT` rejoint `ticket:<id>`, le serveur l'ajoute aussi à `ticket:<id>:interne`. Une note interne n'est émise **que** dans cette room, jamais dans `ticket:<id>` ni dans `user:<id>` d'un client.
+- **Événements** : noms **en français**, au format `objet:action` (décision de VIGIE-12). Les noms anglais du handoff de design sont remplacés ; la story qui émet un événement en précise le contenu.
 
-| Événement                          | Émis par | Room(s)                                              | Effet dans l'interface                                                |
-| ---------------------------------- | -------- | ---------------------------------------------------- | --------------------------------------------------------------------- |
-| `ticket:created`                   | serveur  | `support`                                            | Toast à **tous** les gestionnaires + ligne surlignée dans « Ma file » |
-| `ticket:updated`                   | serveur  | `ticket:<id>`, `support`, `pilotage`                 | Statut, priorité, technicien mis à jour                               |
-| `ticket:joined`                    | serveur  | `ticket:<id>`, `support`                             | Compteur de personnes concernées                                      |
-| `comment:created`                  | serveur  | `ticket:<id>` (note interne : `ticket:<id>:interne`) | Nouveau message dans les échanges                                     |
-| `typing:start` / `typing:stop`     | client   | `ticket:<id>` (`ticketId`, `userId`)                 | « … est en train d'écrire… » (éphémère)                               |
-| `presence:join` / `presence:leave` | client   | `ticket:<id>` (`ticketId`)                           | Avatars « consultent aussi ce ticket » (éphémère)                     |
-| `service:status`                   | serveur  | tous les connectés                                   | État des services (VIGIE-42, section 9.8)                             |
-| `notification:new`                 | serveur  | `user:<id>`                                          | Compteur de la cloche, panneau de notifications                       |
+| Événement                              | Émis par | Room(s)                                                   | Effet dans l'interface                                                 |
+| -------------------------------------- | -------- | --------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `ticket:cree`                          | serveur  | `support`                                                 | Toast à **tous** les gestionnaires + ligne surlignée dans « Ma file »  |
+| `ticket:modifie`                       | serveur  | `ticket:<id>`, `support`, `pilotage`                      | Statut, priorité, technicien mis à jour                                |
+| `suiveur:ajoute`                       | serveur  | `ticket:<id>`, `support`                                  | Compteur de personnes concernées                                       |
+| `commentaire:cree`                     | serveur  | `ticket:<id>` (note interne : `ticket:<id>:interne`)      | Nouveau message dans les échanges                                      |
+| `ecriture:debut` / `ecriture:fin`      | client   | `ticket:<id>` (`ticketId` ; auteur ajouté par le serveur) | « … est en train d'écrire… » (éphémère)                                |
+| `ticket:rejoindre` / `ticket:quitter`  | client   | `ticket:<id>` (`ticketId`, accusé de réception)           | Entrer dans la room du ticket ou en sortir (droits vérifiés, VIGIE-12) |
+| `presence:arrivee` / `presence:depart` | serveur  | `ticket:<id>`                                             | Avatars « consultent aussi ce ticket » (éphémère)                      |
+| `service:etat`                         | serveur  | tous les connectés                                        | État des services (VIGIE-42, section 9.8)                              |
+| `notification:nouvelle`                | serveur  | `user:<id>`                                               | Compteur de la cloche, panneau de notifications                        |
 
 Les événements émis par le client sont **éphémères** ; toute modification passe par l'API REST, puis le serveur émet.
 

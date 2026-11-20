@@ -7,6 +7,18 @@ export const jetonStocke = {
   effacer: () => localStorage.removeItem(CLE_JETON),
 };
 
+// Millisecondes restantes avant l'expiration du jeton (champ exp du JWT).
+// Le client lit cette date pour savoir quand renouveler ; il ne vérifie rien : c'est le serveur
+// qui contrôle la signature.
+export function tempsRestantJeton(jeton) {
+  try {
+    const contenu = JSON.parse(atob(jeton.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return contenu.exp * 1000 - Date.now();
+  } catch {
+    return 0;
+  }
+}
+
 export class ErreurApi extends Error {
   constructor(status, message) {
     super(message);
