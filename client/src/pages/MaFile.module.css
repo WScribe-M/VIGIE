@@ -161,6 +161,35 @@
   padding-right: var(--space-5);
 }
 
+/* En-tête triable : tout le libellé est cliquable ; la flèche indique le sens (décision du 20/11) */
+.boutonTri {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.boutonTri svg {
+  opacity: 0.45;
+}
+
+.boutonTri:hover {
+  color: var(--color-neutral-900);
+}
+
+.triActif {
+  color: var(--color-brand-700);
+}
+
+.triActif svg {
+  opacity: 1;
+}
+
 /* Toute la ligne ouvre le ticket (décision du 20/11) */
 .ligneCliquable {
   cursor: pointer;

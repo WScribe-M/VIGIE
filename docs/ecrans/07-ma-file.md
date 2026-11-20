@@ -85,3 +85,7 @@ Contenu, colonne, écart 24 :
   pour chaque section son titre et son compteur.
 - **Pas d’indicateur « En direct · N collègues connectés »** dans l’en-tête (décision du 20/11) : seul le bandeau
   « Mises à jour en direct interrompues » s’affiche, quand le temps réel est coupé.
+- **Tri par colonne** (décision du 20/11, comme Zendesk ou Jira Service Management) : N°, Titre, Priorité,
+  Échéance / Résolution / Ancienneté et Demandeur. Un clic trie (Priorité : Critique d’abord ; échéance la plus
+  proche ou attente la plus ancienne d’abord), un deuxième inverse le sens, un troisième revient à l’ordre par
+  défaut. Un seul critère à la fois, propre à chaque section ; flèche dans l’en-tête et `aria-sort`.

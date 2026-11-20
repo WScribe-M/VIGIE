@@ -1,4 +1,7 @@
 import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Clock,
   Inbox,
   LoaderCircle,
@@ -16,6 +19,7 @@ import { PriorityBadge } from '../composants/PriorityBadge.jsx';
 import { SlaBadge } from '../composants/SlaBadge.jsx';
 import { StatusBadge } from '../composants/StatusBadge.jsx';
 import { IconeService, TRAIT_ICONE } from '../styles/icones.js';
+import { LIBELLES_PRIORITE } from '../styles/libelles.js';
 import { socket } from '../tempsReel/socket.js';
 import { formaterDuree, formaterDureeOuvree } from '../utils/dates.js';
 import styles from './MaFile.module.css';
@@ -106,7 +110,79 @@ function Ligne({ ligne, minutesParJour, nouveau }) {
   );
 }
 
+// Tri par colonne (décision du 20/11, comme Zendesk ou Jira Service Management) : un clic sur
+// l'en-tête trie, un deuxième inverse le sens, un troisième revient à l'ordre par défaut de l'API.
+// Un seul critère à la fois. Le tri se fait ici, sur les lignes déjà chargées (50 au plus).
+const RANG_PRIORITE = Object.fromEntries(Object.keys(LIBELLES_PRIORITE).map((p, i) => [p, i]));
+const COLONNES_TRIABLES = {
+  numero: { valeur: (l) => l.numero, premierSens: 'asc' },
+  titre: { valeur: (l) => l.titre.toLowerCase(), premierSens: 'asc' },
+  // Critique d'abord au premier clic
+  priorite: { valeur: (l) => RANG_PRIORITE[l.prioriteFinale], premierSens: 'desc' },
+  // Échéance la plus proche, ou attente la plus ancienne, d'abord
+  sla: {
+    valeur: (l) => new Date(l.statut === 'EN_ATTENTE_DEMANDEUR' ? l.dateStatut : l.echeanceSla),
+    premierSens: 'asc',
+  },
+  demandeur: {
+    valeur: (l) => `${l.demandeur?.nom ?? ''} ${l.demandeur?.prenom ?? ''}`.toLowerCase(),
+    premierSens: 'asc',
+  },
+};
+
+function trier(lignes, tri) {
+  if (!tri) return lignes;
+  const { valeur } = COLONNES_TRIABLES[tri.colonne];
+  const signe = tri.sens === 'asc' ? 1 : -1;
+  return [...lignes].sort((a, b) => {
+    const va = valeur(a);
+    const vb = valeur(b);
+    if (va < vb) return -signe;
+    if (va > vb) return signe;
+    return 0;
+  });
+}
+
+// Clic sur un en-tête : premier sens, puis sens inverse, puis ordre par défaut (null)
+function triSuivant(tri, colonne) {
+  const { premierSens } = COLONNES_TRIABLES[colonne];
+  if (tri?.colonne !== colonne) return { colonne, sens: premierSens };
+  if (tri.sens === premierSens) return { colonne, sens: premierSens === 'asc' ? 'desc' : 'asc' };
+  return null;
+}
+
+function EnteteTriable({ colonne, libelle, tri, onTrier }) {
+  const actif = tri?.colonne === colonne;
+  const Icone = !actif ? ArrowUpDown : tri.sens === 'asc' ? ArrowUp : ArrowDown;
+  return (
+    <th
+      scope="col"
+      aria-sort={actif ? (tri.sens === 'asc' ? 'ascending' : 'descending') : undefined}
+    >
+      <button
+        type="button"
+        className={`${styles.boutonTri} ${actif ? styles.triActif : ''}`}
+        onClick={() => onTrier(colonne)}
+        title={`Trier par ${libelle}`}
+      >
+        {libelle}
+        <Icone size={13} strokeWidth={TRAIT_ICONE} aria-hidden="true" />
+      </button>
+    </th>
+  );
+}
+
 function Section({ section, lignes, total, minutesParJour, nouveaux }) {
+  const [tri, setTri] = useState(null);
+  const lignesTriees = trier(lignes, tri);
+  const entete = (colonne, libelle) => (
+    <EnteteTriable
+      colonne={colonne}
+      libelle={libelle}
+      tri={tri}
+      onTrier={(c) => setTri(triSuivant(tri, c))}
+    />
+  );
   return (
     <section className={styles.carte} aria-labelledby={`section-${section.cle}`}>
       <div className={styles.enteteSection}>
@@ -120,16 +196,16 @@ function Section({ section, lignes, total, minutesParJour, nouveaux }) {
           <table className={styles.tableau}>
             <thead>
               <tr>
-                <th scope="col">N°</th>
-                <th scope="col">Titre</th>
+                {entete('numero', 'N°')}
+                {entete('titre', 'Titre')}
                 <th scope="col">Statut</th>
-                <th scope="col">Priorité</th>
-                <th scope="col">{section.colonneSla}</th>
-                <th scope="col">Demandeur</th>
+                {entete('priorite', 'Priorité')}
+                {entete('sla', section.colonneSla)}
+                {entete('demandeur', 'Demandeur')}
               </tr>
             </thead>
             <tbody>
-              {lignes.map((ligne) => (
+              {lignesTriees.map((ligne) => (
                 <Ligne
                   key={ligne._id}
                   ligne={ligne}
