@@ -1,5 +1,14 @@
 import { Router } from 'express';
-import { creer, estimer, lire, lister, modifierDomaine } from '../controllers/ticketController.js';
+import {
+  creer,
+  estimer,
+  lire,
+  lister,
+  modifierDomaine,
+  modifierStatut,
+  prendre,
+  requalifier,
+} from '../controllers/ticketController.js';
 import { autoriser } from '../middlewares/auth.js';
 
 export const ticketRoutes = Router();
@@ -13,3 +22,11 @@ ticketRoutes.get('/:id', lire);
 
 // Le support corrige le domaine (ticket « Autre », mauvais service choisi)
 ticketRoutes.patch('/:id/domaine', autoriser('GESTIONNAIRE', 'ADMIN'), modifierDomaine);
+
+// Cycle de vie (VIGIE-7) : tout le support fait avancer un ticket (une seule équipe), chaque
+// action est tracée dans l'historique avec son auteur
+ticketRoutes.post('/:id/prise-en-charge', autoriser('GESTIONNAIRE', 'ADMIN'), prendre);
+ticketRoutes.patch('/:id/statut', autoriser('GESTIONNAIRE', 'ADMIN'), modifierStatut);
+
+// Requalification de la priorité (VIGIE-5) : le support seul, jamais le demandeur
+ticketRoutes.patch('/:id/priorite', autoriser('GESTIONNAIRE', 'ADMIN'), requalifier);

@@ -7,29 +7,29 @@ fiche et sa capture, puis à ajouter à `/styleguide`.
 États génériques : par défaut · survol · focus clavier · actif · désactivé · erreur · chargement.
 Couleurs : uniquement les tokens de `client/src/styles/tokens.css`.
 
-| Composant                                                  | État     | Capture                                           |
-| ---------------------------------------------------------- | -------- | ------------------------------------------------- |
-| Button, IconButton                                         | **Fait** | `composants-03-boutons.png`                       |
-| StatusBadge, PriorityBadge, SlaBadge                       | **Fait** | voir `/styleguide`                                |
-| Avatar                                                     | **Fait** | `composants-03-echanges.png`                      |
-| Sidebar (barre haute sous 768 px)                          | **Fait** | `composants-03-barre-laterale-et-en-tete.png`     |
-| TextField, TextArea (SearchField, FileDrop : à faire)      | **Fait** | `composants-03-champs.png`                        |
-| ServiceSelect                                              | À faire  | `composants-03-liste-de-choix.png`                |
-| ChoiceCard (ChoiceGroup), DelayEstimate                    | **Fait** | `composants-03-cartes-impact-et-urgence.png`      |
-| DuplicatePanel                                             | À faire  | `composants-03-suggestion-de-doublon.png`         |
-| TicketRow                                                  | À faire  | `composants-03-ligne-de-ticket.png`               |
-| TicketCard                                                 | À faire  | `composants-03-carte-de-ticket.png`               |
-| ProgressTracker                                            | À faire  | `composants-03-suivi-davancement.png`             |
-| TimelineItem                                               | À faire  | `composants-03-frise.png`                         |
-| CommentBubble, TypingIndicator, PresenceAvatars            | À faire  | `composants-03-echanges.png`                      |
-| NotificationBell, NotificationPanel                        | À faire  | `composants-03-notifications.png`                 |
-| Toast                                                      | À faire  | `composants-03-toasts.png`                        |
-| Tabs, FilterBar, Pagination                                | À faire  | `composants-03-onglets-filtres-pagination.png`    |
-| KpiCard                                                    | À faire  | `composants-03-chiffres-cles.png`                 |
-| Charts                                                     | À faire  | `composants-03-graphiques.png`                    |
-| Modal                                                      | À faire  | `composants-03-modales.png`                       |
-| EmptyState, ErrorState, Skeleton                           | **Fait** | `composants-03-etats-vides-erreur-chargement.png` |
-| PageHeader (retour + avatar ; recherche, cloche : à faire) | **Fait** | `composants-03-barre-laterale-et-en-tete.png`     |
+| Composant                                                                   | État     | Capture                                           |
+| --------------------------------------------------------------------------- | -------- | ------------------------------------------------- |
+| Button, IconButton                                                          | **Fait** | `composants-03-boutons.png`                       |
+| StatusBadge, PriorityBadge, SlaBadge                                        | **Fait** | voir `/styleguide`                                |
+| Avatar                                                                      | **Fait** | `composants-03-echanges.png`                      |
+| Sidebar (barre haute sous 768 px)                                           | **Fait** | `composants-03-barre-laterale-et-en-tete.png`     |
+| TextField, TextArea (SearchField, FileDrop : à faire)                       | **Fait** | `composants-03-champs.png`                        |
+| ServiceSelect                                                               | À faire  | `composants-03-liste-de-choix.png`                |
+| ChoiceCard (ChoiceGroup), DelayEstimate                                     | **Fait** | `composants-03-cartes-impact-et-urgence.png`      |
+| DuplicatePanel                                                              | À faire  | `composants-03-suggestion-de-doublon.png`         |
+| TicketRow                                                                   | À faire  | `composants-03-ligne-de-ticket.png`               |
+| TicketCard                                                                  | À faire  | `composants-03-carte-de-ticket.png`               |
+| ProgressTracker                                                             | **Fait** | `composants-03-suivi-davancement.png`             |
+| TimelineItem                                                                | À faire  | `composants-03-frise.png`                         |
+| CommentBubble, TypingIndicator, PresenceAvatars                             | À faire  | `composants-03-echanges.png`                      |
+| NotificationBell, NotificationPanel (panneau simple, sans filtres par type) | **Fait** | `composants-03-notifications.png`                 |
+| Toast (variante « nouveau ticket » ; succès et erreur : à faire)            | **Fait** | `composants-03-toasts.png`                        |
+| Tabs, FilterBar, Pagination                                                 | À faire  | `composants-03-onglets-filtres-pagination.png`    |
+| KpiCard                                                                     | À faire  | `composants-03-chiffres-cles.png`                 |
+| Charts                                                                      | À faire  | `composants-03-graphiques.png`                    |
+| Modal (et menu « Changer le statut » : MenuStatut)                          | **Fait** | `composants-03-modales.png`                       |
+| EmptyState, ErrorState, Skeleton                                            | **Fait** | `composants-03-etats-vides-erreur-chargement.png` |
+| PageHeader (retour + avatar ; recherche, cloche : à faire)                  | **Fait** | `composants-03-barre-laterale-et-en-tete.png`     |
 
 ---
 
@@ -144,7 +144,7 @@ Marges 10 × 14, 14/20, largeur max. 78–80 %. « en train d’écrire… » : 
 
 ![](captures/composants-03-notifications.png)
 
-Voir [11](11-notifications.md).
+Voir [11](11-notifications.md). Codés dans `NotificationBell.jsx` (cloche + panneau) et `Toasts.jsx`, avec `notifications/NotificationsContext.jsx` (état partagé, relu par l’API à chaque connexion) et `notifications/son.js` (son Web Audio). Visibles dans l’en-tête de toutes les pages connectées ; ils dépendent des notifications de l’utilisateur et ne figurent donc pas sur `/styleguide`.
 
 ## Toast
 
@@ -155,8 +155,7 @@ entrée 280 ms (glissé + fondu) ; durée 6 s, sauf temps réel critique (reste 
 maximum ; `aria-live="polite"` (critique : `assertive`) ; fermeture `x` 16 Taupe.
 
 - Temps réel : `ticket` 22 Pétrole ; « En direct · à l’instant » 12/600 Taupe avec point 7 px Pétrole ; titre
-  15/20/600 ; texte 13/18 `--color-neutral-700` ; PriorityBadge Critique ; Tertiaire sm « Ouvrir » + Primaire sm
-  « Prendre en charge ».
+  15/20/600 ; texte 13/18 `--color-neutral-700` ; PriorityBadge Critique ; Secondaire sm « Ouvrir » seulement (décision du 20/11 : pas de « Prendre en charge » dans un toast).
 - Succès : `circle-check` 22 `--color-feedback-success-fg` · « Votre ticket a été créé » · « INC-1028 · … » · lien
   « Suivre ma demande » 13/600 Pétrole.
 - Erreur de connexion : `wifi-off` 22 `--color-feedback-danger-fg` · « Connexion en direct interrompue » · « Les

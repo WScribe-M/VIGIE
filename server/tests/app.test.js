@@ -125,6 +125,33 @@ describe('droits sur /api/tickets (sans base : les middlewares répondent avant)
     assert.equal(status, 403);
   });
 
+  it('seul le support change le statut ou prend en charge (403 pour CLIENT et LECTEUR)', async () => {
+    for (const role of ['CLIENT', 'LECTEUR']) {
+      const statut = await appeler(`/tickets/${ID}/statut`, {
+        method: 'PATCH',
+        headers: await entetes(role),
+        body: JSON.stringify({ statut: 'ABANDONNE', motif: 'test' }),
+      });
+      const prise = await appeler(`/tickets/${ID}/prise-en-charge`, {
+        method: 'POST',
+        headers: await entetes(role),
+      });
+      assert.equal(statut.status, 403, role);
+      assert.equal(prise.status, 403, role);
+    }
+  });
+
+  it('seul le support requalifie la priorité (403 pour CLIENT et LECTEUR)', async () => {
+    for (const role of ['CLIENT', 'LECTEUR']) {
+      const { status } = await appeler(`/tickets/${ID}/priorite`, {
+        method: 'PATCH',
+        headers: await entetes(role),
+        body: JSON.stringify({ priorite: 'CRITIQUE', motif: 'Toute la comptabilité est bloquée' }),
+      });
+      assert.equal(status, 403, role);
+    }
+  });
+
   it('une création invalide répond 400 sans toucher à la base', async () => {
     const { status, corps } = await appeler('/tickets', {
       method: 'POST',
@@ -133,5 +160,23 @@ describe('droits sur /api/tickets (sans base : les middlewares répondent avant)
     });
     assert.equal(status, 400);
     assert.match(corps.message, /priorite/);
+  });
+});
+
+describe('droits sur /api/notifications', () => {
+  it('exige un jeton (401)', async () => {
+    assert.equal((await appeler('/notifications')).status, 401);
+    assert.equal((await appeler('/notifications/lues', { method: 'PATCH' })).status, 401);
+  });
+
+  it('un identifiant mal formé répond 404 sans toucher à la base', async () => {
+    const { creerJeton } = await import('../src/services/jetonService.js');
+    const { status } = await appeler('/notifications/abc/lu', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${creerJeton({ _id: '665a1f0c2b7e4a0000000001', role: 'GESTIONNAIRE' })}`,
+      },
+    });
+    assert.equal(status, 404);
   });
 });

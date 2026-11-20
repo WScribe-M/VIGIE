@@ -1,4 +1,4 @@
-/* Fiche ticket, version minimale (docs/ecrans/05-fiche-ticket-client.md) */
+/* Fiche ticket (docs/ecrans/05-fiche-ticket-client.md et 06-fiche-ticket-gestionnaire.md) */
 
 .conteneur {
   padding-top: var(--space-8);
@@ -30,12 +30,61 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3);
+  gap: 14px;
 }
 
-/* Carte « Informations » : la colonne de gauche de la fiche complète */
+/* Barre d'actions du support : carte blanche, boutons de 40 px */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px;
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-xs);
+}
+
+/* « Pris en charge par vous » : aspect d'un bouton désactivé */
+.prisParMoi {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-200);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-neutral-500);
+}
+
+.bandeau {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: var(--space-3) 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-feedback-danger-bg);
+  color: var(--color-feedback-danger-fg);
+  font-size: 14px;
+}
+
+/* Abandonné : un message à la place de la frise */
+.messageAbandon {
+  margin: 0;
+  padding: var(--space-5) 28px;
+  border-radius: var(--radius-lg);
+  background: var(--color-status-abandonne-bg);
+  color: var(--color-status-abandonne-fg);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Carte « Informations » */
 .carte {
-  max-width: 560px;
+  max-width: 640px;
   padding: var(--space-2) var(--space-6) var(--space-6);
   border-radius: var(--radius-lg);
   background: var(--color-neutral-0);
@@ -48,7 +97,7 @@
 
 .ligne {
   display: grid;
-  grid-template-columns: 150px minmax(0, 1fr);
+  grid-template-columns: 170px minmax(0, 1fr);
   gap: var(--space-4);
   align-items: center;
   min-height: 52px;
@@ -74,27 +123,54 @@
   gap: var(--space-2);
 }
 
-.description {
+.bloc {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   padding-top: var(--space-4);
 }
 
-.libelleDescription {
-  margin: 0 0 6px;
+.libelleBloc {
+  margin: 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--color-neutral-600);
 }
 
-/* La description garde ses rubriques (« Que se passe-t-il ? »…) sur des lignes séparées */
-.description p {
+.texteResolution,
+.description {
   margin: 0;
   font-size: 14px;
   line-height: 21px;
+}
+
+.auteurResolution {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-neutral-600);
+}
+
+/* La description garde ses rubriques (« Que se passe-t-il ? »…) sur des lignes séparées */
+.description {
   white-space: pre-line;
+}
+
+.erreurModale {
+  color: var(--color-feedback-danger-fg);
+}
+
+/* « Calculée : » + priorité sans fond, au-dessus de la liste (capture composants-03-modales) */
+.calculee {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-neutral-600);
 }
 
 @media (max-width: 768px) {
   .ligne {
-    grid-template-columns: 110px minmax(0, 1fr);
+    grid-template-columns: 120px minmax(0, 1fr);
   }
 }

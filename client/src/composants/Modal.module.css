@@ -1,0 +1,42 @@
+/* Fenêtre modale (docs/ecrans/composants.md, capture composants-03-modales) */
+
+.modale {
+  width: min(480px, calc(100vw - 32px));
+  padding: var(--space-6);
+  border: 0;
+  border-radius: var(--radius-xl);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-lg);
+  color: inherit;
+}
+
+.modale::backdrop {
+  background: var(--color-overlay);
+}
+
+.titre {
+  margin: 0 0 14px;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.contenu {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-neutral-700);
+}
+
+.contenu p {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}

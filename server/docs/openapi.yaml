@@ -28,6 +28,10 @@ tags:
     description: Catalogue des services IT ; le domaine technique du ticket en est déduit.
   - name: Tickets
     description: Déclaration et suivi des incidents.
+  - name: Notifications
+    description: >-
+      Enregistrées en base puis émises en direct (`notification:nouvelle`, room `user:<id>`) ;
+      relues par l'API à la connexion.
 security:
   - bearerAuth: []
 
@@ -119,6 +123,81 @@ paths:
                     type: string
         '401':
           $ref: '#/components/responses/NonAuthentifie'
+
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Mes notifications et le nombre de non lues
+      description: >-
+        Toujours celles de l'utilisateur du jeton, les plus récentes d'abord (50 au plus). Appelée à
+        la connexion et à chaque reconnexion Socket.io : une notification reçue hors ligne est
+        retrouvée et le badge de la cloche reste exact. Pour l'instant, seuls les GESTIONNAIRE en
+        reçoivent (nouveau ticket, VIGIE-11).
+      parameters:
+        - in: query
+          name: nonLues
+          schema:
+            type: boolean
+          description: '`true` : seulement les non lues.'
+      responses:
+        '200':
+          description: Notifications et compteur de non lues.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  nonLues:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+
+  /notifications/lues:
+    patch:
+      tags: [Notifications]
+      summary: Tout marquer comme lu
+      responses:
+        '200':
+          description: Toutes mes notifications sont lues.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteurNonLues'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+
+  /notifications/{id}/lu:
+    patch:
+      tags: [Notifications]
+      summary: Marquer une notification comme lue
+      description: >-
+        Seulement une de mes notifications : celle d'une autre personne répond `404`, comme une
+        notification inexistante.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification lue ; nombre de non lues restantes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteurNonLues'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
 
   /services:
     get:
@@ -421,6 +500,167 @@ paths:
               example:
                 message: 'Le ticket a été modifié entre-temps : rechargez-le'
 
+  /tickets/{id}/prise-en-charge:
+    post:
+      tags: [Tickets]
+      summary: Prendre en charge un ticket (GESTIONNAIRE, ADMIN)
+      description: >-
+        Le gestionnaire connecté devient le technicien et le ticket passe de `NOUVEAU` à
+        `EN_COURS`, en une seule écriture conditionnelle (ticket encore `NOUVEAU` et sans
+        technicien). Si un collègue l'a pris juste avant, rien n'est écrit et la réponse est `409`.
+        Tracé dans l'historique (statut et technicien) ; émet `ticket:modifie`.
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      responses:
+        '200':
+          description: Ticket pris en charge.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '409':
+          description: Ticket déjà pris en charge, ou plus au statut `NOUVEAU`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Le ticket a été modifié entre-temps : rechargez-le'
+
+  /tickets/{id}/statut:
+    patch:
+      tags: [Tickets]
+      summary: Changer le statut (GESTIONNAIRE, ADMIN)
+      description: >-
+        Transitions du cadrage (3.1) : `NOUVEAU` → `ABANDONNE` ; `EN_COURS` →
+        `EN_ATTENTE_DEMANDEUR`, `TERMINE`, `ABANDONNE` ; `EN_ATTENTE_DEMANDEUR` → `EN_COURS`,
+        `TERMINE`, `ABANDONNE`. Aucun retour vers `NOUVEAU`, `ABANDONNE` est définitif.
+        `NOUVEAU` → `EN_COURS` passe par la prise en charge, `TERMINE` → `EN_COURS` par la
+        contestation (VIGIE-30). Abandon : `motif` obligatoire. Terminé : `cause` et `solution`
+        obligatoires (500 caractères au plus, cadrage 9.9). Met à jour `dateStatut`, remplit
+        `dateCloture` à la clôture, ajoute une entrée d'historique et émet `ticket:modifie`.
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [statut]
+              properties:
+                statut:
+                  $ref: '#/components/schemas/Statut'
+                motif:
+                  type: string
+                  maxLength: 500
+                  description: Obligatoire pour `ABANDONNE`, facultatif sinon.
+                cause:
+                  type: string
+                  maxLength: 500
+                  description: Obligatoire pour `TERMINE`.
+                solution:
+                  type: string
+                  maxLength: 500
+                  description: Obligatoire pour `TERMINE`.
+      responses:
+        '200':
+          description: Ticket mis à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Statut inconnu, transition non autorisée, motif ou résolution manquants.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Transition de statut non autorisée
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '409':
+          description: Le statut a changé entre la lecture et l'écriture (action d'un collègue).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Le ticket a été modifié entre-temps : rechargez-le'
+
+  /tickets/{id}/priorite:
+    patch:
+      tags: [Tickets]
+      summary: Requalifier la priorité (GESTIONNAIRE, ADMIN)
+      description: >-
+        Remplace `prioriteFinale` (et son rang de tri) ; `prioriteCalculee`, déduite de la matrice
+        impact × urgence, ne change pas. L'échéance SLA est recalculée **à partir de la
+        requalification**, avec le délai complet de la nouvelle priorité en heures ouvrées
+        (Critique 4 h, Haute 1 jour, Moyenne 3 jours, Basse 5 jours ; cadrage 9.2), et l'alerte SLA
+        repart de zéro. Motif obligatoire, de 10 à 500 caractères. Tracé dans l'historique
+        (ancienne et nouvelle valeur, auteur, date, motif) ; émet `ticket:modifie`. Impossible sur
+        un ticket `TERMINE` ou `ABANDONNE`. Le demandeur ne peut jamais modifier la priorité.
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [priorite, motif]
+              properties:
+                priorite:
+                  $ref: '#/components/schemas/Priorite'
+                motif:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+                  description: Raison de la requalification, expliquée au demandeur.
+                  example: Toute la comptabilité est bloquée, clôture mensuelle aujourd'hui
+      responses:
+        '200':
+          description: Ticket requalifié, avec sa nouvelle échéance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Priorité inconnue ou déjà celle du ticket, motif absent, trop court ou trop long.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Indiquez un motif (10 caractères minimum).
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '409':
+          description: >-
+            Ticket clos, ou priorité changée entre la lecture et l'écriture (requalification d'un
+            collègue).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Ticket clos : la priorité ne peut plus être requalifiée'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -622,6 +862,59 @@ components:
         prenom:
           type: string
 
+    TypeNotification:
+      type: string
+      enum:
+        [
+          NOUVEAU_TICKET,
+          TICKET_MIS_A_JOUR,
+          CHANGEMENT_STATUT,
+          NOUVEAU_COMMENTAIRE,
+          ATTENTE_REPONSE,
+          TICKET_TERMINE,
+          TICKET_CONTESTE,
+          ALERTE_SLA,
+          RELANCE,
+        ]
+
+    Notification:
+      type: object
+      properties:
+        _id:
+          type: string
+        type:
+          $ref: '#/components/schemas/TypeNotification'
+        lu:
+          type: boolean
+        date:
+          type: string
+          format: date-time
+        ticket:
+          type: object
+          nullable: true
+          properties:
+            _id:
+              type: string
+            reference:
+              type: string
+              example: VIG-0042
+            titre:
+              type: string
+            prioriteFinale:
+              $ref: '#/components/schemas/Priorite'
+            service:
+              type: object
+              properties:
+                nom:
+                  type: string
+
+    CompteurNonLues:
+      type: object
+      properties:
+        nonLues:
+          type: integer
+          example: 3
+
     TicketResume:
       type: object
       properties:
@@ -669,6 +962,12 @@ components:
               $ref: '#/components/schemas/Impact'
             urgence:
               $ref: '#/components/schemas/Urgence'
+            prioriteCalculee:
+              allOf:
+                - $ref: '#/components/schemas/Priorite'
+              description: >-
+                Déduite de l'impact et de l'urgence à la création ; `prioriteFinale` en diffère
+                après une requalification.
             dateStatut:
               type: string
               format: date-time
@@ -677,3 +976,46 @@ components:
               $ref: '#/components/schemas/Personne'
             technicien:
               $ref: '#/components/schemas/Personne'
+            updatedAt:
+              type: string
+              format: date-time
+              description: Dernière modification.
+            datePriseEnCharge:
+              type: string
+              format: date-time
+              nullable: true
+            vuParSupportLe:
+              type: string
+              format: date-time
+              nullable: true
+              description: Jalon « Vu par le support » (première ouverture par un GESTIONNAIRE).
+            dateCloture:
+              type: string
+              format: date-time
+              nullable: true
+              description: Passage à `TERMINE` ou `ABANDONNE`.
+            resolution:
+              type: object
+              nullable: true
+              description: Remplie au passage à `TERMINE` (cadrage 9.9).
+              properties:
+                cause:
+                  type: string
+                solution:
+                  type: string
+                auteur:
+                  $ref: '#/components/schemas/Personne'
+                date:
+                  type: string
+                  format: date-time
+            motifAbandon:
+              type: string
+              nullable: true
+              description: Présent seulement pour un ticket `ABANDONNE`.
+            transitionsPossibles:
+              type: array
+              description: >-
+                Statuts proposés dans le menu « Changer le statut ». Renvoyé seulement au
+                GESTIONNAIRE et à l'ADMIN.
+              items:
+                $ref: '#/components/schemas/Statut'

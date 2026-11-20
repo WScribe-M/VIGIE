@@ -42,6 +42,17 @@ const pieceJointeSchema = new mongoose.Schema(
   { _id: true },
 );
 
+// Résolution structurée (cadrage 9.9, VIGIE-44) : obligatoire au passage à TERMINE
+const resolutionSchema = new mongoose.Schema(
+  {
+    cause: { type: String, required: true, trim: true, maxlength: 500 },
+    solution: { type: String, required: true, trim: true, maxlength: 500 },
+    auteur: { type: ObjectId, ref: 'User', required: true },
+    date: { type: Date, required: true },
+  },
+  { _id: false },
+);
+
 const ticketSchema = new mongoose.Schema(
   {
     // Numéro lisible, affiché VIG-0042 (formaterNumero) : attribué à la création par le compteur
@@ -68,6 +79,8 @@ const ticketSchema = new mongoose.Schema(
     niveauAlerteSla: { type: String, enum: NIVEAUX_ALERTE_SLA, default: 'AUCUNE' },
     // Délai de prise en charge sans relire l'historique (statistiques, VIGIE-41)
     datePriseEnCharge: { type: Date, default: null },
+    // Jalon « Vu par le support » (cadrage 9.8) : première ouverture par un GESTIONNAIRE, posé une fois
+    vuParSupportLe: { type: Date, default: null },
     // Remplie au passage à TERMINE ou ABANDONNE, remise à null à la réouverture
     dateCloture: { type: Date, default: null },
     nbReouvertures: { type: Number, default: 0 },
@@ -80,6 +93,7 @@ const ticketSchema = new mongoose.Schema(
     enCopie: [{ type: ObjectId, ref: 'User' }],
     doublonDe: { type: ObjectId, ref: 'Ticket', default: null },
 
+    resolution: { type: resolutionSchema, default: null },
     satisfaction: { type: Number, min: 1, max: 5 },
     piecesJointes: [pieceJointeSchema],
     commentaires: [commentaireSchema],

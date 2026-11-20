@@ -48,7 +48,7 @@ Libellés affichés dans l'interface : **Client** (`CLIENT`), **Gestionnaire** (
 | `TERMINE`              | Terminé                 | Solution apportée ; le demandeur peut contester pendant 15 jours |
 | `ABANDONNE`            | Abandonné               | Annulé ou doublon                                                |
 
-- **Transitions de statut** (proposition à valider dans la story des transitions ; déduite de ce cadrage et du menu « Changer le statut » des maquettes) :
+- **Transitions de statut** (validées et codées par VIGIE-7 le 20/11, table `TRANSITIONS` de `server/src/services/statutService.js` ; tout `GESTIONNAIRE` ou `ADMIN` peut les déclencher, une seule équipe support) :
 
 | Depuis                 | Vers                                           | Condition                                                                                       |
 | ---------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |
@@ -184,6 +184,7 @@ Urgence : je peux continuer (`FAIBLE`) / mode dégradé (`MOYENNE`) / je suis bl
 - Comptés en **heures ouvrées** : du lundi au vendredi, de 9 h à 18 h. Jours fériés hors périmètre.
 - Alerte **orange à 75 %** du délai écoulé, **rouge à 100 %** (Critique : orange à 3 h).
 - Suspendu en `EN_ATTENTE_DEMANDEUR`.
+- **Requalification de la priorité** (décision du 20/11, VIGIE-5) : nouveau délai complet de la nouvelle priorité, compté **à partir de la requalification**, en heures ouvrées. Un ticket passé en Critique a donc 4 h ouvrées pour être résolu, même s’il est ouvert depuis deux jours. Le risque de « remettre le compteur à zéro » est encadré par le motif obligatoire (10 caractères), la trace dans l’historique et l’indicateur de requalifications (VIGIE-26).
 - Horaires et seuil paramétrables (`SLA_WORK_DAYS`, `SLA_WORK_START`, `SLA_WORK_END`, `SLA_WARNING_RATIO`).
 
 ### 9.3 Suggestions de doublons (VIGIE-15)
