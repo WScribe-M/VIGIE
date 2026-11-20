@@ -1,8 +1,12 @@
 import { Router } from 'express';
+
 import {
+  attribuer,
+  commenter,
   creer,
   estimer,
   file,
+  gestionnaires,
   lire,
   lister,
   modifierDomaine,
@@ -10,26 +14,39 @@ import {
   prendre,
   requalifier,
 } from '../controllers/ticketController.js';
+
 import { autoriser } from '../middlewares/auth.js';
 
 export const ticketRoutes = Router();
 
-// Tout utilisateur connecté ; le LECTEUR est bloqué en écriture par ROUTES_PROTEGEES (app.js)
+// Consultation et création des tickets.
 ticketRoutes.post('/', creer);
 ticketRoutes.get('/', lister);
-// Avant '/:id', sinon « estimation » serait lu comme un identifiant de ticket
+
+// Routes fixes : toujours avant '/:id'.
 ticketRoutes.get('/estimation', estimer);
-// « À traiter » du technicien (VIGIE-31), elle aussi avant '/:id'
 ticketRoutes.get('/ma-file', autoriser('GESTIONNAIRE', 'ADMIN'), file);
+
+// VIGIE-29 : gestionnaires actifs, réservés à l'ADMIN.
+ticketRoutes.get('/gestionnaires', autoriser('ADMIN'), gestionnaires);
+
+// Fiche d'un ticket.
 ticketRoutes.get('/:id', lire);
 
-// Le support corrige le domaine (ticket « Autre », mauvais service choisi)
+// Correction du domaine par le support.
 ticketRoutes.patch('/:id/domaine', autoriser('GESTIONNAIRE', 'ADMIN'), modifierDomaine);
 
-// Cycle de vie (VIGIE-7) : tout le support fait avancer un ticket (une seule équipe), chaque
-// action est tracée dans l'historique avec son auteur
+// Cycle de vie du ticket (VIGIE-7).
 ticketRoutes.post('/:id/prise-en-charge', autoriser('GESTIONNAIRE', 'ADMIN'), prendre);
 ticketRoutes.patch('/:id/statut', autoriser('GESTIONNAIRE', 'ADMIN'), modifierStatut);
 
-// Requalification de la priorité (VIGIE-5) : le support seul, jamais le demandeur
+// Requalification de la priorité (VIGIE-5).
 ticketRoutes.patch('/:id/priorite', autoriser('GESTIONNAIRE', 'ADMIN'), requalifier);
+
+// VIGIE-29 : attribution par le responsable DSI.
+ticketRoutes.patch('/:id/technicien', autoriser('ADMIN'), attribuer);
+
+// VIGIE-29 : commentaires.
+// Le CLIENT et le support peuvent commenter leurs tickets accessibles.
+// Le LECTEUR reste en lecture seule.
+ticketRoutes.post('/:id/commentaires', autoriser('CLIENT', 'GESTIONNAIRE', 'ADMIN'), commenter);

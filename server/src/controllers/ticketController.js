@@ -10,7 +10,13 @@ import {
   requalifierPriorite,
 } from '../services/ticketService.js';
 
-// L'utilisateur vient toujours du jeton (req.utilisateur), jamais du corps de la requête
+import {
+  ajouterCommentaire,
+  attribuerTechnicien,
+  listerGestionnaires,
+} from '../services/ticketInteractionService.js';
+
+// L'utilisateur vient toujours du jeton, jamais du corps de la requête.
 
 export async function creer(req, res) {
   res.status(201).json(await creerTicket(req.body, req.utilisateur));
@@ -46,4 +52,19 @@ export async function requalifier(req, res) {
 
 export async function file(req, res) {
   res.json(await maFile(req.utilisateur));
+}
+
+// VIGIE-29 : attribution par le responsable DSI.
+export async function attribuer(req, res) {
+  res.json(await attribuerTechnicien(req.params.id, req.body?.technicienId, req.utilisateur));
+}
+
+// VIGIE-29 : commentaires publics sur un ticket.
+export async function commenter(req, res) {
+  res.json(await ajouterCommentaire(req.params.id, req.body, req.utilisateur));
+}
+
+// VIGIE-29 : liste des gestionnaires actifs.
+export async function gestionnaires(req, res) {
+  res.json(await listerGestionnaires(req.utilisateur));
 }

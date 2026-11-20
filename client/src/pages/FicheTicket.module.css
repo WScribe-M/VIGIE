@@ -174,3 +174,56 @@
     grid-template-columns: 120px minmax(0, 1fr);
   }
 }
+
+/* VIGIE-29 : commentaires sur le ticket */
+
+.titreCommentaires {
+  margin: var(--space-4) 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.listeCommentaires {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.commentaire {
+  padding: var(--space-4);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-md);
+}
+
+.enteteCommentaire {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: 13px;
+}
+
+.enteteCommentaire time,
+.aucunCommentaire {
+  color: var(--color-neutral-600);
+  font-size: 13px;
+}
+
+.texteCommentaire {
+  margin: var(--space-3) 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.formulaireCommentaire {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.formulaireCommentaire button {
+  align-self: flex-start;
+}
