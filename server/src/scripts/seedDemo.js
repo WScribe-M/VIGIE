@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 import { connecterBase } from '../config/db.js';
+import { config } from '../config/env.js';
 import { User } from '../models/User.js';
 import { Service } from '../models/Service.js';
 import { Ticket } from '../models/Ticket.js';
@@ -33,6 +34,17 @@ const SCENARIOS = {
   VPN: [
     ['Connexion VPN impossible', 'Certificat expiré', 'Certificat renouvelé et connexion vérifiée'],
     ['Déconnexions VPN', 'Client VPN obsolète', 'Client mis à jour et stabilité confirmée'],
+    [
+      'Accès VPN refusé après changement de mot de passe',
+      'Identifiants mis en cache',
+      'Cache des identifiants effacé et authentification validée',
+    ],
+    ['VPN lent pendant les appels', 'Routage réseau saturé', 'Routage corrigé et débit contrôlé'],
+    [
+      'Double authentification VPN bloquée',
+      'Horloge du poste désynchronisée',
+      'Horloge synchronisée et connexion rétablie',
+    ],
   ],
   Messagerie: [
     ['Envoi des emails impossible', 'Boîte saturée', 'Messages archivés et envoi rétabli'],
@@ -41,14 +53,55 @@ const SCENARIOS = {
       'File de traitement bloquée',
       'Service relancé et réception vérifiée',
     ],
+    [
+      'Pièces jointes bloquées',
+      'Taille maximale dépassée',
+      'Fichier compressé et transfert confirmé',
+    ],
+    [
+      'Dossiers partagés invisibles',
+      'Droits de délégation manquants',
+      'Délégation rétablie et accès vérifié',
+    ],
+    [
+      'Recherche dans les emails incomplète',
+      'Index de messagerie désynchronisé',
+      'Index reconstruit et recherche vérifiée',
+    ],
   ],
   ERP: [
     ['Connexion ERP impossible', 'Session corrompue', 'Session réinitialisée et accès rétabli'],
     ['ERP bloqué', 'Cache applicatif défectueux', 'Cache vidé et fonctionnement validé'],
+    [
+      'Export ERP impossible',
+      'Droits sur le répertoire insuffisants',
+      'Permissions corrigées et export testé',
+    ],
+    [
+      "Erreur lors de la validation d'une commande",
+      'Donnée de référence manquante',
+      'Référence complétée et validation confirmée',
+    ],
+    ['Rapport ERP vide', 'Filtre de période incorrect', 'Filtre corrigé et rapport contrôlé'],
   ],
   Imprimante: [
     ['Imprimante indisponible', 'File d’impression bloquée', 'File purgée et impression testée'],
     ['Impression illisible', 'Cartouche défectueuse', 'Cartouche remplacée et impression validée'],
+    [
+      'Imprimante non détectée sur le réseau',
+      'Adresse IP modifiée',
+      "Port d'impression corrigé et test réussi",
+    ],
+    [
+      'Recto verso indisponible',
+      "Pilote d'impression inadapté",
+      'Pilote actualisé et recto verso testé',
+    ],
+    [
+      'Impression bloquée après mise à jour',
+      "Spouleur d'impression arrêté",
+      'Spouleur redémarré et file contrôlée',
+    ],
   ],
   'Poste de travail': [
     ['Ordinateur très lent', 'Disque saturé', 'Disque nettoyé et performances vérifiées'],
@@ -56,6 +109,21 @@ const SCENARIOS = {
       'Application inaccessible',
       'Installation endommagée',
       'Application réinstallée et démarrage vérifié',
+    ],
+    [
+      'Écran externe non reconnu',
+      'Pilote graphique obsolète',
+      'Pilote actualisé et affichage testé',
+    ],
+    [
+      'Session Windows verrouillée',
+      'Profil utilisateur endommagé',
+      'Profil réparé et session restaurée',
+    ],
+    [
+      'Connexion Wi-Fi instable',
+      'Pilote de carte réseau défectueux',
+      'Pilote réinstallé et stabilité confirmée',
     ],
   ],
 };
@@ -77,25 +145,54 @@ export function ajouterHeures(date, heures) {
   return new Date(date.getTime() + heures * 3600000);
 }
 
+// Temps écoulé en minutes ouvrées.
+export function minutesOuvreesEntre(debut, fin, horaires = config.sla) {
+  if (fin <= debut) return 0;
+
+  let minutes = 0;
+  const jour = new Date(debut);
+  jour.setHours(0, 0, 0, 0);
+
+  while (jour < fin) {
+    if (horaires.jours.includes(jour.getDay() || 7)) {
+      const ouverture = new Date(jour);
+      ouverture.setMinutes(horaires.debut);
+
+      const fermeture = new Date(jour);
+      fermeture.setMinutes(horaires.fin);
+
+      minutes += Math.max(0, Math.min(fin, fermeture) - Math.max(debut, ouverture)) / 60000;
+    }
+
+    jour.setDate(jour.getDate() + 1);
+  }
+
+  return minutes;
+}
+
 export function choisirStatut(heuresDisponibles, aleatoire) {
   const tirage = aleatoire();
 
-  // Les tickets récents restent majoritairement ouverts.
-  if (heuresDisponibles < 24) {
-    return tirage < 0.7 ? 'NOUVEAU' : 'EN_COURS';
-  }
-
+  // Tickets récents : davantage de demandes à traiter.
   if (heuresDisponibles < 72) {
-    if (tirage < 0.2) return 'NOUVEAU';
-    if (tirage < 0.7) return 'EN_COURS';
-    if (tirage < 0.85) return 'EN_ATTENTE_DEMANDEUR';
-    return 'TERMINE';
+    if (tirage < 0.6) return 'NOUVEAU';
+    if (tirage < 0.92) return 'EN_COURS';
+    return 'EN_ATTENTE_DEMANDEUR';
   }
 
-  if (tirage < 0.2) return 'EN_COURS';
-  if (tirage < 0.3) return 'EN_ATTENTE_DEMANDEUR';
-  if (tirage < 0.9) return 'TERMINE';
-  return 'ABANDONNE';
+  if (heuresDisponibles <= 14 * 24) {
+    if (tirage < 0.38) return 'NOUVEAU';
+    if (tirage < 0.63) return 'EN_COURS';
+    if (tirage < 0.73) return 'EN_ATTENTE_DEMANDEUR';
+    if (tirage < 0.96) return 'TERMINE';
+    return 'ABANDONNE';
+  }
+
+  // Les tickets anciens sont presque tous clôturés.
+  if (tirage < 0.965) return 'TERMINE';
+  if (tirage < 0.99) return 'ABANDONNE';
+  if (tirage < 0.995) return 'EN_COURS';
+  return 'EN_ATTENTE_DEMANDEUR';
 }
 
 export function evenementStatut(auteur, ancienneValeur, nouvelleValeur, date, motif) {
@@ -113,8 +210,8 @@ export function evenementAffectation(auteur, technicien, date) {
   return {
     auteur: auteur._id,
     champ: 'technicien',
-    ancienneValeur: '',
-    nouvelleValeur: String(technicien._id),
+    ancienneValeur: null,
+    nouvelleValeur: technicien._id,
     date,
     motif: 'Affectation du ticket',
   };
@@ -151,16 +248,7 @@ async function creerUtilisateurs() {
 }
 
 export function creerDonneesTicket(index, contexte) {
-  const {
-    services,
-    clients,
-    techniciens,
-    gestionnaire,
-    debut,
-    maintenant,
-    ticketsCrees,
-    aleatoire,
-  } = contexte;
+  const { services, clients, techniciens, debut, maintenant, ticketsCrees, aleatoire } = contexte;
 
   const service = choisir(services, aleatoire);
   const [titre, cause, solution] = choisir(SCENARIOS[service.nom], aleatoire);
@@ -178,13 +266,18 @@ export function creerDonneesTicket(index, contexte) {
 
   let statut = choisirStatut(heuresDisponibles, aleatoire);
 
-  // Un doublon doit toujours désigner un ticket existant
-  // du même service, qui n'est pas lui-même un doublon.
+  // Doublons : même service, autre demandeur, ticket récent non abandonné.
   const estCandidatDoublon = index > 20 && index % 19 === 0;
 
   const principaux = estCandidatDoublon
     ? ticketsCrees.filter(
-        (ticket) => String(ticket.service) === String(service._id) && !ticket.doublonDe,
+        (ticket) =>
+          String(ticket.service) === String(service._id) &&
+          !ticket.doublonDe &&
+          ticket.statut !== 'ABANDONNE' &&
+          (!ticket.demandeur || String(ticket.demandeur) !== String(demandeur._id)) &&
+          (!ticket.createdAt ||
+            creation.getTime() - new Date(ticket.createdAt).getTime() <= 21 * 86400000),
       )
     : [];
 
@@ -196,14 +289,31 @@ export function creerDonneesTicket(index, contexte) {
 
   const technicien = statut === 'NOUVEAU' ? null : choisir(techniciens, aleatoire);
 
-  const priseEnCharge = ajouterHeures(creation, Math.min(2, heuresDisponibles / 3));
+  // Durées variables selon la priorité.
+  const delaisParPriorite = {
+    CRITIQUE: { prise: 1, resolution: 6 },
+    HAUTE: { prise: 3, resolution: 18 },
+    MOYENNE: { prise: 8, resolution: 48 },
+    BASSE: { prise: 16, resolution: 120 },
+  };
 
-  const finTraitement = ajouterHeures(creation, Math.min(Math.max(heuresDisponibles * 0.5, 3), 72));
+  const delais = delaisParPriorite[priorite];
+
+  const heuresPriseEnCharge = Math.min(0.25 + aleatoire() * delais.prise, heuresDisponibles / 3);
+
+  const heuresResolution = Math.min(
+    heuresPriseEnCharge + 1 + aleatoire() * delais.resolution,
+    heuresDisponibles * 0.9,
+  );
+
+  const priseEnCharge = ajouterHeures(creation, heuresPriseEnCharge);
+  const finTraitement = ajouterHeures(creation, heuresResolution);
 
   const termine = statut === 'TERMINE';
   const abandonne = statut === 'ABANDONNE';
 
-  const reouvert = termine && index % 13 === 0 && heuresDisponibles > 48;
+  const reouvert =
+    termine && index % 13 === 0 && finTraitement.getTime() - priseEnCharge.getTime() > 3 * 3600000;
 
   const historique = [evenementStatut(demandeur, null, 'NOUVEAU', creation, 'Création du ticket')];
 
@@ -218,7 +328,7 @@ export function creerDonneesTicket(index, contexte) {
   if (technicien) {
     historique.push(
       evenementStatut(
-        gestionnaire,
+        technicien,
         'NOUVEAU',
         'EN_COURS',
         priseEnCharge,
@@ -229,8 +339,9 @@ export function creerDonneesTicket(index, contexte) {
   }
 
   if (reouvert) {
-    const premiereResolution = ajouterHeures(priseEnCharge, 1);
-    const reouverture = ajouterHeures(priseEnCharge, 2);
+    const duree = finTraitement.getTime() - priseEnCharge.getTime();
+    const premiereResolution = new Date(priseEnCharge.getTime() + duree * 0.35);
+    const reouverture = new Date(priseEnCharge.getTime() + duree * 0.55);
 
     historique.push(
       evenementStatut(technicien, 'EN_COURS', 'TERMINE', premiereResolution, 'Première résolution'),
@@ -283,7 +394,10 @@ export function creerDonneesTicket(index, contexte) {
 
     if (tempsRestant < 0) {
       niveauAlerteSla = 'ROUGE';
-    } else if (tempsRestant < 24 * 3600000) {
+    } else if (
+      minutesOuvreesEntre(creation, maintenant) >=
+      0.75 * minutesOuvreesEntre(creation, echeanceSla)
+    ) {
       niveauAlerteSla = 'ORANGE';
     }
   }
@@ -305,6 +419,7 @@ export function creerDonneesTicket(index, contexte) {
     statut,
     dateStatut,
     datePriseEnCharge: technicien ? priseEnCharge : null,
+    vuParSupportLe: technicien ? priseEnCharge : null,
     dateCloture: termine || abandonne ? finTraitement : null,
     echeanceSla,
     niveauAlerteSla,
@@ -314,6 +429,14 @@ export function creerDonneesTicket(index, contexte) {
     canal: choisir(CANAUX, aleatoire),
     technicien: technicien?._id ?? null,
     doublonDe: ticketPrincipal?._id ?? null,
+    resolution: termine
+      ? {
+          cause,
+          solution,
+          auteur: technicien._id,
+          date: finTraitement,
+        }
+      : null,
     commentaires,
     historique,
     ...(termine && aleatoire() < 0.6 ? { satisfaction: 1 + Math.floor(aleatoire() * 5) } : {}),
@@ -328,7 +451,7 @@ export async function executerSeedDemo() {
 
   await connecterBase();
 
-  // Détecter aussi les tickets de l'ancien seed.
+  // Détection des tickets créés par l'ancien seed.
   const anciensTickets = await Ticket.countDocuments({
     titre: { $regex: '^\\[DEMO-VIGIE-23\\]' },
   });
@@ -363,7 +486,6 @@ export async function executerSeedDemo() {
   await initialiserServices();
 
   const utilisateurs = await creerUtilisateurs();
-  const gestionnaire = utilisateurs[1];
   const techniciens = utilisateurs.slice(1, 4);
   const clients = utilisateurs.slice(5);
 
@@ -384,7 +506,6 @@ export async function executerSeedDemo() {
     services,
     clients,
     techniciens,
-    gestionnaire,
     debut,
     maintenant,
     ticketsCrees: [],
@@ -406,6 +527,9 @@ export async function executerSeedDemo() {
       numero: ticket.numero,
       service: ticket.service,
       doublonDe: ticket.doublonDe,
+      statut: ticket.statut,
+      demandeur: ticket.demandeur,
+      createdAt: ticket.createdAt,
     });
 
     if (ticket.doublonDe) {
