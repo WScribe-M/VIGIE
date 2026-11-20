@@ -125,6 +125,8 @@ ticketSchema.index({ enCopie: 1 });
 ticketSchema.index({ statut: 1, rangPriorite: -1, echeanceSla: 1 });
 // Tâche SLA : tickets ouverts dont l'échéance approche
 ticketSchema.index({ statut: 1, echeanceSla: 1 });
+// « Ma file », section En attente du demandeur (VIGIE-31) et relances (VIGIE-21) : ancienneté de l’attente
+ticketSchema.index({ statut: 1, dateStatut: 1 });
 // Mes tickets en cours, triés par échéance ; charge par technicien
 ticketSchema.index({ technicien: 1, statut: 1, echeanceSla: 1 });
 // Panne collective : tickets récents d'un même service

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   creer,
   estimer,
+  file,
   lire,
   lister,
   modifierDomaine,
@@ -18,6 +19,8 @@ ticketRoutes.post('/', creer);
 ticketRoutes.get('/', lister);
 // Avant '/:id', sinon « estimation » serait lu comme un identifiant de ticket
 ticketRoutes.get('/estimation', estimer);
+// « Ma file » du technicien (VIGIE-31), elle aussi avant '/:id'
+ticketRoutes.get('/ma-file', autoriser('GESTIONNAIRE', 'ADMIN'), file);
 ticketRoutes.get('/:id', lire);
 
 // Le support corrige le domaine (ticket « Autre », mauvais service choisi)

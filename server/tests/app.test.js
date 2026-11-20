@@ -152,6 +152,11 @@ describe('droits sur /api/tickets (sans base : les middlewares répondent avant)
     }
   });
 
+  it('« Ma file » est réservée au support (403 pour un CLIENT)', async () => {
+    const { status } = await appeler('/tickets/ma-file', { headers: await entetes('CLIENT') });
+    assert.equal(status, 403);
+  });
+
   it('une création invalide répond 400 sans toucher à la base', async () => {
     const { status, corps } = await appeler('/tickets', {
       method: 'POST',
