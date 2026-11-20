@@ -6,12 +6,15 @@ import { etatBase } from './config/db.js';
 import { specificationApi } from './docs/specificationApi.js';
 import { authentifier, interdireEcritureLecteur } from './middlewares/auth.js';
 import { authRoutes } from './routes/authRoutes.js';
+import { serviceRoutes } from './routes/serviceRoutes.js';
 
 // Routes protégées : jeton obligatoire (401) et LECTEUR en lecture seule (403).
 // Toute nouvelle route se déclare ici, la protection est ajoutée automatiquement,
 // et se documente dans server/docs/openapi.yaml.
 // Exemple : '/services': serviceRoutes
-const ROUTES_PROTEGEES = {};
+const ROUTES_PROTEGEES = {
+  '/services': serviceRoutes,
+};
 
 export const app = express();
 
