@@ -71,11 +71,6 @@
   white-space: nowrap;
 }
 
-.erreur {
-  font-size: 13px;
-  color: var(--color-feedback-danger-fg);
-}
-
 .actions {
   display: flex;
   justify-content: flex-end;

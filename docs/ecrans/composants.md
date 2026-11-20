@@ -155,8 +155,7 @@ entrée 280 ms (glissé + fondu) ; durée 6 s, sauf temps réel critique (reste 
 maximum ; `aria-live="polite"` (critique : `assertive`) ; fermeture `x` 16 Taupe.
 
 - Temps réel : `ticket` 22 Pétrole ; « En direct · à l’instant » 12/600 Taupe avec point 7 px Pétrole ; titre
-  15/20/600 ; texte 13/18 `--color-neutral-700` ; PriorityBadge Critique ; Tertiaire sm « Ouvrir » + Primaire sm
-  « Prendre en charge ».
+  15/20/600 ; texte 13/18 `--color-neutral-700` ; PriorityBadge Critique ; Secondaire sm « Ouvrir » seulement (décision du 20/11 : pas de « Prendre en charge » dans un toast).
 - Succès : `circle-check` 22 `--color-feedback-success-fg` · « Votre ticket a été créé » · « INC-1028 · … » · lien
   « Suivre ma demande » 13/600 Pétrole.
 - Erreur de connexion : `wifi-off` 22 `--color-feedback-danger-fg` · « Connexion en direct interrompue » · « Les

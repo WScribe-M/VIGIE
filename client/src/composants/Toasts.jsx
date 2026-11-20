@@ -1,7 +1,6 @@
 import { Ticket, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { appelerApi } from '../api.js';
 import { useNotifications } from '../notifications/NotificationsContext.jsx';
 import { TRAIT_ICONE } from '../styles/icones.js';
 import { LIBELLES_PRIORITE } from '../styles/libelles.js';
@@ -11,12 +10,12 @@ import styles from './Toasts.module.css';
 // Durée d'affichage (docs/ecrans/composants.md, Toast) ; un ticket Critique reste jusqu'à une action
 const DUREE = 6000;
 
-// Toast temps réel « Nouveau ticket » (fiche 07) : « Ouvrir » ou « Prendre en charge » directement
+// Toast temps réel « Nouveau ticket » (fiche 07). Décision du 20/11 : le toast informe, il ne sert
+// pas à agir. On peut seulement ouvrir le ticket ; la prise en charge se fait depuis « Ma file » ou
+// la fiche, où l'on voit l'état réel du ticket (le toast, lui, ne sait pas s'il a déjà été pris).
 function ToastNouveauTicket({ notification }) {
   const { fermerToast, marquerLue } = useNotifications();
   const navigate = useNavigate();
-  const [enCours, setEnCours] = useState(false);
-  const [erreur, setErreur] = useState(null);
   const { ticket } = notification;
   const critique = ticket.prioriteFinale === 'CRITIQUE';
 
@@ -30,18 +29,6 @@ function ToastNouveauTicket({ notification }) {
     marquerLue(notification._id).catch(() => {});
     fermerToast(notification._id);
     navigate(`/tickets/${ticket._id}`);
-  }
-
-  async function prendreEnCharge() {
-    setEnCours(true);
-    try {
-      await appelerApi(`/tickets/${ticket._id}/prise-en-charge`, { methode: 'POST' });
-      ouvrir();
-    } catch (err) {
-      // 409 : un collègue a été plus rapide (le nom arrivera avec VIGIE-8)
-      setErreur(err.status === 409 ? 'Déjà pris en charge par un collègue.' : err.message);
-      setEnCours(false);
-    }
   }
 
   return (
@@ -58,20 +45,10 @@ function ToastNouveauTicket({ notification }) {
         <span className={`${styles.texte} chiffres`}>
           {ticket.reference} · {ticket.titre}
         </span>
-        {erreur && <span className={styles.erreur}>{erreur}</span>}
         <div className={styles.actions}>
-          <Button variante="tertiaire" taille="sm" onClick={ouvrir}>
+          <Button variante="secondaire" taille="sm" onClick={ouvrir}>
             Ouvrir
           </Button>
-          {!erreur && (
-            <Button
-              taille="sm"
-              chargement={enCours && 'Prise en charge…'}
-              onClick={prendreEnCharge}
-            >
-              Prendre en charge
-            </Button>
-          )}
         </div>
       </div>
       <button
