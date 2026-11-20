@@ -25,3 +25,24 @@ export function formaterEcheance(valeur) {
 export function formaterDateHeure(valeur) {
   return DATE_HEURE.format(new Date(valeur));
 }
+
+const ESPACE = '\u00a0';
+
+// Durée en heures ouvrées (délai SLA) : « 28 min », « 3 h 40 », « 2 j ».
+// `minutesParJour` : longueur d'une journée ouvrée, renvoyée par l'API (9 h par défaut).
+export function formaterDureeOuvree(minutes, minutesParJour) {
+  if (minutes < 60) return `${minutes}${ESPACE}min`;
+  if (minutes < minutesParJour) {
+    const heures = Math.floor(minutes / 60);
+    const reste = minutes % 60;
+    return `${heures}${ESPACE}h${reste ? `${ESPACE}${String(reste).padStart(2, '0')}` : ''}`;
+  }
+  return `${Math.floor(minutes / minutesParJour)}${ESPACE}j`;
+}
+
+// Durée calendaire (attente du demandeur) : « 25 min », « 5 h », « 4 j »
+export function formaterDuree(minutes) {
+  if (minutes < 60) return `${minutes}${ESPACE}min`;
+  if (minutes < 24 * 60) return `${Math.floor(minutes / 60)}${ESPACE}h`;
+  return `${Math.floor(minutes / (24 * 60))}${ESPACE}j`;
+}
