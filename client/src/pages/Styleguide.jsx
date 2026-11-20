@@ -20,6 +20,7 @@ import { Button, IconButton } from '../composants/Button.jsx';
 import { Select, TextArea, TextField } from '../composants/Champs.jsx';
 import { ChoiceGroup } from '../composants/ChoiceCard.jsx';
 import { DelayEstimate } from '../composants/DelayEstimate.jsx';
+import { DuplicatePanel } from '../composants/DuplicatePanel.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
 import { MenuStatut } from '../composants/MenuStatut.jsx';
 import { Modal } from '../composants/Modal.jsx';
@@ -310,6 +311,43 @@ function DemoChoix() {
   );
 }
 
+// Suggestions de doublons de la démo : titre, service, statut, date d'ouverture (cadrage 9.3)
+const SUGGESTIONS_DEMO = [
+  {
+    _id: 'demo-1027',
+    titre: 'Coupure VPN sur le site de Lyon',
+    service: { nom: 'VPN' },
+    statut: 'EN_COURS',
+    createdAt: new Date(Date.now() - 12 * 60000).toISOString(),
+  },
+  {
+    _id: 'demo-1024',
+    titre: 'VPN inaccessible',
+    service: { nom: 'VPN' },
+    statut: 'EN_COURS',
+    createdAt: new Date(Date.now() - 3 * 3600000).toISOString(),
+  },
+];
+
+function DoublonsDemo() {
+  const [rejoints, setRejoints] = useState({ 'demo-1024': { concernes: 4 } });
+  return (
+    <div className={styles.colonneDemo}>
+      <DuplicatePanel
+        recherche="vpn ne marche plus"
+        etat="resultats"
+        suggestions={SUGGESTIONS_DEMO}
+        rejoints={rejoints}
+        onRejoindre={({ _id }) => setRejoints({ ...rejoints, [_id]: { concernes: 10 } })}
+      />
+      <DuplicatePanel etat="attente" />
+      <DuplicatePanel etat="chargement" />
+      <DuplicatePanel etat="resultats" suggestions={[]} />
+      <DuplicatePanel etat="erreur" onReessayer={() => {}} />
+    </div>
+  );
+}
+
 function LigneDemo({ ligne }) {
   return (
     <div className={`${styles.ligne} ${ligne.sla.niveau === 'EN_RETARD' ? styles.enRetard : ''}`}>
@@ -530,6 +568,13 @@ export function Styleguide() {
           <Skeleton largeur="60%" />
           <Skeleton largeur={80} hauteur={26} rond />
         </div>
+      </Bloc>
+
+      <Bloc
+        titre="Panneau « Ce problème est peut-être déjà signalé »"
+        note="Dès 3 caractères, 300 ms après la dernière frappe · 1 à 3 tickets"
+      >
+        <DoublonsDemo />
       </Bloc>
 
       <Bloc titre="Avatars" note="24 · 32 · 36 · 40 px · une paire de couleurs par personne">

@@ -157,6 +157,36 @@ describe('droits sur /api/tickets (sans base : les middlewares répondent avant)
     assert.equal(status, 403);
   });
 
+  it('les suggestions de doublons et « Je suis aussi concerné » sont réservées au CLIENT (403)', async () => {
+    for (const role of ['GESTIONNAIRE', 'ADMIN', 'LECTEUR']) {
+      const suggestions = await appeler('/tickets/similaires?titre=vpn', {
+        headers: await entetes(role),
+      });
+      const rattachement = await appeler(`/tickets/${ID}/suiveurs`, {
+        method: 'POST',
+        headers: await entetes(role),
+      });
+      assert.equal(suggestions.status, 403, role);
+      assert.equal(rattachement.status, 403, role);
+    }
+  });
+
+  it('un titre de moins de 3 caractères ne propose aucun doublon, sans toucher à la base', async () => {
+    const { status, corps } = await appeler('/tickets/similaires?titre=vp', {
+      headers: await entetes('CLIENT'),
+    });
+    assert.equal(status, 200);
+    assert.deepEqual(corps, []);
+  });
+
+  it('se déclarer concerné par un identifiant mal formé répond 404 sans toucher à la base', async () => {
+    const { status } = await appeler('/tickets/abc/suiveurs', {
+      method: 'POST',
+      headers: await entetes('CLIENT'),
+    });
+    assert.equal(status, 404);
+  });
+
   it('une création invalide répond 400 sans toucher à la base', async () => {
     const { status, corps } = await appeler('/tickets', {
       method: 'POST',

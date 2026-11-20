@@ -45,3 +45,18 @@ export function formaterDuree(minutes) {
   if (minutes < 24 * 60) return `${Math.floor(minutes / 60)}${ESPACE}h`;
   return `${Math.floor(minutes / (24 * 60))}${ESPACE}j`;
 }
+
+const HEURE_MINUTES = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+// Ancienneté d'un signalement (suggestions de doublons, fiche 03) : « il y a 12 min » dans l'heure,
+// « aujourd’hui, 10:24 » dans la journée, sinon « le 17 nov. 2026, 10:24 ».
+export function formaterDepuis(valeur, maintenant = new Date()) {
+  const date = new Date(valeur);
+  const minutes = Math.floor((maintenant - date) / 60000);
+  if (minutes < 1) return 'à l’instant';
+  if (minutes < 60) return `il y a ${minutes}${ESPACE}min`;
+  if (date.toDateString() === maintenant.toDateString()) {
+    return `aujourd’hui, ${HEURE_MINUTES.format(date)}`;
+  }
+  return `le ${formaterDateHeure(date)}`;
+}

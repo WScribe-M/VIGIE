@@ -110,6 +110,45 @@
   font-size: 14px;
 }
 
+/* « Vous suivez maintenant VIG-… » (parcours 1, étape 3) : rayon 12, marges 16, écart 12, entrée 280 ms */
+.succes {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-popover);
+  background: var(--color-status-termine-bg);
+  color: var(--color-status-termine-strong);
+  font-size: 14px;
+  line-height: 20px;
+  animation: entree-succes var(--duration-toast) var(--ease-out);
+}
+
+.succes > svg {
+  flex-shrink: 0;
+}
+
+.succes p {
+  margin: 0;
+}
+
+.succesTitre {
+  font-weight: 600;
+}
+
+.lienSucces {
+  display: inline-block;
+  margin-top: var(--space-1);
+  font-weight: 600;
+  color: var(--color-brand-600);
+}
+
+@keyframes entree-succes {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
 .pied {
   display: flex;
   justify-content: flex-end;
