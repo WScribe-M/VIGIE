@@ -73,7 +73,7 @@ describe('schéma Ticket', () => {
     }
   });
 
-  it('trie « Ma file » sur le rang numérique, pas sur le texte de la priorité', () => {
+  it('trie « À traiter » sur le rang numérique, pas sur le texte de la priorité', () => {
     const champs = index(Ticket).map(([c]) => c);
     assert.ok(champs.some((c) => c.statut === 1 && c.rangPriorite === -1 && c.echeanceSla === 1));
     assert.ok(!champs.some((c) => 'prioriteFinale' in c));

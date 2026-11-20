@@ -35,7 +35,7 @@ function BarresSignal({ actives }) {
 }
 
 /**
- * Priorité : barres de signal sans fond + libellé coloré ; Critique en pastille pleine.
+ * Priorité : barres de signal sans fond + libellé coloré, Critique compris (décision du 20/11).
  * La priorité est calculée (impact × urgence), jamais choisie par l'utilisateur.
  * @param priorite valeur de l'API (BASSE, MOYENNE, HAUTE, CRITIQUE)
  * @param taille   24 (par défaut) | 26

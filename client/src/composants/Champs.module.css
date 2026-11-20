@@ -141,3 +141,20 @@
     height: 48px;
   }
 }
+
+/* Champ avec un bouton icône à droite (œil du mot de passe) : le texte ne passe pas sous le bouton */
+.avecBouton {
+  position: relative;
+}
+
+.avecBouton .saisie {
+  padding-right: 44px;
+}
+
+.bouton {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: flex;
+  transform: translateY(-50%);
+}

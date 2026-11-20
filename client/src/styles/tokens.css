@@ -51,12 +51,11 @@
   --color-status-en-cours-strong: #16388f; /* « Ticket rouvert » */
   --color-status-termine-strong: #1f4d14; /* « Vous suivez maintenant INC-… » */
 
-  /* Priorités : sans fond, sauf Critique en pastille pleine */
+  /* Priorités : barres et libellé sans fond, Critique compris (décision du 20/11 : plus de pastille pleine) */
   --color-priority-basse: #6e645b;
   --color-priority-moyenne: #855c00;
   --color-priority-haute: #b0420a;
-  --color-priority-critique-fg: #ffffff;
-  --color-priority-critique-bg: #b3261e;
+  --color-priority-critique: #b3261e;
 
   /* SLA : fond teinté seulement quand il faut agir */
   --color-sla-ok-fg: #2b641c;

@@ -69,16 +69,28 @@ export function TextField({
   compteur,
   erreur,
   grand,
+  bouton,
   ...props
 }) {
   const id = useId();
+  const champ = (
+    <input
+      type="text"
+      {...proprietesCommunes(id, { obligatoire, aide, compteur, erreur, grand })}
+      {...props}
+    />
+  );
   return (
     <Cadre {...{ id, libelle, obligatoire, facultatif, aide, compteur, erreur }}>
-      <input
-        type="text"
-        {...proprietesCommunes(id, { obligatoire, aide, compteur, erreur, grand })}
-        {...props}
-      />
+      {/* `bouton` : un bouton icône posé dans le champ, à droite (œil du mot de passe, fiche 01) */}
+      {bouton ? (
+        <div className={styles.avecBouton}>
+          {champ}
+          <span className={styles.bouton}>{bouton}</span>
+        </div>
+      ) : (
+        champ
+      )}
     </Cadre>
   );
 }

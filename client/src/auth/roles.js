@@ -7,7 +7,7 @@ import { ChartColumn, House, Inbox, Plus, Users } from 'lucide-react';
 export const PAGES = {
   mesDemandes: { chemin: '/mes-demandes', libelle: 'Mes demandes', icone: House },
   nouveauTicket: { chemin: '/tickets/nouveau', libelle: 'Nouveau ticket', icone: Plus },
-  maFile: { chemin: '/ma-file', libelle: 'Ma file', icone: Inbox },
+  maFile: { chemin: '/ma-file', libelle: 'À traiter', icone: Inbox },
   pilotage: { chemin: '/pilotage', libelle: 'Pilotage', icone: ChartColumn },
   // Page provisoire : le design la découpe en « Utilisateurs » (users) et « Services » (server)
   administration: { chemin: '/administration', libelle: 'Administration', icone: Users },

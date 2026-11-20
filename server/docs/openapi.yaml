@@ -430,6 +430,65 @@ paths:
         '401':
           $ref: '#/components/responses/NonAuthentifie'
 
+  /tickets/ma-file:
+    get:
+      tags: [Tickets]
+      summary: « À traiter » du technicien (GESTIONNAIRE, ADMIN)
+      description: >-
+        Trois sections, 50 lignes au plus chacune : **à prendre** (tous les tickets `NOUVEAU`,
+        une seule équipe, par priorité puis échéance), **mes tickets en cours** (technicien =
+        moi, par échéance puis priorité), **en attente du demandeur** (tous, du plus ancien au
+        plus récent). Chaque ligne porte son niveau SLA d'affichage (heures ouvrées, échéance
+        proche à 75 % du délai écoulé, cadrage 9.2). La page se recharge sur `ticket:cree` et
+        `ticket:modifie` (room `support`).
+      responses:
+        '200':
+          description: Sections et compteurs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  aPrendre:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LigneDeFile'
+                  enCours:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LigneDeFile'
+                  enAttente:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LigneDeFile'
+                  compteurs:
+                    type: object
+                    properties:
+                      aPrendre:
+                        type: integer
+                      aPrendreCritiques:
+                        type: integer
+                      enCours:
+                        type: integer
+                      enRetard:
+                        type: integer
+                      echeanceProche:
+                        type: integer
+                      enAttente:
+                        type: integer
+                      attenteLaPlusAncienne:
+                        type: integer
+                        nullable: true
+                        description: En minutes (calendaires).
+                  minutesParJour:
+                    type: integer
+                    description: Longueur d'une journée ouvrée, pour afficher « reste 1 j ».
+                    example: 540
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+
   /tickets/{id}:
     get:
       tags: [Tickets]
@@ -914,6 +973,55 @@ components:
         nonLues:
           type: integer
           example: 3
+
+    NiveauSla:
+      type: object
+      nullable: true
+      description: >-
+        Lecture de l'échéance à l'instant de la requête (null pour un ticket clos). `minutes` :
+        restantes (heures ouvrées), de retard (heures ouvrées), ou depuis le début de l'attente
+        (calendaires) pour `SUSPENDU`.
+      properties:
+        niveau:
+          type: string
+          enum: [DANS_LES_TEMPS, ECHEANCE_PROCHE, EN_RETARD, SUSPENDU]
+        minutes:
+          type: integer
+
+    LigneDeFile:
+      type: object
+      properties:
+        _id:
+          type: string
+        reference:
+          type: string
+          example: VIG-0042
+        titre:
+          type: string
+        service:
+          type: object
+          properties:
+            nom:
+              type: string
+        domaine:
+          $ref: '#/components/schemas/Domaine'
+        statut:
+          $ref: '#/components/schemas/Statut'
+        prioriteFinale:
+          $ref: '#/components/schemas/Priorite'
+        echeanceSla:
+          type: string
+          format: date-time
+        dateStatut:
+          type: string
+          format: date-time
+        demandeur:
+          $ref: '#/components/schemas/Personne'
+        concernes:
+          type: integer
+          description: Le demandeur et les suiveurs.
+        sla:
+          $ref: '#/components/schemas/NiveauSla'
 
     TicketResume:
       type: object

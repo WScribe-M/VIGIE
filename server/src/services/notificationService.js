@@ -58,7 +58,7 @@ export async function notifierNouveauTicket(ticketId, createurId) {
       versClient(notification, ticket),
     );
   }
-  // Pour les listes du support (« Ma file », VIGIE-31) : elles se rechargent par l'API
+  // Pour les listes du support (« À traiter », VIGIE-31) : elles se rechargent par l'API
   emettre(ROOM_SUPPORT, 'ticket:cree', { _id: String(ticketId) });
 }
 

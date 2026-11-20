@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { config } from '../config/env.js';
 import { DOMAINES, IMPACTS, RANG_PRIORITE, URGENCES } from '../models/constantes.js';
 import { Ticket } from '../models/index.js';
 import { emettre, ROOM_PILOTAGE, ROOM_SUPPORT, roomTicket } from '../socket/index.js';
@@ -7,7 +8,7 @@ import { formaterNumero, prochainNumeroTicket } from './numeroService.js';
 import { calculerPriorite, verifierRequalification } from './prioriteService.js';
 import { deduireDomaine } from './serviceService.js';
 import { notifierNouveauTicket } from './notificationService.js';
-import { calculerEcheance } from './slaService.js';
+import { calculerEcheance, niveauSla } from './slaService.js';
 import { STATUTS_CLOS, transitionsDuMenu, verifierChangement } from './statutService.js';
 import { filtreTicketsVisibles, peutVoirTicket } from './visibiliteService.js';
 
@@ -163,7 +164,7 @@ export async function creerTicket(donnees, utilisateur) {
   return lireTicket(ticket._id, utilisateur);
 }
 
-// Prévient ceux qui regardent le ticket, « Ma file » et le pilotage : ils rechargent par l'API.
+// Prévient ceux qui regardent le ticket, « À traiter » et le pilotage : ils rechargent par l'API.
 // L'événement ne contient que l'identifiant et le statut, jamais de donnée réservée au support.
 function signalerModification(
   ticket,
@@ -322,6 +323,77 @@ export async function listerTickets(utilisateur) {
     .limit(LISTE_MAX)
     .lean();
   return tickets.map(avecReference);
+}
+
+// « À traiter » (VIGIE-31, fiche 07) : ce que le technicien doit traiter maintenant.
+// Chaque section s'appuie sur un index du schéma (cadrage 9.10) ; 50 lignes au plus par section,
+// les compteurs portent sur tous les tickets.
+const CHAMPS_FILE =
+  'numero titre service domaine statut prioriteFinale echeanceSla dateStatut demandeur suiveurs';
+const FILE_MAX = 50;
+
+// Une ligne de tableau : champs affichés, niveau SLA et nombre de personnes concernées
+// (le demandeur et les suiveurs ; les identifiants des suiveurs ne sont pas renvoyés)
+function ligneDeFile(ticket, maintenant) {
+  const { suiveurs = [], ...ligne } = ticket;
+  return {
+    ...avecReference(ligne),
+    concernes: 1 + suiveurs.length,
+    sla: niveauSla(ticket, maintenant),
+  };
+}
+
+function chercherFile(filtre, tri) {
+  return Ticket.find(filtre)
+    .select(CHAMPS_FILE)
+    .populate('service', 'nom')
+    .populate('demandeur', 'nom prenom')
+    .sort(tri)
+    .limit(FILE_MAX)
+    .lean();
+}
+
+export async function maFile(utilisateur, maintenant = new Date()) {
+  const [aPrendre, enCours, enAttente, totalAPrendre, totalEnAttente] = await Promise.all([
+    // Une seule équipe support : tous les nouveaux tickets, sans filtre par domaine (cadrage 3.1).
+    // Même ordre que la position dans la file (cadrage 9.8) : priorité, puis échéance.
+    chercherFile({ statut: 'NOUVEAU' }, { rangPriorite: -1, echeanceSla: 1 }),
+    chercherFile(
+      { technicien: utilisateur.id, statut: 'EN_COURS' },
+      { echeanceSla: 1, rangPriorite: -1 },
+    ),
+    // Tous les tickets en attente du demandeur, de l'attente la plus ancienne à la plus récente
+    // (décision du 20/11 : vue d'équipe, quel que soit le technicien)
+    chercherFile({ statut: 'EN_ATTENTE_DEMANDEUR' }, { dateStatut: 1 }),
+    Ticket.countDocuments({ statut: 'NOUVEAU' }),
+    Ticket.countDocuments({ statut: 'EN_ATTENTE_DEMANDEUR' }),
+  ]);
+
+  const lignes = (tickets) => tickets.map((ticket) => ligneDeFile(ticket, maintenant));
+  const sections = {
+    aPrendre: lignes(aPrendre),
+    enCours: lignes(enCours),
+    enAttente: lignes(enAttente),
+  };
+  // « Alertes SLA » : tickets à prendre ou en cours chez moi, en retard ou proches de l'échéance
+  const surveilles = [...sections.aPrendre, ...sections.enCours];
+  const compter = (niveau) => surveilles.filter((ligne) => ligne.sla?.niveau === niveau).length;
+
+  return {
+    ...sections,
+    compteurs: {
+      aPrendre: totalAPrendre,
+      aPrendreCritiques: sections.aPrendre.filter((l) => l.prioriteFinale === 'CRITIQUE').length,
+      enCours: sections.enCours.length,
+      enRetard: compter('EN_RETARD'),
+      echeanceProche: compter('ECHEANCE_PROCHE'),
+      enAttente: totalEnAttente,
+      // Attente la plus ancienne (en minutes), pour « le plus ancien : depuis 4 j »
+      attenteLaPlusAncienne: sections.enAttente[0]?.sla?.minutes ?? null,
+    },
+    // Pour afficher « reste 1 j » : longueur d'une journée ouvrée, en minutes
+    minutesParJour: config.sla.fin - config.sla.debut,
+  };
 }
 
 // Correction du domaine par le support (critère repris de VIGIE-4) : par exemple un ticket

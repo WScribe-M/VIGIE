@@ -27,7 +27,7 @@ plan A du cadrage 9.3 (titre, service, statut, date).
 
 ## Parcours 2 — Prise en charge en temps réel (Client et Gestionnaire côte à côte)
 
-Écrans : [07 — Ma file](07-ma-file.md) et [05 — Fiche ticket Client](05-fiche-ticket-client.md).
+Écrans : [07 — À traiter](07-ma-file.md) et [05 — Fiche ticket Client](05-fiche-ticket-client.md).
 
 | 1. Avant                                             | 2. Pris en charge, le technicien écrit              | 3. Message reçu                             |
 | ---------------------------------------------------- | --------------------------------------------------- | ------------------------------------------- |

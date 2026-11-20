@@ -33,13 +33,8 @@
   color: var(--color-priority-haute);
 }
 
-/* Seule exception : pastille rouge pleine */
+/* Comme les autres priorités, sans fond (décision du 20/11) : le rouge, les 4 barres et le libellé
+   suffisent à le repérer, sans charger les listes ni se confondre avec les alertes SLA */
 .critique {
-  padding: 0 10px 0 8px;
-  background: var(--color-priority-critique-bg);
-  color: var(--color-priority-critique-fg);
-}
-
-.t26.critique {
-  padding: 0 11px 0 9px;
+  color: var(--color-priority-critique);
 }

@@ -6,6 +6,7 @@ import { accueilDuRole } from './auth/roles.js';
 import { MiseEnPage } from './composants/MiseEnPage.jsx';
 import { Connexion } from './pages/Connexion.jsx';
 import { FicheTicket } from './pages/FicheTicket.jsx';
+import { MaFile } from './pages/MaFile.jsx';
 import { MesDemandes } from './pages/MesDemandes.jsx';
 import { NouveauTicket } from './pages/NouveauTicket.jsx';
 import { PageAVenir } from './pages/PageAVenir.jsx';
@@ -49,7 +50,7 @@ function App() {
               {/* Tous les rôles : l'API ne renvoie le ticket qu'à qui peut le voir */}
               <Route path="/tickets/:id" element={<FicheTicket />} />
               <Route element={<RouteProtegee roles={['GESTIONNAIRE']} />}>
-                <Route path="/ma-file" element={<PageAVenir titre="Ma file" story="VIGIE-31" />} />
+                <Route path="/ma-file" element={<MaFile />} />
               </Route>
               <Route element={<RouteProtegee roles={['GESTIONNAIRE', 'LECTEUR', 'ADMIN']} />}>
                 <Route

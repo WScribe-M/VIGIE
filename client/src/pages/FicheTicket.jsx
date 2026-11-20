@@ -178,7 +178,7 @@ export function FicheTicket() {
   const [erreursSaisie, setErreursSaisie] = useState({});
 
   const support = ROLES_SUPPORT.includes(utilisateur.role);
-  // Retour vers l'accueil du rôle : « Mes demandes » pour un client, « Ma file » pour le support
+  // Retour vers l'accueil du rôle : « Mes demandes » pour un client, « À traiter » pour le support
   const accueil = MENU_PAR_ROLE[utilisateur.role]?.[0];
 
   // Les états ne changent que dans la réponse de l'API, jamais directement dans l'effet
@@ -297,8 +297,10 @@ export function FicheTicket() {
         texte="Il a peut-être été fusionné avec un autre ticket. Retrouvez vos demandes depuis l’accueil."
         action={
           accueil && (
+            // Texte de la fiche 05 pour le client ; « Retour à l’accueil » pour les autres rôles
+            // (« Retour à à traiter » ne se dit pas)
             <Button onClick={() => navigate(accueil.chemin)}>
-              Retour à {accueil.libelle.toLowerCase()}
+              {utilisateur.role === 'CLIENT' ? 'Retour à mes demandes' : 'Retour à l’accueil'}
             </Button>
           )
         }
