@@ -179,18 +179,37 @@ export function NouveauTicket() {
   }, [cleEstimation]);
   const estimationAffichee = estimation?.cle === cleEstimation ? estimation.resultat : null;
 
-  // Le bandeau d'erreurs prend le focus : le lecteur d'écran l'annonce et la page y remonte
+  // Après chaque envoi refusé, le bandeau d'erreurs prend le focus : le lecteur d'écran l'annonce
+  // et la page y remonte. Seulement à l'envoi (envois), pas pendant la frappe.
+  const [envois, setEnvois] = useState(0);
   useEffect(() => {
-    if (Object.keys(erreurs).length || erreurServeur) refBandeau.current?.focus();
-  }, [erreurs, erreurServeur]);
+    if (envois) refBandeau.current?.focus();
+  }, [envois, erreurServeur]);
 
-  const modifier = (champ) => (event) => setChamps({ ...champs, [champ]: event.target.value });
+  // Corriger un champ efface son erreur : le message ne reste pas affiché sur un champ rempli
+  function effacerErreur(champ) {
+    if (erreurs[champ]) {
+      const restantes = { ...erreurs };
+      delete restantes[champ];
+      setErreurs(restantes);
+    }
+  }
+  const changerChamp = (champ, valeur) => {
+    setChamps({ ...champs, [champ]: valeur });
+    effacerErreur(champ);
+  };
+  const changerReponse = (question, valeur) => {
+    setReponses({ ...reponses, [question]: valeur });
+    effacerErreur(question);
+  };
+  const modifier = (champ) => (event) => changerChamp(champ, event.target.value);
   const service = services?.find((s) => s._id === champs.service);
 
   function continuer(event) {
     event.preventDefault();
     const trouvees = verifierEtape1(champs);
     setErreurs(trouvees);
+    setEnvois((n) => n + 1);
     if (!Object.keys(trouvees).length) setEtape(2);
   }
 
@@ -198,6 +217,7 @@ export function NouveauTicket() {
     event.preventDefault();
     const trouvees = verifierEtape2(reponses);
     setErreurs(trouvees);
+    setEnvois((n) => n + 1);
     setErreurServeur(null);
     if (Object.keys(trouvees).length) return;
 
@@ -303,7 +323,7 @@ export function NouveauTicket() {
                       icone: iconeService(s.nom),
                     }))}
                     valeur={champs.service}
-                    onChange={(id) => setChamps({ ...champs, service: id })}
+                    onChange={(id) => changerChamp('service', id)}
                     erreur={erreurs.service}
                   />
                 )}
@@ -331,7 +351,7 @@ export function NouveauTicket() {
                   obligatoire
                   options={OPTIONS_IMPACT}
                   valeur={reponses.impact}
-                  onChange={(impact) => setReponses({ ...reponses, impact })}
+                  onChange={(impact) => changerReponse('impact', impact)}
                   erreur={erreurs.impact}
                 />
                 <ChoiceGroup
@@ -339,7 +359,7 @@ export function NouveauTicket() {
                   obligatoire
                   options={OPTIONS_URGENCE}
                   valeur={reponses.urgence}
-                  onChange={(urgence) => setReponses({ ...reponses, urgence })}
+                  onChange={(urgence) => changerReponse('urgence', urgence)}
                   erreur={erreurs.urgence}
                 />
                 <DelayEstimate estimation={estimationAffichee} />
