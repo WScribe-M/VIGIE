@@ -1,0 +1,102 @@
+/* Styles globaux : fond Lin, texte Encre brune, Figtree, focus visible, mouvement réduit */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-family);
+  color: var(--color-neutral-900);
+  background: var(--color-neutral-50);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  font-size: var(--text-body-md-size);
+  /* Interligne sans unité (≈ 20 px pour 14 px) : un titre sans classe qui passe sur deux lignes ne se
+     chevauche pas ; les classes de typographie.css gardent leurs interlignes exacts en px */
+  line-height: 1.43;
+}
+
+/* Les champs et boutons héritent de Figtree au lieu de la police du système */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--color-brand-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: var(--color-brand-800);
+}
+
+/* Focus visible partout ; les composants sur fond blanc utilisent --shadow-focus-on-surface.
+   Contour transparent plutôt que `outline: none` : invisible normalement, il réapparaît en mode
+   contraste élevé de Windows, qui n'affiche pas les box-shadow */
+:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Texte lu par les lecteurs d'écran mais invisible à l'écran */
+.visuellement-cache {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Rotation de l'icône de chargement, uniquement à l'intérieur d'un bouton ou d'un champ */
+@keyframes vigie-rotation {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Reflet des squelettes de chargement */
+@keyframes vigie-reflet {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* Ligne arrivée en direct : Pétrole clair puis blanc, en --duration-highlight */
+@keyframes vigie-surbrillance {
+  0% {
+    background-color: var(--color-highlight);
+  }
+
+  100% {
+    background-color: var(--color-neutral-0);
+  }
+}
+
+/* Accessibilité : le mouvement est supprimé, l'information reste portée par le texte */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

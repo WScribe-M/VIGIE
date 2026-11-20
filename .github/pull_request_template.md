@@ -22,4 +22,5 @@ VIGIE-
 - [ ] L'application démarre sans erreur après fusion avec `main`
 - [ ] La fonctionnalité est démontrable avec les données du seed
 - [ ] Les routes ajoutées ou modifiées sont décrites dans `server/docs/openapi.yaml`
+- [ ] Écran : conforme à sa fiche et à ses captures (`docs/ecrans/`), tokens uniquement, textes exacts, 5 états
 - [ ] Le README est à jour si l'installation ou la configuration a changé

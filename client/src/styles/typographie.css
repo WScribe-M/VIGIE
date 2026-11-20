@@ -1,0 +1,97 @@
+/*
+ * Échelle typographique (handoff de design).
+ * Une classe par usage : choisir selon le rôle du texte, jamais selon la taille voulue.
+ */
+
+/* Écran de connexion */
+.text-display-xl {
+  font-size: var(--text-display-xl-size);
+  line-height: var(--text-display-xl-line);
+  font-weight: var(--text-display-xl-weight);
+  letter-spacing: var(--text-display-xl-tracking);
+}
+
+/* Titre de page : un seul par écran */
+.text-display-lg {
+  font-size: var(--text-display-lg-size);
+  line-height: var(--text-display-lg-line);
+  font-weight: var(--text-display-lg-weight);
+  letter-spacing: var(--text-display-lg-tracking);
+}
+
+/* Section, titre de modale */
+.text-heading-lg {
+  font-size: var(--text-heading-lg-size);
+  line-height: var(--text-heading-lg-line);
+  font-weight: var(--text-heading-lg-weight);
+  letter-spacing: var(--text-heading-lg-tracking);
+}
+
+/* Titre de carte */
+.text-heading-md {
+  font-size: var(--text-heading-md-size);
+  line-height: var(--text-heading-md-line);
+  font-weight: var(--text-heading-md-weight);
+}
+
+/* Titre de ticket dans une liste */
+.text-heading-sm {
+  font-size: var(--text-heading-sm-size);
+  line-height: var(--text-heading-sm-line);
+  font-weight: var(--text-heading-sm-weight);
+}
+
+/* Description, commentaires */
+.text-body-lg {
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-line);
+  font-weight: 400;
+}
+
+/* Texte courant, cellules de tableau */
+.text-body-md {
+  font-size: var(--text-body-md-size);
+  line-height: var(--text-body-md-line);
+  font-weight: 400;
+}
+
+/* Métadonnées, aides */
+.text-body-sm {
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  font-weight: 400;
+}
+
+/* Libellés de champ, badges */
+.text-label {
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-line);
+  font-weight: var(--text-label-weight);
+}
+
+/* Axes de graphiques, compteurs */
+.text-caption {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
+}
+
+/* Chiffres clés */
+.text-numeric-xl {
+  font-size: var(--text-numeric-xl-size);
+  line-height: var(--text-numeric-xl-line);
+  font-weight: var(--text-numeric-xl-weight);
+  letter-spacing: var(--text-numeric-xl-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Texte secondaire (Taupe) */
+.texte-secondaire {
+  color: var(--color-neutral-600);
+}
+
+/* Chiffres alignés : tableaux, compteurs, dates, durées */
+.chiffres {
+  font-variant-numeric: tabular-nums;
+}
