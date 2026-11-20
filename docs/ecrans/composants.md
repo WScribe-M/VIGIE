@@ -24,7 +24,7 @@ Couleurs : uniquement les tokens de `client/src/styles/tokens.css`.
 | CommentBubble, TypingIndicator, PresenceAvatars                             | À faire  | `composants-03-echanges.png`                      |
 | NotificationBell, NotificationPanel (panneau simple, sans filtres par type) | **Fait** | `composants-03-notifications.png`                 |
 | Toast (variante « nouveau ticket » ; succès et erreur : à faire)            | **Fait** | `composants-03-toasts.png`                        |
-| Tabs, FilterBar, Pagination                                                 | À faire  | `composants-03-onglets-filtres-pagination.png`    |
+| Tabs (FilterBar, Pagination : à faire)                                      | **Fait** | `composants-onglets-souligne.png` (VIGIE-50)      |
 | KpiCard                                                                     | À faire  | `composants-03-chiffres-cles.png`                 |
 | Charts                                                                      | À faire  | `composants-03-graphiques.png`                    |
 | Modal (et menu « Changer le statut » : MenuStatut)                          | **Fait** | `composants-03-modales.png`                       |
@@ -166,7 +166,33 @@ maximum ; `aria-live="polite"` (critique : `assertive`) ; fermeture `x` 16 Taupe
 
 ![](captures/composants-03-onglets-filtres-pagination.png)
 
-Voir [08](08-tous-les-tickets.md). Onglet survolé : fond `--color-neutral-100` ; focus `--shadow-focus-inset`.
+### Tabs (fait, VIGIE-50)
+
+![](captures/composants-onglets-souligne.png)
+
+Style **souligné** (décision du 20/11, comme `nav-underline` de Bootstrap) : texte simple, sans cadre ni fond,
+seul l'onglet actif est surligné. Il remplace le fond au survol de la capture. Utilisé par « À traiter » (07) ;
+à réutiliser pour « Tous les tickets » (08) et la fiche ticket (Échanges / Historique).
+
+- **Barre** `role="tablist"` : rangée sans retour à la ligne, écart 32, filet bas 1 px `--color-neutral-200` ;
+  défilement horizontal quand la place manque (mobile).
+- **Onglet** `role="tab"` : hauteur 48, marges 0 2, écart 8, 15 px 500 `--color-neutral-600` ; icône 16
+  (facultative) ; compteur facultatif. Survol : texte `--color-neutral-900`, sans fond. Focus :
+  `--shadow-focus-inset`.
+- **Actif** (`aria-selected="true"`) : texte 600 `--color-neutral-900`, icône `--color-brand-600`, soulignement
+  2 px `--color-brand-600` sur toute la largeur de l'onglet (icône et compteur compris), posé sur le filet.
+  La largeur du texte en gras est réservée, pour que les onglets ne bougent pas quand on change d'onglet.
+- **Compteur** : pastille 20 px, marges 0 7, 12/600 tabulaire ; inactif `--color-neutral-700` sur
+  `--color-neutral-200` ; actif blanc sur `--color-brand-600`.
+- **Icônes** : neutres (pas les couleurs des statuts), pour que seul l'onglet actif ressorte.
+- **Signal** (`signal`) : point 8 px `--color-brand-600` après le compteur + texte caché fourni par l'écran
+  (« nouveau ticket »).
+- **Clavier** : un seul onglet dans l'ordre de tabulation (l'actif) ; ← → passent à l'onglet voisin et
+  l'ouvrent (en boucle), Début et Fin au premier et au dernier.
+- **Panneau** `role="tabpanel"`, relié à son onglet (`aria-controls` / `aria-labelledby`) : seul le panneau
+  actif est affiché.
+
+Barre de filtres et pagination : voir [08](08-tous-les-tickets.md) (à faire).
 
 ## KpiCard
 

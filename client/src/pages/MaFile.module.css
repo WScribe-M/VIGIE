@@ -57,6 +57,22 @@
   color: var(--color-sla-retard-fg);
 }
 
+/* Carte qui ouvre son onglet (VIGIE-50) : même rendu qu'une carte, ombre plus marquée au survol */
+.kpiBouton {
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.kpiBouton:hover {
+  box-shadow: var(--shadow-sm);
+}
+
 .coupure {
   display: flex;
   align-items: center;
@@ -78,44 +94,12 @@
   color: var(--color-feedback-danger-fg);
 }
 
-/* Sections */
+/* Tableau de l'onglet actif */
 .carte {
   border-radius: var(--radius-lg);
   background: var(--color-neutral-0);
   box-shadow: var(--shadow-xs);
   overflow: hidden;
-}
-
-.enteteSection {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  padding: var(--space-4) var(--space-5);
-}
-
-.titreSection {
-  margin: 0;
-  font-size: 17px;
-  font-weight: 600;
-}
-
-.compteurSection {
-  min-width: 20px;
-  padding: 0 6px;
-  border-radius: var(--radius-full);
-  background: var(--color-neutral-100);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 20px;
-  text-align: center;
-}
-
-.sectionVide {
-  margin: 0;
-  padding: 0 var(--space-5) var(--space-4);
-  font-size: 14px;
-  color: var(--color-neutral-600);
 }
 
 /* Le tableau défile horizontalement sur un petit écran plutôt que de se comprimer */
@@ -133,7 +117,6 @@
 .tableau th {
   height: 36px;
   padding: 0 7px;
-  border-top: 1px solid var(--color-neutral-200);
   border-bottom: 1px solid var(--color-neutral-200);
   background: var(--color-neutral-50);
   font-size: 12px;
