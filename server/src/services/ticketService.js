@@ -115,6 +115,19 @@ export function preparerTicket(champs, utilisateur, { numero, domaine, maintenan
   };
 }
 
+// Délai affiché à l'étape 2 du formulaire, avant la création : même calcul que preparerTicket,
+// pour que le client n'ait pas à recopier la matrice ni le calcul en heures ouvrées
+export function estimerTicket(impact, urgence, maintenant = new Date()) {
+  if (!IMPACTS.includes(impact)) {
+    throw new ErreurHttp(400, 'Impact invalide');
+  }
+  if (!URGENCES.includes(urgence)) {
+    throw new ErreurHttp(400, 'Urgence invalide');
+  }
+  const prioriteCalculee = calculerPriorite(impact, urgence);
+  return { prioriteCalculee, echeanceSla: calculerEcheance(maintenant, prioriteCalculee) };
+}
+
 // Ajoute la référence affichée (VIG-0042) pour que le client ne recopie pas le format
 function avecReference(ticket) {
   return { ...ticket, reference: formaterNumero(ticket.numero) };

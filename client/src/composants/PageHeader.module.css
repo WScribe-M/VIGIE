@@ -1,0 +1,36 @@
+/* En-tête 64 px, filet bas Sable, marges 0 32 (docs/ecrans/README.md, gabarit commun).
+   Il occupe toute la largeur du contenu : on annule les marges de .mise-en-page__contenu. */
+
+.entete {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--layout-header-height);
+  margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-8)) 0;
+  padding: 0 var(--space-8);
+  border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.retour {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--color-neutral-700);
+  text-decoration: none;
+}
+
+.retour:hover {
+  color: var(--color-neutral-900);
+}
+
+.espace {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .entete {
+    margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0;
+    padding: 0 var(--space-4);
+  }
+}

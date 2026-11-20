@@ -1,4 +1,4 @@
-import { ChartColumn, House, Inbox, Users } from 'lucide-react';
+import { ChartColumn, House, Inbox, Plus, Users } from 'lucide-react';
 
 // Page d'accueil et menu selon le rôle (cadrage, section 3.2).
 // C'est du confort d'affichage : les droits réels sont vérifiés par l'API.
@@ -6,6 +6,7 @@ import { ChartColumn, House, Inbox, Users } from 'lucide-react';
 // Une page s'ajoute ici avec sa story, jamais avant d'exister (cadrage 9.11).
 export const PAGES = {
   mesDemandes: { chemin: '/mes-demandes', libelle: 'Mes demandes', icone: House },
+  nouveauTicket: { chemin: '/tickets/nouveau', libelle: 'Nouveau ticket', icone: Plus },
   maFile: { chemin: '/ma-file', libelle: 'Ma file', icone: Inbox },
   pilotage: { chemin: '/pilotage', libelle: 'Pilotage', icone: ChartColumn },
   // Page provisoire : le design la découpe en « Utilisateurs » (users) et « Services » (server)
@@ -13,7 +14,7 @@ export const PAGES = {
 };
 
 export const MENU_PAR_ROLE = {
-  CLIENT: [PAGES.mesDemandes],
+  CLIENT: [PAGES.mesDemandes, PAGES.nouveauTicket],
   GESTIONNAIRE: [PAGES.maFile, PAGES.pilotage],
   LECTEUR: [PAGES.pilotage],
   ADMIN: [PAGES.administration, PAGES.pilotage],

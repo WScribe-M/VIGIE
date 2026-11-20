@@ -1,0 +1,57 @@
+/* Délai de traitement estimé (docs/ecrans/03-creer-un-ticket.md et composants.md) */
+
+.encart {
+  display: flex;
+  gap: 14px;
+  padding: 18px var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-brand-100);
+}
+
+.icone {
+  flex: none;
+  color: var(--color-brand-600);
+}
+
+.textes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.libelle {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--color-brand-700);
+}
+
+.valeur {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+  color: var(--color-brand-900);
+}
+
+.explication {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-brand-700);
+}
+
+/* En attente des deux réponses */
+.enAttente {
+  border: 1px dashed var(--color-neutral-300);
+  background: var(--color-neutral-50);
+}
+
+.enAttente .icone,
+.enAttente .libelle {
+  color: var(--color-neutral-600);
+}
+
+.attente {
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--color-neutral-700);
+}

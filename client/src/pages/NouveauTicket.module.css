@@ -1,0 +1,276 @@
+/* Créer un ticket (docs/ecrans/03-creer-un-ticket.md) */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-top: var(--space-8);
+}
+
+.entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.entete h1 {
+  margin: 0;
+}
+
+/* Indicateur d'étapes */
+.etapes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.etape {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-neutral-600);
+}
+
+.trait {
+  width: 40px;
+  height: 2px;
+  background: var(--color-neutral-300);
+}
+
+.rond {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--color-neutral-300);
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.courante {
+  font-weight: 600;
+  color: var(--color-neutral-900);
+}
+
+.courante .rond,
+.faite .rond {
+  border-color: var(--color-brand-600);
+  background: var(--color-brand-600);
+  color: var(--color-neutral-0);
+}
+
+.faite {
+  color: var(--color-neutral-700);
+}
+
+.courante .trait,
+.faite .trait {
+  background: var(--color-brand-600);
+}
+
+/* Deux colonnes : formulaire 7, colonne droite 5 */
+.colonnes {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-xs);
+}
+
+.squelettesServices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.bandeau {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-3) 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-feedback-danger-bg);
+  color: var(--color-feedback-danger-fg);
+  font-size: 14px;
+}
+
+.pied {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-neutral-100);
+}
+
+.piedEtape2 {
+  justify-content: space-between;
+}
+
+/* Colonne droite */
+.colonneDroite {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.encart {
+  display: flex;
+  gap: 10px;
+  padding: 14px var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  color: var(--color-neutral-600);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.encart p {
+  margin: 0;
+  color: var(--color-neutral-700);
+}
+
+.recapitulatif {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-xs);
+}
+
+.recapEntete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recapEntete h2 {
+  margin: 0;
+}
+
+.lienModifier {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-brand-600);
+  cursor: pointer;
+}
+
+.rubriques {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+
+.rubriques dt {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-neutral-600);
+}
+
+.rubriques dt:first-child {
+  margin-top: 0;
+}
+
+.rubriques dd {
+  margin: 0;
+}
+
+.recapTitre {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.recapService {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Trois lignes au plus */
+.recapDescription {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-neutral-700);
+}
+
+.note {
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-neutral-100);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-neutral-600);
+}
+
+/* Confirmation */
+.confirmation {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  max-width: 560px;
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-xs);
+}
+
+.iconeSucces {
+  color: var(--color-feedback-success-fg);
+}
+
+.titreConfirmation {
+  margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.texteConfirmation {
+  margin: 0 0 var(--space-2);
+  color: var(--color-neutral-700);
+}
+
+@media (max-width: 768px) {
+  .colonnes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .formulaire {
+    padding: var(--space-5);
+  }
+
+  .squelettesServices {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,100 @@
+/* Fiche ticket, version minimale (docs/ecrans/05-fiche-ticket-client.md) */
+
+.conteneur {
+  padding-top: var(--space-8);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.entete {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.entete h1,
+.meta {
+  margin: 0;
+}
+
+.meta {
+  font-size: 14px;
+  color: var(--color-neutral-600);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Carte « Informations » : la colonne de gauche de la fiche complète */
+.carte {
+  max-width: 560px;
+  padding: var(--space-2) var(--space-6) var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-xs);
+}
+
+.informations {
+  margin: 0;
+}
+
+.ligne {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: center;
+  min-height: 52px;
+  border-bottom: 1px solid var(--color-neutral-100);
+  font-size: 14px;
+}
+
+.ligne dt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-neutral-600);
+}
+
+.ligne dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.personne {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.description {
+  padding-top: var(--space-4);
+}
+
+.libelleDescription {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-neutral-600);
+}
+
+/* La description garde ses rubriques (« Que se passe-t-il ? »…) sur des lignes séparées */
+.description p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+  white-space: pre-line;
+}
+
+@media (max-width: 768px) {
+  .ligne {
+    grid-template-columns: 110px minmax(0, 1fr);
+  }
+}

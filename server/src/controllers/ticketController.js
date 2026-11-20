@@ -1,6 +1,7 @@
 import {
   corrigerDomaine,
   creerTicket,
+  estimerTicket,
   lireTicket,
   listerTickets,
 } from '../services/ticketService.js';
@@ -21,4 +22,8 @@ export async function lire(req, res) {
 
 export async function modifierDomaine(req, res) {
   res.json(await corrigerDomaine(req.params.id, req.body?.domaine, req.utilisateur));
+}
+
+export function estimer(req, res) {
+  res.json(estimerTicket(req.query.impact, req.query.urgence));
 }

@@ -5,7 +5,8 @@ import mongoose from 'mongoose';
 process.env.MONGODB_URI ??= 'mongodb://localhost:27017/vigie-test';
 process.env.JWT_SECRET ??= 'secret-de-test';
 
-const { composerDescription, preparerTicket, validerCreation } = await import('./ticketService.js');
+const { composerDescription, estimerTicket, preparerTicket, validerCreation } =
+  await import('./ticketService.js');
 const { Ticket } = await import('../models/index.js');
 
 const SERVICE = '665a1f0c2b7e4a0000000051';
@@ -132,5 +133,24 @@ describe('preparerTicket', () => {
     await ticket.validate();
     assert.equal(ticket.rangPriorite, 4);
     assert.ok(mongoose.isValidObjectId(ticket.service));
+  });
+});
+
+describe('estimerTicket', () => {
+  it('donne la même priorité et la même échéance qu’à la création', () => {
+    const maintenant = new Date(2026, 10, 20, 10, 0);
+    const estimation = estimerTicket('FORT', 'HAUTE', maintenant);
+    const ticket = preparerTicket(validerCreation(corpsValide()), CLIENT, {
+      numero: 1,
+      domaine: 'RESEAU',
+      maintenant,
+    });
+    assert.equal(estimation.prioriteCalculee, ticket.prioriteFinale);
+    assert.deepEqual(estimation.echeanceSla, ticket.echeanceSla);
+  });
+
+  it('refuse un impact ou une urgence invalides', () => {
+    assert.throws(() => estimerTicket('ENORME', 'HAUTE'), { status: 400 });
+    assert.throws(() => estimerTicket('FORT', undefined), { status: 400 });
   });
 });

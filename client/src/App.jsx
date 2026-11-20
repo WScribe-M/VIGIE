@@ -5,6 +5,9 @@ import { RouteProtegee } from './auth/RouteProtegee.jsx';
 import { accueilDuRole } from './auth/roles.js';
 import { MiseEnPage } from './composants/MiseEnPage.jsx';
 import { Connexion } from './pages/Connexion.jsx';
+import { FicheTicket } from './pages/FicheTicket.jsx';
+import { MesDemandes } from './pages/MesDemandes.jsx';
+import { NouveauTicket } from './pages/NouveauTicket.jsx';
 import { PageAVenir } from './pages/PageAVenir.jsx';
 
 // Catalogue des composants : chargé seulement en développement, absent du build de production
@@ -39,11 +42,12 @@ function App() {
           <Route element={<RouteProtegee />}>
             <Route element={<MiseEnPage />}>
               <Route element={<RouteProtegee roles={['CLIENT']} />}>
-                <Route
-                  path="/mes-demandes"
-                  element={<PageAVenir titre="Mes demandes" story="VIGIE-18" />}
-                />
+                <Route path="/mes-demandes" element={<MesDemandes />} />
+                {/* Le gestionnaire crée pour un tiers avec un autre écran (fiche 04, VIGIE-14) */}
+                <Route path="/tickets/nouveau" element={<NouveauTicket />} />
               </Route>
+              {/* Tous les rôles : l'API ne renvoie le ticket qu'à qui peut le voir */}
+              <Route path="/tickets/:id" element={<FicheTicket />} />
               <Route element={<RouteProtegee roles={['GESTIONNAIRE']} />}>
                 <Route path="/ma-file" element={<PageAVenir titre="Ma file" story="VIGIE-31" />} />
               </Route>
