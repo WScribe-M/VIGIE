@@ -27,15 +27,17 @@ function texteComplet(niveau, detail) {
  * @param niveau DANS_LES_TEMPS | ECHEANCE_PROCHE | EN_RETARD | SUSPENDU
  * @param detail temps formaté en fr-FR : « reste 2 h », « de 3 h » (en retard), « depuis 4 j »
  * @param court  n'affiche que le détail (cartes, mobile) ; le libellé reste lu par les lecteurs d'écran
+ * @param texte  texte visible à la place du libellé (« Reste 2 h », « Retard de 3 h ») ; le libellé
+ *               complet reste lu par les lecteurs d'écran et affiché en infobulle
  * @param taille 24 (par défaut) | 26 | 28
  */
-export function SlaBadge({ niveau, detail, court = false, taille = 24 }) {
+export function SlaBadge({ niveau, detail, court = false, texte, taille = 24 }) {
   const Icone = ICONES_SLA[niveau];
   // Niveau absent (ticket terminé) ou inconnu : ne rien afficher plutôt que faire planter toute la page
   if (!Icone) return null;
   const { classe, icone } = TAILLES[taille] ?? TAILLES[24];
   const complet = texteComplet(niveau, detail);
-  const affiche = court && detail ? detail : complet;
+  const affiche = texte ?? (court && detail ? detail : complet);
 
   return (
     <span

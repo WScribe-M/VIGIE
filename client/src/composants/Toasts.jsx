@@ -4,15 +4,14 @@ import { useNavigate } from 'react-router';
 import { useNotifications } from '../notifications/NotificationsContext.jsx';
 import { TRAIT_ICONE } from '../styles/icones.js';
 import { LIBELLES_PRIORITE } from '../styles/libelles.js';
-import { Button } from './Button.jsx';
 import styles from './Toasts.module.css';
 
 // Durée d'affichage (docs/ecrans/composants.md, Toast) ; un ticket Critique reste jusqu'à une action
 const DUREE = 6000;
 
 // Toast temps réel « Nouveau ticket » (fiche 07). Décision du 20/11 : le toast informe, il ne sert
-// pas à agir. On peut seulement ouvrir le ticket ; la prise en charge se fait depuis « Ma file » ou
-// la fiche, où l'on voit l'état réel du ticket (le toast, lui, ne sait pas s'il a déjà été pris).
+// pas à agir. Il ouvre seulement le ticket ; la prise en charge se fait depuis la fiche, où l'on
+// voit l'état réel du ticket (le toast, lui, ne sait pas s'il a déjà été pris).
 function ToastNouveauTicket({ notification }) {
   const { fermerToast, marquerLue } = useNotifications();
   const navigate = useNavigate();
@@ -31,31 +30,32 @@ function ToastNouveauTicket({ notification }) {
     navigate(`/tickets/${ticket._id}`);
   }
 
+  // Décision du 20/11 : pas de bouton, tout le toast ouvre le ticket (comme les lignes de
+  // « À traiter »). Pour le clavier et les lecteurs d'écran, le titre est un vrai bouton.
   return (
-    <div className={styles.toast} role={critique ? 'alert' : 'status'}>
+    <div className={styles.toast} role={critique ? 'alert' : 'status'} onClick={ouvrir}>
       <Ticket className={styles.icone} size={22} strokeWidth={TRAIT_ICONE} aria-hidden="true" />
       <div className={styles.corps}>
         <span className={styles.direct}>
           <span className={styles.point} aria-hidden="true" />
           En direct · à l’instant
         </span>
-        <span className={styles.titre}>
+        <button type="button" className={styles.titre}>
           Nouveau ticket · {LIBELLES_PRIORITE[ticket.prioriteFinale]} · {ticket.service?.nom}
-        </span>
+        </button>
         <span className={`${styles.texte} chiffres`}>
           {ticket.reference} · {ticket.titre}
         </span>
-        <div className={styles.actions}>
-          <Button variante="secondaire" taille="sm" onClick={ouvrir}>
-            Ouvrir
-          </Button>
-        </div>
       </div>
       <button
         type="button"
         className={styles.fermer}
         aria-label="Fermer"
-        onClick={() => fermerToast(notification._id)}
+        onClick={(event) => {
+          // La croix ferme seulement : elle ne doit pas ouvrir le ticket
+          event.stopPropagation();
+          fermerToast(notification._id);
+        }}
       >
         <X size={16} strokeWidth={TRAIT_ICONE} aria-hidden="true" />
       </button>

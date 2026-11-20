@@ -152,7 +152,7 @@ const BARRES = [
   {
     utilisateur: { prenom: 'Mamadou', nom: 'Koné', role: 'GESTIONNAIRE', paire: 2 },
     entrees: [
-      { chemin: '/demo/ma-file', libelle: 'Ma file', icone: Inbox, compteur: 3, actif: true },
+      { chemin: '/demo/ma-file', libelle: 'À traiter', icone: Inbox, compteur: 3, actif: true },
       { chemin: '/demo/tickets', libelle: 'Tous les tickets', icone: Ticket },
       { chemin: '/demo/nouveau', libelle: 'Nouveau ticket', icone: Plus },
       { chemin: '/demo/pilotage', libelle: 'Pilotage', icone: ChartColumn },
@@ -162,7 +162,7 @@ const BARRES = [
   {
     utilisateur: { prenom: 'Karim', nom: 'Benali', role: 'ADMIN', paire: 4 },
     entrees: [
-      { chemin: '/demo/ma-file', libelle: 'Ma file', icone: Inbox, compteur: 2 },
+      { chemin: '/demo/ma-file', libelle: 'À traiter', icone: Inbox, compteur: 2 },
       { chemin: '/demo/tickets', libelle: 'Tous les tickets', icone: Ticket },
       { chemin: '/demo/nouveau', libelle: 'Nouveau ticket', icone: Plus },
       { chemin: '/demo/pilotage', libelle: 'Pilotage', icone: ChartColumn },
@@ -418,7 +418,7 @@ export function Styleguide() {
 
       <Bloc
         titre="Priorité"
-        note="Barres de signal sans fond · seule Critique est une pastille pleine"
+        note="Barres de signal sans fond, Critique compris (décision du 20/11)"
       >
         {[24, 26].map((taille) => (
           <div key={taille} className={styles.rangeeBadges}>

@@ -5,6 +5,7 @@ import {
   estimerTicket,
   lireTicket,
   listerTickets,
+  maFile,
   prendreEnCharge,
   requalifierPriorite,
 } from '../services/ticketService.js';
@@ -41,4 +42,8 @@ export async function modifierStatut(req, res) {
 
 export async function requalifier(req, res) {
   res.json(await requalifierPriorite(req.params.id, req.body, req.utilisateur));
+}
+
+export async function file(req, res) {
+  res.json(await maFile(req.utilisateur));
 }

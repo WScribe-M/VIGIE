@@ -64,7 +64,7 @@ Aucun retour vers `NOUVEAU`. Chaque transition ajoute une entrée dans l'histori
 
 - **Catalogue de services** : le client choisit un service dans son vocabulaire (VPN, Messagerie, ERP, Imprimante, Poste de travail, « Autre / je ne sais pas »). Chaque service est lié par l'admin à un domaine technique (réseau, infrastructure, applicatif, base de données) : le domaine est déduit. Le technicien peut le corriger (tracé). « Autre » déclenche une qualification manuelle. Une seule équipe support.
 - **Priorité calculée** : déduite de l'impact et de l'urgence (matrice, section 9.1). Le gestionnaire peut la requalifier, avec un **motif de 10 caractères minimum** (VIGIE-5) ; c'est tracé. Libellés affichés : Basse, Moyenne, Haute, Critique.
-- **Un seul technicien par ticket** : il s'assigne depuis « Ma file » ou le responsable DSI le lui attribue. La prise en charge est **atomique**.
+- **Un seul technicien par ticket** : il s'assigne depuis la fiche du ticket, après l'avoir ouvert depuis « À traiter » (décision du 20/11), ou le responsable DSI le lui attribue. La prise en charge est **atomique**.
 - **Doublons** : à la saisie du titre, suggestions de tickets ouverts similaires et bouton « Je suis aussi concerné » (rattache comme suiveur). Le gestionnaire peut marquer un ticket comme doublon d'un autre : il passe `ABANDONNE` avec un lien, et son demandeur devient suiveur du ticket principal.
 - **Réouverture** : après `TERMINE`, le demandeur peut contester pendant **15 jours**. Motif obligatoire, retour `EN_COURS` chez le même technicien, notifié, tracé, SLA recalculé, compteur de réouvertures incrémenté. Passé ce délai, le bouton « Contester » n'est plus proposé et le client crée un nouveau ticket ; le ticket n'est pas verrouillé et le technicien peut toujours le rouvrir, avec un motif.
 - **Résolution** : au passage à `TERMINE`, le technicien renseigne obligatoirement la **cause** et la **solution** (section 9.9).
@@ -77,7 +77,7 @@ Aucun retour vers `NOUVEAU`. Chaque transition ajoute une entrée dans l'histori
 ### 3.2 Vues par rôle (compteurs mis à jour en direct)
 
 - **« Mes demandes »** (`CLIENT`) : mes tickets par statut, ceux où je suis suiveur, ceux qui attendent ma réponse, ceux terminés que je peux contester ou noter.
-- **« Ma file »** (technicien) : nouveaux tickets à prendre, mes tickets en cours triés par échéance et priorité, ceux proches du SLA ou en retard, ceux en attente du demandeur avec l'ancienneté de l'attente.
+- **« À traiter »** (technicien) : nouveaux tickets à prendre, mes tickets en cours triés par échéance et priorité, ceux proches du SLA ou en retard, ceux en attente du demandeur avec l'ancienneté de l'attente.
 - **« Pilotage »** (`GESTIONNAIRE` dont le responsable DSI, `ADMIN`, `LECTEUR`, comme dans la barre latérale des maquettes) : incidents par statut, retards, charge par technicien, répartition par priorité et domaine, délais, satisfaction.
 - **« Tous les tickets »** (`GESTIONNAIRE`, `ADMIN`, `LECTEUR` en lecture seule) et **panneau de notifications** (tous les rôles : non lues / toutes, filtres par type).
 
@@ -92,7 +92,7 @@ Notification instantanée d'un nouveau ticket (badge et son), commentaires en di
 
 Rendu attendu (détaillé dans [ecrans/](ecrans/README.md) et [ecrans/parcours.md](ecrans/parcours.md)) :
 
-- **Nouveau ticket** : toast « Nouveau ticket · Critique · VPN » envoyé à **tous les gestionnaires** (une seule équipe support), avec « Ouvrir » et « Prendre en charge » ; la ligne apparaît dans « Ma file », surlignée 1,5 s.
+- **Nouveau ticket** : toast « Nouveau ticket · Critique · VPN » envoyé à **tous les gestionnaires** (une seule équipe support), avec « Ouvrir » seulement (décision du 20/11 : on s’assigne depuis la fiche) ; la ligne apparaît dans « À traiter », surlignée 1,5 s.
 - **Présence** : « Karim Benali et Sophie Laurent consultent aussi ce ticket », avatars dans l'en-tête de la fiche. Aide visuelle, pas un verrou.
 - **« En train d'écrire… »** : « Awa Diallo est en train d'écrire… » sous le dernier message.
 - **Coupure** : toast « Connexion en direct interrompue », reconnexion automatique, puis resynchronisation par l'API.
@@ -125,23 +125,23 @@ Authentification JWT pour le MVP, quatre rôles globaux : `ADMIN`, `GESTIONNAIRE
 | `user:<id>`           | La personne concernée (automatique)                         | Notifications personnelles, alerte SLA                              |
 | `ticket:<id>`         | Demandeur, suiveurs, en copie, GESTIONNAIRE, LECTEUR, ADMIN | Commentaire, « en train d'écrire… », présence, changement de statut |
 | `ticket:<id>:interne` | GESTIONNAIRE, LECTEUR, ADMIN ayant ouvert le ticket         | **Notes internes** uniquement                                       |
-| `support`             | GESTIONNAIRE, ADMIN                                         | Nouveau ticket (badge et son), mise à jour de « Ma file »           |
+| `support`             | GESTIONNAIRE, ADMIN                                         | Nouveau ticket (badge et son), mise à jour de « À traiter »         |
 | `pilotage`            | GESTIONNAIRE, LECTEUR, ADMIN                                | Compteurs et retards                                                |
 
 - **Notes internes** (VIGIE-47) : quand un utilisateur non `CLIENT` rejoint `ticket:<id>`, le serveur l'ajoute aussi à `ticket:<id>:interne`. Une note interne n'est émise **que** dans cette room, jamais dans `ticket:<id>` ni dans `user:<id>` d'un client.
 - **Événements** : noms **en français**, au format `objet:action` (décision de VIGIE-12). Les noms anglais du handoff de design sont remplacés ; la story qui émet un événement en précise le contenu.
 
-| Événement                              | Émis par | Room(s)                                                   | Effet dans l'interface                                                 |
-| -------------------------------------- | -------- | --------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `ticket:cree`                          | serveur  | `support`                                                 | Toast à **tous** les gestionnaires + ligne surlignée dans « Ma file »  |
-| `ticket:modifie`                       | serveur  | `ticket:<id>`, `support`, `pilotage`                      | Statut, priorité, technicien mis à jour                                |
-| `suiveur:ajoute`                       | serveur  | `ticket:<id>`, `support`                                  | Compteur de personnes concernées                                       |
-| `commentaire:cree`                     | serveur  | `ticket:<id>` (note interne : `ticket:<id>:interne`)      | Nouveau message dans les échanges                                      |
-| `ecriture:debut` / `ecriture:fin`      | client   | `ticket:<id>` (`ticketId` ; auteur ajouté par le serveur) | « … est en train d'écrire… » (éphémère)                                |
-| `ticket:rejoindre` / `ticket:quitter`  | client   | `ticket:<id>` (`ticketId`, accusé de réception)           | Entrer dans la room du ticket ou en sortir (droits vérifiés, VIGIE-12) |
-| `presence:arrivee` / `presence:depart` | serveur  | `ticket:<id>`                                             | Avatars « consultent aussi ce ticket » (éphémère)                      |
-| `service:etat`                         | serveur  | tous les connectés                                        | État des services (VIGIE-42, section 9.8)                              |
-| `notification:nouvelle`                | serveur  | `user:<id>`                                               | Compteur de la cloche, panneau de notifications                        |
+| Événement                              | Émis par | Room(s)                                                   | Effet dans l'interface                                                  |
+| -------------------------------------- | -------- | --------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `ticket:cree`                          | serveur  | `support`                                                 | Toast à **tous** les gestionnaires + ligne surlignée dans « À traiter » |
+| `ticket:modifie`                       | serveur  | `ticket:<id>`, `support`, `pilotage`                      | Statut, priorité, technicien mis à jour                                 |
+| `suiveur:ajoute`                       | serveur  | `ticket:<id>`, `support`                                  | Compteur de personnes concernées                                        |
+| `commentaire:cree`                     | serveur  | `ticket:<id>` (note interne : `ticket:<id>:interne`)      | Nouveau message dans les échanges                                       |
+| `ecriture:debut` / `ecriture:fin`      | client   | `ticket:<id>` (`ticketId` ; auteur ajouté par le serveur) | « … est en train d'écrire… » (éphémère)                                 |
+| `ticket:rejoindre` / `ticket:quitter`  | client   | `ticket:<id>` (`ticketId`, accusé de réception)           | Entrer dans la room du ticket ou en sortir (droits vérifiés, VIGIE-12)  |
+| `presence:arrivee` / `presence:depart` | serveur  | `ticket:<id>`                                             | Avatars « consultent aussi ce ticket » (éphémère)                       |
+| `service:etat`                         | serveur  | tous les connectés                                        | État des services (VIGIE-42, section 9.8)                               |
+| `notification:nouvelle`                | serveur  | `user:<id>`                                               | Compteur de la cloche, panneau de notifications                         |
 
 Les événements émis par le client sont **éphémères** ; toute modification passe par l'API REST, puis le serveur émet.
 
@@ -225,7 +225,7 @@ Deux fonctionnalités `Could` (lot 4), ajoutées pour répondre plus finement à
 
 **Suivi de la prise en charge (VIGIE-41)** : « chacun suit l'avancement d'une demande ». Un statut `NOUVEAU` qui dure ne dit rien au client, qui relance alors par téléphone ou par e-mail : exactement ce que VIGIE doit remplacer.
 
-- Sur un ticket `NOUVEAU`, le demandeur et les suiveurs voient leur **position dans la file** : un simple nombre, dans l'ordre de « Ma file » (`prioriteFinale` décroissante, puis `echeanceSla` croissante). Aucune information sur les autres tickets n'est exposée.
+- Sur un ticket `NOUVEAU`, le demandeur et les suiveurs voient leur **position dans la file** : un simple nombre, dans l'ordre de « À traiter » (`prioriteFinale` décroissante, puis `echeanceSla` croissante). Aucune information sur les autres tickets n'est exposée.
 - **Estimation de prise en charge** en fourchette : 25e à 75e percentile du délai de prise en charge (en heures ouvrées) des tickets de même priorité sur **90 jours**. Rien n'est affiché sous **10 tickets** comparables. C'est une estimation, pas un engagement : l'engagement reste l'échéance SLA.
 - **Jalons** (décision du 19/11, section 9.11) : **Reçu → Vu par le support → Pris en charge → Terminé** (« Pris en charge » et « En cours » arrivent au même instant). « Vu par le support » (`vuParSupportLe`) est posé une seule fois, à la première ouverture par un `GESTIONNAIRE`. La frise est codée avec la fiche ticket (VIGIE-7), même sans le reste de VIGIE-41.
 - Mise à jour en direct quand la file change.
@@ -262,9 +262,9 @@ En MongoDB, on modélise pour les requêtes : chaque requête de l'application (
 - **Numéro lisible** `numero`, affiché VIG-0042, attribué par un compteur atomique (collection `compteurs`) ; la recherche « par ticket » l'accepte.
 - **Champs de suivi** : `dateStatut` (entrée dans le statut actuel) et `derniereRelance` pour les relances, `datePriseEnCharge` pour les statistiques et l'estimation, `niveauAlerteSla` (`AUCUNE`, `ORANGE`, `ROUGE`) pour n'alerter qu'au changement de niveau.
 - **`dateCloture`** : remplie au passage à `TERMINE` ou `ABANDONNE`, remise à `null` à la réouverture ; le délai de contestation de 15 jours part de la dernière clôture. Le temps de résolution des statistiques ne compte que les tickets `TERMINE`.
-- **Index** : `suiveurs` et `enCopie` (sinon le filtre de visibilité d'un `CLIENT` parcourt toute la collection), « Ma file » `{statut, rangPriorite, echeanceSla}`, tâche SLA `{statut, echeanceSla}`, tickets d'un technicien `{technicien, statut, echeanceSla}`, panne collective `{service, createdAt}`, index textuel **en français**.
+- **Index** : `suiveurs` et `enCopie` (sinon le filtre de visibilité d'un `CLIENT` parcourt toute la collection), « À traiter » `{statut, rangPriorite, echeanceSla}`, tâche SLA `{statut, echeanceSla}`, tickets d'un technicien `{technicien, statut, echeanceSla}`, panne collective `{service, createdAt}`, index textuel **en français**.
 - **Notifications** lues supprimées après 90 jours (index TTL partiel) ; les non lues sont conservées.
-- Critères de VIGIE-4 liés au ticket (correction du domaine, « Autre » signalé dans « Ma file », file unique) reportés sur VIGIE-3. Gestionnaire : tickets similaires affichés sur la fiche (VIGIE-16).
+- Critères de VIGIE-4 liés au ticket (correction du domaine, « Autre » signalé dans « À traiter », file unique) reportés sur VIGIE-3. Gestionnaire : tickets similaires affichés sur la fiche (VIGIE-16).
 - Seuils de départ confirmés : 5 tickets en 30 minutes (VIGIE-42), 90 jours d'historique et 10 tickets minimum (VIGIE-41), 500 caractères pour la cause et la solution (VIGIE-44).
 
 ### 9.11 Handoff de design (VIGIE-46)
@@ -273,7 +273,7 @@ Le handoff de design du 17 nov. 2026 a été transféré dans le code (`client/s
 
 - **Contestation** : 15 jours (section 3.1), et non 7 jours comme dans les maquettes.
 - **Notes internes** (VIGIE-47, `Should`) : invisibles de tout `CLIENT` dans l'API et dans Socket.io (sections 3.1 et 5).
-- **Une seule équipe support** : le toast « nouveau ticket » va à tous les gestionnaires, pas aux « gestionnaires du domaine » ; « Ma file » n'est pas filtrée par domaine.
+- **Une seule équipe support** : le toast « nouveau ticket » va à tous les gestionnaires, pas aux « gestionnaires du domaine » ; « À traiter » n'est pas filtrée par domaine.
 - **Suivi de la demande** : **4 jalons** — Reçu → Vu par le support → Pris en charge → Terminé (« Pris en charge » et « En cours » arrivent au même instant). La frise est codée **avec la fiche ticket (VIGIE-7)**, même sans VIGIE-41 (champ `vuParSupportLe`). En attente du demandeur : frise sur « Pris en charge » + « En attente de votre réponse ». Abandonné : pas de frise, un message avec le motif.
 - **Délai à la création** : pas de « Prise en charge sous 30 min » (promesse sans fondement : un ticket Critique a 4 h de SLA). On affiche l'**échéance SLA** : « Résolution prévue avant le 20/11 à 11 h ».
 - **Requalification de la priorité** : motif obligatoire de **10 caractères minimum** (VIGIE-5).

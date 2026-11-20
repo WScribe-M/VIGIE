@@ -40,6 +40,11 @@ const slaFin = lireHeure('SLA_WORK_END', '18:00');
 if (slaFin <= slaDebut) {
   throw new Error('SLA_WORK_END doit être après SLA_WORK_START');
 }
+// Part du délai écoulée à partir de laquelle l'échéance est « proche » (alerte orange, cadrage 9.2)
+const slaSeuilAlerte = Number(process.env.SLA_WARNING_RATIO ?? 0.75);
+if (!(slaSeuilAlerte > 0 && slaSeuilAlerte < 1)) {
+  throw new Error('SLA_WARNING_RATIO doit être un nombre entre 0 et 1 (exemple : 0.75)');
+}
 
 export const config = {
   port: Number(process.env.PORT ?? 3000),
@@ -48,5 +53,5 @@ export const config = {
   jwtSecret: requis('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '8h',
   bcryptCost,
-  sla: { jours: slaJours, debut: slaDebut, fin: slaFin },
+  sla: { jours: slaJours, debut: slaDebut, fin: slaFin, seuilAlerte: slaSeuilAlerte },
 };

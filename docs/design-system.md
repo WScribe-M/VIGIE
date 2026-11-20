@@ -20,38 +20,38 @@ recopie jamais à la main.
 
 ## Quel style à quel moment
 
-| Situation                                         | À utiliser                                                                                                    |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Titre de page (un seul par écran)                 | `<h1 className="text-display-lg">`                                                                            |
-| Titre de section, de modale                       | `.text-heading-lg`                                                                                            |
-| Titre de carte                                    | `.text-heading-md`                                                                                            |
-| Titre de ticket dans une liste                    | `.text-heading-sm`                                                                                            |
-| Description, commentaire                          | `.text-body-lg`                                                                                               |
-| Texte courant, cellule de tableau                 | `.text-body-md` (taille par défaut)                                                                           |
-| Métadonnées (n°, auteur, date)                    | `.text-body-sm` + `.texte-secondaire`                                                                         |
-| Libellé de champ                                  | `.text-label`, **au-dessus** du champ                                                                         |
-| Chiffre clé                                       | `.text-numeric-xl`                                                                                            |
-| Nombres alignés (tableaux, compteurs, dates)      | `.chiffres` (`tabular-nums`)                                                                                  |
-| Action principale (une seule par écran)           | `<Button>` (variante `primaire`)                                                                              |
-| Action secondaire, « Annuler »                    | `<Button variante="secondaire">`                                                                              |
-| Lien d'action discret (« Voir tout », « Ouvrir ») | `<Button variante="tertiaire">`                                                                               |
-| Action destructive                                | `<Button variante="danger">`, toujours confirmée par une modale                                               |
-| Action en cours                                   | `<Button chargement="Création…">` — jamais de spinner isolé                                                   |
-| Bouton icône seule (recherche, cloche, « … »)     | `<IconButton icone={…} libelle="…" />`                                                                        |
-| Statut d'un ticket                                | `<StatusBadge statut="EN_COURS" />` (24 en liste, 28 en en-tête de fiche)                                     |
-| Priorité                                          | `<PriorityBadge priorite="HAUTE" />`                                                                          |
-| Délai (SLA)                                       | `<SlaBadge niveau="ECHEANCE_PROCHE" detail="reste 25 min" />` ; `court` sur carte et mobile                   |
-| Ligne de tableau en retard                        | liseré gauche 3 px `var(--color-sla-retard-fg)`                                                               |
-| Ligne arrivée en direct                           | `animation: vigie-surbrillance var(--duration-highlight) var(--ease-out)`                                     |
-| Personne                                          | `<Avatar id prenom nom taille={24 \| 32 \| 36 \| 40} />` ; sans nom = « Non assigné »                         |
-| Navigation                                        | `<Sidebar>` (déjà dans `MiseEnPage`) : une entrée par page du rôle                                            |
-| Chargement d'un contenu                           | squelettes (`--color-neutral-100` + `vigie-reflet`)                                                           |
-| Liste vide, erreur                                | EmptyState / ErrorState : icône 32, un message, **une** action                                                |
-| Fond de page / carte / bordure                    | `--color-neutral-50` / `--color-neutral-0` / `--color-neutral-200`                                            |
-| Texte principal / secondaire / désactivé          | `--color-neutral-900` / `--color-neutral-600` / `--color-neutral-500`                                         |
-| Succès, information, avertissement, erreur        | `--color-feedback-{success,info,warning,danger}-{fg,bg}`                                                      |
-| Graphique                                         | `--color-chart-1` à `-6` ; graphique « par statut » : couleurs de statut                                      |
-| Focus clavier                                     | automatique (`base.css`) ; sur fond blanc `--shadow-focus-on-surface`, dans un tableau `--shadow-focus-inset` |
+| Situation                                         | À utiliser                                                                                                                                       |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Titre de page (un seul par écran)                 | `<h1 className="text-display-lg">`                                                                                                               |
+| Titre de section, de modale                       | `.text-heading-lg`                                                                                                                               |
+| Titre de carte                                    | `.text-heading-md`                                                                                                                               |
+| Titre de ticket dans une liste                    | `.text-heading-sm`                                                                                                                               |
+| Description, commentaire                          | `.text-body-lg`                                                                                                                                  |
+| Texte courant, cellule de tableau                 | `.text-body-md` (taille par défaut)                                                                                                              |
+| Métadonnées (n°, auteur, date)                    | `.text-body-sm` + `.texte-secondaire`                                                                                                            |
+| Libellé de champ                                  | `.text-label`, **au-dessus** du champ                                                                                                            |
+| Chiffre clé                                       | `.text-numeric-xl`                                                                                                                               |
+| Nombres alignés (tableaux, compteurs, dates)      | `.chiffres` (`tabular-nums`)                                                                                                                     |
+| Action principale (une seule par écran)           | `<Button>` (variante `primaire`)                                                                                                                 |
+| Action secondaire, « Annuler »                    | `<Button variante="secondaire">`                                                                                                                 |
+| Lien d'action discret (« Voir tout », « Ouvrir ») | `<Button variante="tertiaire">`                                                                                                                  |
+| Action destructive                                | `<Button variante="danger">`, toujours confirmée par une modale                                                                                  |
+| Action en cours                                   | `<Button chargement="Création…">` — jamais de spinner isolé                                                                                      |
+| Bouton icône seule (recherche, cloche, « … »)     | `<IconButton icone={…} libelle="…" />`                                                                                                           |
+| Statut d'un ticket                                | `<StatusBadge statut="EN_COURS" />` (24 en liste, 28 en en-tête de fiche)                                                                        |
+| Priorité                                          | `<PriorityBadge priorite="HAUTE" />`                                                                                                             |
+| Délai (SLA)                                       | `<SlaBadge niveau="ECHEANCE_PROCHE" detail="reste 25 min" />` ; `court` sur carte et mobile ; `texte` court dans les tableaux (« Reste 25 min ») |
+| Ligne de tableau en retard                        | liseré gauche 3 px `var(--color-sla-retard-fg)`                                                                                                  |
+| Ligne arrivée en direct                           | `animation: vigie-surbrillance var(--duration-highlight) var(--ease-out)`                                                                        |
+| Personne                                          | `<Avatar id prenom nom taille={24 \| 32 \| 36 \| 40} />` ; sans nom = « Non assigné »                                                            |
+| Navigation                                        | `<Sidebar>` (déjà dans `MiseEnPage`) : une entrée par page du rôle                                                                               |
+| Chargement d'un contenu                           | squelettes (`--color-neutral-100` + `vigie-reflet`)                                                                                              |
+| Liste vide, erreur                                | EmptyState / ErrorState : icône 32, un message, **une** action                                                                                   |
+| Fond de page / carte / bordure                    | `--color-neutral-50` / `--color-neutral-0` / `--color-neutral-200`                                                                               |
+| Texte principal / secondaire / désactivé          | `--color-neutral-900` / `--color-neutral-600` / `--color-neutral-500`                                                                            |
+| Succès, information, avertissement, erreur        | `--color-feedback-{success,info,warning,danger}-{fg,bg}`                                                                                         |
+| Graphique                                         | `--color-chart-1` à `-6` ; graphique « par statut » : couleurs de statut                                                                         |
+| Focus clavier                                     | automatique (`base.css`) ; sur fond blanc `--shadow-focus-on-surface`, dans un tableau `--shadow-focus-inset`                                    |
 
 Une couleur ou une mesure manque ? On l'ajoute d'abord dans `tokens.css` (avec la valeur des captures ou des
 fiches), puis on l'utilise. Un nouveau composant ? On le construit d'après
@@ -72,6 +72,11 @@ fiches), puis on l'utilise. Un nouveau composant ? On le construit d'après
 - **Écrans** : chaque écran implémente **5 états** — normal, vide, chargement, erreur, temps réel.
 - **Textes** : ceux des fiches d'écran, à la lettre. Quand une maquette contredit une règle métier, la fiche le
   signale par ⚠ et donne le texte à utiliser.
+
+## Décisions du 20/11
+
+- **Priorité Critique sans pastille pleine** : comme les autres priorités, barres de signal et libellé, en rouge (`--color-priority-critique`). Les listes restent lisibles et ne se confondent pas avec les alertes SLA.
+- **Échéance dans les tableaux** : texte court (« Reste 2 h », « Retard de 3 h », « Depuis 4 j ») avec l’option `texte` du `SlaBadge` ; le libellé complet reste lu par les lecteurs d’écran et affiché en infobulle.
 
 ## Interdits
 

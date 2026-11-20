@@ -1,3 +1,8 @@
+/* Survol : tout le toast est cliquable (décision du 20/11) */
+.toast:hover .titre {
+  text-decoration: underline;
+}
+
 /* Toasts (docs/ecrans/composants.md, Toast ; position : docs/ecrans/07-ma-file.md) */
 
 .pile {
@@ -12,6 +17,7 @@
 }
 
 .toast {
+  cursor: pointer;
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr) 16px;
   gap: var(--space-3);
@@ -57,6 +63,12 @@
 }
 
 .titre {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
   font-size: 15px;
   line-height: 20px;
   font-weight: 600;
@@ -69,13 +81,6 @@
   color: var(--color-neutral-700);
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
 }
 
 .fermer {

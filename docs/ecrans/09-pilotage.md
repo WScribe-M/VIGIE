@@ -13,7 +13,7 @@ Route : `/pilotage` · Rôles : Gestionnaire, Administrateur, Lecteur · Story :
 En-tête : cloche et avatar. Contenu, colonne, écart 24 :
 
 1. **Titre** (rangée `space-between`, alignée en bas) : « Pilotage » + sous-titre 15 `--color-neutral-700` ;
-   à droite, écart 8 : groupe segmenté « 7 jours / Ce mois / Trimestre » (comme Ma file), sélecteur de dates
+   à droite, écart 8 : groupe segmenté « 7 jours / Ce mois / Trimestre », sélecteur de dates
    38 px (`calendar` 15, rayon 10, 13 px), Tertiaire « Exporter (CSV) » 38 px (voir ⚠).
 2. **6 cartes KPI** : grille `repeat(3, minmax(0, 1fr))`, écart 24 (2 rangées). Carte : marges 20, écart 8,
    rayon 14, `--shadow-xs`, liseré gauche 3 px (seulement « En retard », `--color-sla-retard-fg`) ;
