@@ -14,13 +14,25 @@ import {
   Trash,
   Users,
 } from 'lucide-react';
+import { useState } from 'react';
 import { Avatar } from '../composants/Avatar.jsx';
 import { Button, IconButton } from '../composants/Button.jsx';
+import { TextArea, TextField } from '../composants/Champs.jsx';
+import { ChoiceGroup } from '../composants/ChoiceCard.jsx';
+import { DelayEstimate } from '../composants/DelayEstimate.jsx';
+import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
 import { PriorityBadge } from '../composants/PriorityBadge.jsx';
 import { Sidebar } from '../composants/Sidebar.jsx';
 import { SlaBadge } from '../composants/SlaBadge.jsx';
 import { StatusBadge } from '../composants/StatusBadge.jsx';
-import { LIBELLES_PRIORITE, LIBELLES_SLA, LIBELLES_STATUT } from '../styles/libelles.js';
+import { ICONES_IMPACT, iconeService } from '../styles/icones.js';
+import {
+  DESCRIPTIONS_IMPACT,
+  LIBELLES_IMPACT,
+  LIBELLES_PRIORITE,
+  LIBELLES_SLA,
+  LIBELLES_STATUT,
+} from '../styles/libelles.js';
 import styles from './Styleguide.module.css';
 
 // Page de développement uniquement (absente du build de production) : catalogue des
@@ -199,6 +211,51 @@ function Bloc({ titre, note, children }) {
   );
 }
 
+const OPTIONS_IMPACT = Object.keys(LIBELLES_IMPACT).map((valeur) => ({
+  valeur,
+  titre: LIBELLES_IMPACT[valeur],
+  description: DESCRIPTIONS_IMPACT[valeur],
+  icone: ICONES_IMPACT[valeur],
+}));
+const OPTIONS_SERVICE = ['VPN', 'Messagerie', 'ERP', 'Autre / je ne sais pas'].map((nom) => ({
+  valeur: nom,
+  titre: nom,
+  icone: iconeService(nom),
+}));
+// Échéance de démonstration : demain à 11 h
+const ESTIMATION_DEMO = {
+  prioriteCalculee: 'HAUTE',
+  echeanceSla: new Date(new Date().setHours(35, 0, 0, 0)).toISOString(),
+};
+
+// Les cartes de choix ont besoin d'un état pour montrer la sélection et les flèches du clavier
+function DemoChoix() {
+  const [impact, setImpact] = useState('MOYEN');
+  const [service, setService] = useState(null);
+  return (
+    <div className={styles.colonneDemo}>
+      <ChoiceGroup
+        question="Qui est touché ?"
+        obligatoire
+        options={OPTIONS_IMPACT}
+        valeur={impact}
+        onChange={setImpact}
+      />
+      <ChoiceGroup
+        compacte
+        question="Service concerné"
+        obligatoire
+        options={OPTIONS_SERVICE}
+        valeur={service}
+        onChange={setService}
+        erreur={service ? undefined : 'Choisissez un service, ou « Autre / je ne sais pas ».'}
+      />
+      <DelayEstimate estimation={null} />
+      <DelayEstimate estimation={ESTIMATION_DEMO} />
+    </div>
+  );
+}
+
 function LigneDemo({ ligne }) {
   return (
     <div className={`${styles.ligne} ${ligne.sla.niveau === 'EN_RETARD' ? styles.enRetard : ''}`}>
@@ -351,6 +408,47 @@ export function Styleguide() {
           {LIGNES_DEMO.map((ligne) => (
             <LigneDemo key={ligne.id} ligne={ligne} />
           ))}
+        </div>
+      </Bloc>
+
+      <Bloc titre="Champs" note="Libellé au-dessus · 40 px (44 dans les formulaires de création)">
+        <div className={styles.colonneDemo}>
+          <TextField
+            libelle="Titre"
+            obligatoire
+            grand
+            defaultValue="vpn ne marche plus"
+            aide="Résumez le problème en quelques mots"
+            compteur={{ valeur: 18, max: 120 }}
+          />
+          <TextField libelle="Titre" obligatoire erreur="Le titre est obligatoire." />
+          <TextField libelle="Quel message d’erreur ?" facultatif disabled />
+          <TextArea libelle="Que se passe-t-il ?" obligatoire grand />
+        </div>
+      </Bloc>
+
+      <Bloc
+        titre="Cartes de choix et délai estimé"
+        note="role=radio · flèches au clavier · variante compacte pour le service"
+      >
+        <DemoChoix />
+      </Bloc>
+
+      <Bloc titre="États vide, erreur, chargement" note="Icône 32 sans illustration · une action">
+        <div className={styles.colonneDemo}>
+          <EmptyState
+            icone={Inbox}
+            titre="Aucune demande pour l’instant"
+            texte="Un souci avec votre poste, le VPN ou une imprimante ? Signalez-le en moins d’une minute."
+            action={<Button icone={Plus}>Nouveau ticket</Button>}
+          />
+          <ErrorState
+            titre="Impossible de charger vos demandes"
+            texte="Le serveur ne répond pas. Vos demandes ne sont pas perdues ; en cas d’urgence, appelez le 4400."
+            onReessayer={() => {}}
+          />
+          <Skeleton largeur="60%" />
+          <Skeleton largeur={80} hauteur={26} rond />
         </div>
       </Bloc>
 

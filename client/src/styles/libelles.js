@@ -45,6 +45,19 @@ export const LIBELLES_URGENCE = {
   HAUTE: 'Je suis bloqué',
 };
 
+// Phrase d'aide sous chaque réponse (cartes de choix, docs/ecrans/composants.md)
+export const DESCRIPTIONS_IMPACT = {
+  FAIBLE: 'Mon poste ou mon compte uniquement.',
+  MOYEN: 'Plusieurs collègues de mon service.',
+  FORT: 'Plusieurs services ou sites.',
+};
+
+export const DESCRIPTIONS_URGENCE = {
+  FAIBLE: 'Gênant, mais je travaille normalement.',
+  MOYENNE: 'Je travaille, plus lentement ou autrement.',
+  HAUTE: 'Impossible de faire mon travail.',
+};
+
 export const LIBELLES_DOMAINE = {
   RESEAU: 'Réseau',
   INFRASTRUCTURE: 'Infrastructure',

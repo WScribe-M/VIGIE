@@ -7,6 +7,7 @@ import { specificationApi } from './docs/specificationApi.js';
 import { authentifier, interdireEcritureLecteur } from './middlewares/auth.js';
 import { authRoutes } from './routes/authRoutes.js';
 import { serviceRoutes } from './routes/serviceRoutes.js';
+import { ticketRoutes } from './routes/ticketRoutes.js';
 
 // Routes protégées : jeton obligatoire (401) et LECTEUR en lecture seule (403).
 // Toute nouvelle route se déclare ici, la protection est ajoutée automatiquement,
@@ -14,6 +15,7 @@ import { serviceRoutes } from './routes/serviceRoutes.js';
 // Exemple : '/services': serviceRoutes
 const ROUTES_PROTEGEES = {
   '/services': serviceRoutes,
+  '/tickets': ticketRoutes,
 };
 
 export const app = express();

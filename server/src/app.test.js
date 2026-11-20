@@ -91,3 +91,47 @@ describe('documentation de l’API', () => {
     assert.match(corps.openapi, /^3\./);
   });
 });
+
+describe('droits sur /api/tickets (sans base : les middlewares répondent avant)', () => {
+  const ID = '665a1f0c2b7e4a0000000001';
+  const entetes = async (role) => {
+    const { creerJeton } = await import('./services/jetonService.js');
+    return {
+      Authorization: `Bearer ${creerJeton({ _id: ID, role })}`,
+      'Content-Type': 'application/json',
+    };
+  };
+
+  it('exige un jeton (401)', async () => {
+    assert.equal((await appeler('/tickets')).status, 401);
+    assert.equal((await appeler('/tickets', { method: 'POST' })).status, 401);
+  });
+
+  it('le LECTEUR ne crée pas de ticket (403)', async () => {
+    const { status } = await appeler('/tickets', {
+      method: 'POST',
+      headers: await entetes('LECTEUR'),
+      body: '{}',
+    });
+    assert.equal(status, 403);
+  });
+
+  it('un CLIENT ne corrige pas le domaine (403)', async () => {
+    const { status } = await appeler(`/tickets/${ID}/domaine`, {
+      method: 'PATCH',
+      headers: await entetes('CLIENT'),
+      body: JSON.stringify({ domaine: 'RESEAU' }),
+    });
+    assert.equal(status, 403);
+  });
+
+  it('une création invalide répond 400 sans toucher à la base', async () => {
+    const { status, corps } = await appeler('/tickets', {
+      method: 'POST',
+      headers: await entetes('CLIENT'),
+      body: JSON.stringify({ titre: 'VPN', priorite: 'CRITIQUE' }),
+    });
+    assert.equal(status, 400);
+    assert.match(corps.message, /priorite/);
+  });
+});

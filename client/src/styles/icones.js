@@ -24,6 +24,7 @@ import {
   User,
   Users,
 } from 'lucide-react';
+import { createElement } from 'react';
 
 export const TRAIT_ICONE = 1.75;
 
@@ -64,4 +65,15 @@ const ICONES_SERVICE = {
 
 export function iconeService(nomService) {
   return ICONES_SERVICE[nomService] ?? CircleQuestionMark;
+}
+
+// Icône d'un service en JSX : <IconeService nom={ticket.service.nom} size={16} />.
+// Le composant Lucide est choisi ici plutôt que dans l'écran : React interdit de « créer » un
+// composant pendant le rendu (const Icone = iconeService(nom), puis <Icone />).
+export function IconeService({ nom, ...props }) {
+  return createElement(iconeService(nom), {
+    strokeWidth: TRAIT_ICONE,
+    'aria-hidden': true,
+    ...props,
+  });
 }

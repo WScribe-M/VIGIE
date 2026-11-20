@@ -1,0 +1,165 @@
+/* Cartes de choix (docs/ecrans/composants.md, capture composants-03-cartes-impact-et-urgence) */
+
+.groupe {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.question {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.obligatoire {
+  color: var(--color-feedback-danger-fg);
+}
+
+.cartes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.carte {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-height: 112px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-xs);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.carte:hover {
+  border-color: var(--color-neutral-400);
+  box-shadow: var(--shadow-sm);
+}
+
+.carte:focus-visible {
+  box-shadow: var(--shadow-focus-on-surface);
+}
+
+.icone {
+  color: var(--color-neutral-600);
+}
+
+.titre {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.description {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-neutral-600);
+}
+
+/* Rond de sélection en haut à droite */
+.rond {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--color-neutral-400);
+  border-radius: var(--radius-full);
+  color: var(--color-neutral-0);
+}
+
+/* Choisie : bordure 2 px (marge réduite d'1 px pour que le contenu ne bouge pas) */
+.choisie,
+.choisie:hover {
+  padding: 15px;
+  border: 2px solid var(--color-brand-600);
+  background: var(--color-brand-50);
+}
+
+.choisie .icone {
+  color: var(--color-brand-600);
+}
+
+.choisie .rond {
+  top: 13px;
+  right: 13px;
+  border-color: var(--color-brand-600);
+  background: var(--color-brand-600);
+}
+
+.erreur {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-feedback-danger-fg);
+}
+
+/* Erreur : toutes les cartes du groupe bordées de rouge */
+[aria-invalid='true'] > .carte {
+  border-color: var(--color-danger-button);
+}
+
+/* Variante compacte (service concerné, fiche 03) : 44 px, icône à gauche, libellé 13/600 au-dessus */
+.compacte {
+  gap: 6px;
+}
+
+.compacte .question {
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-line);
+}
+
+.compacte .cartes {
+  gap: var(--space-2);
+}
+
+.compacte .carte {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+}
+
+.compacte .titre {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.compacte .choisie {
+  padding: 0 11px;
+}
+
+.compacte .choisie .titre {
+  font-weight: 600;
+  color: var(--color-brand-700);
+}
+
+/* Mobile : une carte par ligne */
+@media (max-width: 768px) {
+  .cartes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .carte {
+    min-height: 0;
+  }
+}
