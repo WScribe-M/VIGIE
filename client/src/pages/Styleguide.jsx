@@ -22,6 +22,7 @@ import { ChoiceGroup } from '../composants/ChoiceCard.jsx';
 import { DelayEstimate } from '../composants/DelayEstimate.jsx';
 import { DuplicatePanel } from '../composants/DuplicatePanel.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
+import { HistoriqueTicket } from '../composants/HistoriqueTicket.jsx';
 import { MenuStatut } from '../composants/MenuStatut.jsx';
 import { Modal } from '../composants/Modal.jsx';
 import { PriorityBadge } from '../composants/PriorityBadge.jsx';
@@ -201,6 +202,70 @@ const AVATARS = [
   ['Karim', 'Benali'],
   ['Sophie', 'Laurent'],
   ['Claire', 'Fontaine'],
+];
+
+// Historique de la capture composants-03-frise.png, au format de GET /api/tickets/:id
+const AWA = { _id: 'awa', prenom: 'Awa', nom: 'Diallo' };
+const MAMADOU = { _id: 'mamadou', prenom: 'Mamadou', nom: 'Koné' };
+const HISTORIQUE_DEMO = [
+  {
+    _id: '1',
+    auteur: AWA,
+    champ: 'statut',
+    ancienneValeur: null,
+    nouvelleValeur: 'NOUVEAU',
+    date: '2026-11-17T09:24:00Z',
+  },
+  {
+    _id: '2',
+    auteur: MAMADOU,
+    champ: 'statut',
+    ancienneValeur: 'NOUVEAU',
+    nouvelleValeur: 'EN_COURS',
+    date: '2026-11-17T10:02:00Z',
+  },
+  {
+    _id: '3',
+    auteur: MAMADOU,
+    champ: 'technicien',
+    ancienneValeur: null,
+    nouvelleValeur: MAMADOU,
+    date: '2026-11-17T10:02:00Z',
+  },
+  {
+    _id: '4',
+    auteur: MAMADOU,
+    champ: 'priorite',
+    ancienneValeur: 'MOYENNE',
+    nouvelleValeur: 'HAUTE',
+    motif: 'Deux sites touchés, l’équipe commerciale ne peut plus accéder au CRM.',
+    date: '2026-11-17T10:05:00Z',
+  },
+  {
+    _id: '5',
+    auteur: MAMADOU,
+    champ: 'domaine',
+    ancienneValeur: 'APPLICATIF',
+    nouvelleValeur: 'RESEAU',
+    date: '2026-11-17T10:42:00Z',
+  },
+  {
+    _id: '6',
+    auteur: MAMADOU,
+    champ: 'statut',
+    ancienneValeur: 'EN_COURS',
+    nouvelleValeur: 'TERMINE',
+    date: '2026-11-17T14:10:00Z',
+  },
+  {
+    _id: '7',
+    auteur: AWA,
+    champ: 'statut',
+    ancienneValeur: 'TERMINE',
+    nouvelleValeur: 'EN_COURS',
+    motif: 'Le CRM est de nouveau inaccessible depuis Lyon.',
+    date: '2026-11-17T15:38:00Z',
+  },
 ];
 
 function Bloc({ titre, note, children }) {
@@ -543,6 +608,15 @@ export function Styleguide() {
           jalons={JALONS_DEMO}
           message="Le support attend votre réponse. Le délai reprendra dès que vous aurez répondu."
         />
+      </Bloc>
+
+      <Bloc
+        titre="Historique"
+        note="TimelineItem · qui, quoi, quand · ordre chronologique · avant → après"
+      >
+        <div className={styles.carteDemo}>
+          <HistoriqueTicket historique={HISTORIQUE_DEMO} demandeur={AWA} />
+        </div>
       </Bloc>
 
       <Bloc

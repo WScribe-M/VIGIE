@@ -20,6 +20,7 @@ import { Avatar } from '../composants/Avatar.jsx';
 import { Button } from '../composants/Button.jsx';
 import { Select, TextArea } from '../composants/Champs.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
+import { HistoriqueTicket } from '../composants/HistoriqueTicket.jsx';
 import { MenuStatut } from '../composants/MenuStatut.jsx';
 import { Modal } from '../composants/Modal.jsx';
 import { PageHeader } from '../composants/PageHeader.jsx';
@@ -33,7 +34,7 @@ import { formaterDateHeure, formaterEcheance } from '../utils/dates.js';
 import styles from './FicheTicket.module.css';
 
 // Fiche d'un ticket (VIGIE-7) : docs/ecrans/05-fiche-ticket-client.md pour le demandeur,
-// 06-fiche-ticket-gestionnaire.md pour le support. Échanges et historique : VIGIE-29 et VIGIE-9.
+// 06-fiche-ticket-gestionnaire.md pour le support. Historique : VIGIE-9 ; échanges : VIGIE-29.
 
 const ROLES_SUPPORT = ['GESTIONNAIRE', 'ADMIN'];
 const TEXTE_MAX = 500;
@@ -357,69 +358,85 @@ export function FicheTicket() {
           !support && <ProgressTracker {...suiviDuTicket(ticket)} />
         )}
 
-        <section className={styles.carte} aria-label="Informations">
-          <dl className={styles.informations}>
-            <Information
-              icone={<IconeService nom={ticket.service?.nom} size={16} />}
-              libelle="Service"
-            >
-              {ticket.service?.nom}
-            </Information>
-            {support && (
-              <>
-                <Information icone={<Layers {...ICONE_16} />} libelle="Domaine">
-                  {LIBELLES_DOMAINE[ticket.domaine]}
-                </Information>
-                <Information icone={<UserRound {...ICONE_16} />} libelle="Demandeur">
-                  <Personne personne={ticket.demandeur} />
-                </Information>
-              </>
-            )}
-            <Information icone={<User {...ICONE_16} />} libelle="Technicien">
-              <Personne personne={ticket.technicien} />
-            </Information>
-            <Information icone={<Calendar {...ICONE_16} />} libelle="Signalé le">
-              {formaterDateHeure(ticket.createdAt)}
-            </Information>
-            {ticket.echeanceSla && (
-              <Information icone={<Clock {...ICONE_16} />} libelle="Échéance">
-                {formaterDateHeure(ticket.echeanceSla)}
+        {/* Deux colonnes (fiches 05 et 06) : Informations à gauche pour le demandeur, historique
+            à gauche pour le support */}
+        <div className={support ? styles.colonnesSupport : styles.colonnesClient}>
+          <section className={styles.carte} aria-label="Informations">
+            <dl className={styles.informations}>
+              <Information
+                icone={<IconeService nom={ticket.service?.nom} size={16} />}
+                libelle="Service"
+              >
+                {ticket.service?.nom}
               </Information>
-            )}
-            <Information icone={<History {...ICONE_16} />} libelle="Dernière modification">
-              {formaterDateHeure(ticket.updatedAt)}
-            </Information>
-            {ticket.dateCloture && (
-              <Information icone={<CalendarCheck {...ICONE_16} />} libelle="Clôturé le">
-                {formaterDateHeure(ticket.dateCloture)}
-              </Information>
-            )}
-          </dl>
-
-          {/* Résolution structurée (VIGIE-44), visible du demandeur et du support */}
-          {ticket.resolution && (
-            <div className={styles.bloc}>
-              <h2 className={styles.libelleBloc}>Résolution</h2>
-              <p className={styles.texteResolution}>
-                <strong>Cause :</strong> {ticket.resolution.cause}
-              </p>
-              <p className={styles.texteResolution}>
-                <strong>Solution :</strong> {ticket.resolution.solution}
-              </p>
-              {ticket.resolution.auteur && (
-                <p className={styles.auteurResolution}>
-                  {nomComplet(ticket.resolution.auteur)} a clos le ticket le{' '}
-                  {formaterDateHeure(ticket.resolution.date)}.
-                </p>
+              {support && (
+                <>
+                  <Information icone={<Layers {...ICONE_16} />} libelle="Domaine">
+                    {LIBELLES_DOMAINE[ticket.domaine]}
+                  </Information>
+                  <Information icone={<UserRound {...ICONE_16} />} libelle="Demandeur">
+                    <Personne personne={ticket.demandeur} />
+                  </Information>
+                </>
               )}
-            </div>
-          )}
+              <Information icone={<User {...ICONE_16} />} libelle="Technicien">
+                <Personne personne={ticket.technicien} />
+              </Information>
+              <Information icone={<Calendar {...ICONE_16} />} libelle="Signalé le">
+                {formaterDateHeure(ticket.createdAt)}
+              </Information>
+              {ticket.echeanceSla && (
+                <Information icone={<Clock {...ICONE_16} />} libelle="Échéance">
+                  {formaterDateHeure(ticket.echeanceSla)}
+                </Information>
+              )}
+              <Information icone={<History {...ICONE_16} />} libelle="Dernière modification">
+                {formaterDateHeure(ticket.updatedAt)}
+              </Information>
+              {ticket.dateCloture && (
+                <Information icone={<CalendarCheck {...ICONE_16} />} libelle="Clôturé le">
+                  {formaterDateHeure(ticket.dateCloture)}
+                </Information>
+              )}
+            </dl>
 
-          <div className={styles.bloc}>
-            <h2 className={styles.libelleBloc}>Description</h2>
-            <p className={styles.description}>{ticket.description}</p>
-          </div>
-        </section>
+            {/* Résolution structurée (VIGIE-44), visible du demandeur et du support */}
+            {ticket.resolution && (
+              <div className={styles.bloc}>
+                <h2 className={styles.libelleBloc}>Résolution</h2>
+                <p className={styles.texteResolution}>
+                  <strong>Cause :</strong> {ticket.resolution.cause}
+                </p>
+                <p className={styles.texteResolution}>
+                  <strong>Solution :</strong> {ticket.resolution.solution}
+                </p>
+                {ticket.resolution.auteur && (
+                  <p className={styles.auteurResolution}>
+                    {nomComplet(ticket.resolution.auteur)} a clos le ticket le{' '}
+                    {formaterDateHeure(ticket.resolution.date)}.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className={styles.bloc}>
+              <h2 className={styles.libelleBloc}>Description</h2>
+              <p className={styles.description}>{ticket.description}</p>
+            </div>
+          </section>
+
+          {/* Historique (VIGIE-9) : rechargé avec la fiche à chaque ticket:modifie. Il ira dans
+            l'onglet « Historique » quand les échanges et les onglets (VIGIE-50) seront là. */}
+          <section
+            className={`${styles.carte} ${styles.historique}`}
+            aria-labelledby="titre-historique"
+          >
+            <h2 id="titre-historique" className="text-heading-md">
+              Historique
+            </h2>
+            <HistoriqueTicket historique={ticket.historique} demandeur={ticket.demandeur} />
+          </section>
+        </div>
       </div>
     );
   }
