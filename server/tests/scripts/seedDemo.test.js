@@ -310,6 +310,19 @@ test('une partie des tickets NOUVEAU a déjà été vue par le support', () => {
   assert.ok(vus > 0 && vus < nouveaux);
 });
 
+test('l’historique ne porte que de vrais motifs', () => {
+  const contexte = contexteTest();
+
+  for (let i = 0; i < 300; i++) {
+    for (const evt of creerDonneesTicket(i, contexte).historique) {
+      if (evt.champ === 'technicien' || evt.nouvelleValeur === 'NOUVEAU') {
+        assert.equal(evt.motif, undefined);
+      }
+      if (evt.nouvelleValeur === 'ABANDONNE') assert.ok(evt.motif);
+    }
+  }
+});
+
 test('les données générées sont acceptées par le schéma Ticket', async () => {
   const contexte = contexteTest();
 

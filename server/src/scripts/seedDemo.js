@@ -210,6 +210,8 @@ function trouverPrincipal(index, creation, demandeur, contexte) {
   return candidats.length > 0 ? choisir(candidats, contexte.aleatoire) : null;
 }
 
+// Motif seulement quand il y en a un vrai (abandon, doublon, mise en attente, réouverture), comme
+// l'application : la frise de l'historique (VIGIE-9) affiche chaque motif sous l'événement.
 export function evenementStatut(auteur, ancienneValeur, nouvelleValeur, date, motif) {
   return {
     auteur: auteur._id,
@@ -228,7 +230,6 @@ export function evenementAffectation(auteur, technicien, date) {
     ancienneValeur: null,
     nouvelleValeur: technicien._id,
     date,
-    motif: 'Affectation du ticket',
   };
 }
 
@@ -319,7 +320,7 @@ export function creerDonneesTicket(index, contexte) {
   const reouvert =
     termine && index % 13 === 0 && finTraitement.getTime() - priseEnCharge.getTime() > 3 * 3600000;
 
-  const historique = [evenementStatut(demandeur, null, 'NOUVEAU', creation, 'Création du ticket')];
+  const historique = [evenementStatut(demandeur, null, 'NOUVEAU', creation)];
 
   const commentaires = [
     {
@@ -331,13 +332,7 @@ export function creerDonneesTicket(index, contexte) {
 
   if (technicien) {
     historique.push(
-      evenementStatut(
-        technicien,
-        'NOUVEAU',
-        'EN_COURS',
-        priseEnCharge,
-        'Prise en charge du ticket',
-      ),
+      evenementStatut(technicien, 'NOUVEAU', 'EN_COURS', priseEnCharge),
       evenementAffectation(technicien, technicien, priseEnCharge),
     );
   }
@@ -348,9 +343,9 @@ export function creerDonneesTicket(index, contexte) {
     const reouverture = new Date(priseEnCharge.getTime() + duree * 0.55);
 
     historique.push(
-      evenementStatut(technicien, 'EN_COURS', 'TERMINE', premiereResolution, 'Première résolution'),
+      evenementStatut(technicien, 'EN_COURS', 'TERMINE', premiereResolution),
       evenementStatut(demandeur, 'TERMINE', 'EN_COURS', reouverture, 'Le problème est réapparu'),
-      evenementStatut(technicien, 'EN_COURS', 'TERMINE', finTraitement, 'Résolution définitive'),
+      evenementStatut(technicien, 'EN_COURS', 'TERMINE', finTraitement),
     );
   } else if (enAttente) {
     historique.push(
@@ -365,9 +360,9 @@ export function creerDonneesTicket(index, contexte) {
   } else if (termine || abandonne) {
     const motif = ticketPrincipal
       ? `Doublon de ${formaterNumero(ticketPrincipal.numero)}`
-      : termine
-        ? 'Incident résolu'
-        : 'Demande abandonnée';
+      : abandonne
+        ? 'Demande abandonnée'
+        : undefined;
 
     historique.push(evenementStatut(technicien, 'EN_COURS', statut, finTraitement, motif));
   }

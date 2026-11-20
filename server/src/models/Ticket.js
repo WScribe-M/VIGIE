@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import {
   CANAUX,
+  CHAMPS_HISTORIQUE,
   DOMAINES,
   IMPACTS,
   NIVEAUX_ALERTE_SLA,
@@ -20,15 +21,19 @@ const commentaireSchema = new mongoose.Schema(
   { timestamps: { createdAt: 'date', updatedAt: false } },
 );
 
-// Historique (timeline) : base du calcul des délais, de la suspension SLA et des statistiques
+// Historique (timeline, VIGIE-9) : base du calcul des délais, de la suspension SLA et des
+// statistiques (historiqueService). Il n'est pas modifiable : on ajoute des entrées ($push), on ne
+// les change jamais. « immutable » fait ignorer par Mongoose toute modification d'une entrée déjà
+// enregistrée, et aucune route ne permet d'en modifier ou d'en supprimer une.
 const historiqueSchema = new mongoose.Schema(
   {
-    auteur: { type: ObjectId, ref: 'User', required: true },
-    champ: { type: String, required: true }, // statut, technicien, priorite, domaine…
-    ancienneValeur: mongoose.Schema.Types.Mixed,
-    nouvelleValeur: mongoose.Schema.Types.Mixed,
-    motif: String,
+    auteur: { type: ObjectId, ref: 'User', required: true, immutable: true },
+    champ: { type: String, enum: CHAMPS_HISTORIQUE, required: true, immutable: true },
+    ancienneValeur: { type: mongoose.Schema.Types.Mixed, immutable: true },
+    nouvelleValeur: { type: mongoose.Schema.Types.Mixed, immutable: true },
+    motif: { type: String, immutable: true },
   },
+  // createdAt (ici « date ») est immuable par défaut dans Mongoose
   { timestamps: { createdAt: 'date', updatedAt: false } },
 );
 

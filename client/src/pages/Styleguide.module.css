@@ -166,6 +166,15 @@
   }
 }
 
+/* Historique dans une carte blanche, comme sur la fiche ticket */
+.carteDemo {
+  max-width: 640px;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-0);
+  box-shadow: var(--shadow-xs);
+}
+
 /* Démonstration de composants empilés (champs, cartes de choix, états) */
 .colonneDemo {
   display: flex;

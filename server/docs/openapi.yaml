@@ -921,6 +921,40 @@ components:
         prenom:
           type: string
 
+    ChampHistorique:
+      type: string
+      description: Ce qui a changé (statut, assignation, priorité, domaine).
+      enum: [statut, technicien, priorite, domaine]
+
+    EntreeHistorique:
+      type: object
+      description: >-
+        Un changement tracé (VIGIE-9). Les entrées ne sont jamais modifiées ni supprimées. Valeurs
+        selon le champ : `statut` → un Statut (ancienne valeur `null` à la création), `priorite` →
+        une Priorite, `domaine` → un Domaine, `technicien` → une Personne (ou `null`).
+      properties:
+        _id:
+          type: string
+        date:
+          type: string
+          format: date-time
+        auteur:
+          $ref: '#/components/schemas/Personne'
+        champ:
+          $ref: '#/components/schemas/ChampHistorique'
+        ancienneValeur:
+          nullable: true
+          description: Valeur avant le changement.
+          example: MOYENNE
+        nouvelleValeur:
+          nullable: true
+          description: Valeur après le changement.
+          example: HAUTE
+        motif:
+          type: string
+          description: Présent seulement quand un motif a été saisi (abandon, requalification…).
+          example: Deux sites touchés, l'équipe commerciale ne peut plus accéder au CRM.
+
     TypeNotification:
       type: string
       enum:
@@ -1120,6 +1154,13 @@ components:
               type: string
               nullable: true
               description: Présent seulement pour un ticket `ABANDONNE`.
+            historique:
+              type: array
+              description: >-
+                Historique (timeline) du ticket, par ordre chronologique (VIGIE-9) : qui a modifié
+                quoi et quand. Lecture seule : aucune route ne permet de le modifier.
+              items:
+                $ref: '#/components/schemas/EntreeHistorique'
             transitionsPossibles:
               type: array
               description: >-
