@@ -2,7 +2,7 @@ import { NOM_SERVICE_AUTRE } from '../models/constantes.js';
 import mongoose from 'mongoose';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Service } from '../models/Service.js';
+import { COLLATION_NOM, Service } from '../models/Service.js';
 // Les six services initiaux validés pour VIGIE-4.
 export const SERVICES_INITIAUX = [
   { nom: 'VPN', domaine: 'RESEAU' },
@@ -24,7 +24,9 @@ export async function initialiserServices(modele = Service) {
           actif: true,
         },
       },
-      { upsert: true },
+      // Même collation que l’index unique : sans elle, un « vpn » créé par l’ADMIN ne serait pas
+      // retrouvé, le seed tenterait d’insérer « VPN » et l’index le refuserait (E11000).
+      { upsert: true, collation: COLLATION_NOM },
     );
   }
 }
@@ -33,7 +35,7 @@ export async function initialiserServices(modele = Service) {
 const executionDirecte =
   process.argv[1] &&
   path.normalize(path.resolve(process.argv[1])).toLowerCase() ===
-  path.normalize(fileURLToPath(import.meta.url)).toLowerCase();
+    path.normalize(fileURLToPath(import.meta.url)).toLowerCase();
 if (executionDirecte) {
   try {
     const { connecterBase } = await import('../config/db.js');

@@ -10,13 +10,16 @@ const serviceSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-// Unicité des noms sans distinction entre majuscules et minuscules.
+
+// Comparaison des noms à la française, sans tenir compte des majuscules (« vpn » = « VPN »).
+// L’index unique, le tri du catalogue et le seed utilisent la même : une requête sans
+// cette collation ne verrait pas les mêmes doublons que l’index.
+export const COLLATION_NOM = { locale: 'fr', strength: 2 };
+
+// Unicité des noms
 serviceSchema.index(
   { nom: 1 },
-  {
-    name: 'nom_unique_insensible_casse',
-    unique: true,
-    collation: { locale: 'fr', strength: 2 },
-  },
+  { name: 'nom_unique_insensible_casse', unique: true, collation: COLLATION_NOM },
 );
+
 export const Service = mongoose.model('Service', serviceSchema);

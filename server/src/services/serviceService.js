@@ -1,12 +1,10 @@
 import mongoose from 'mongoose';
 import { ErreurHttp } from '../utils/ErreurHttp.js';
-import { Service } from '../models/Service.js';
-import { DOMAINES, NOM_SERVICE_AUTRE } from '../models/constantes.js';
+import { COLLATION_NOM, Service } from '../models/Service.js';
+import { DOMAINES, NOM_SERVICE_AUTRE as NOM_AUTRE } from '../models/constantes.js';
 
 // Le service « Autre » doit toujours déclencher une qualification.
-const NOM_AUTRE = NOM_SERVICE_AUTRE;
 const DOMAINE_A_QUALIFIER = 'A_QUALIFIER';
-
 
 function verifierNom(nom) {
   if (typeof nom !== 'string' || !nom.trim()) {
@@ -61,13 +59,21 @@ function convertirErreurDoublon(erreur) {
 export async function listerServices({ inclureInactifs = false } = {}, modele = Service) {
   const filtre = inclureInactifs ? {} : { actif: true };
 
-  const services = await modele.find(filtre).sort({ nom: 1 });
+  // Liste : seulement les champs affichés, en objets simples (CONTRIBUTING, « Requêtes MongoDB »).
+  // La collation trie « écran » et « imprimante » avec les autres, et pas après « VPN ».
+  const services = await modele
+    .find(filtre)
+    .select('nom domaine actif')
+    .collation(COLLATION_NOM)
+    .sort({ nom: 1 })
+    .lean();
 
-return services.sort((a, b) => {
-  if (a.nom === NOM_AUTRE) return 1;
-  if (b.nom === NOM_AUTRE) return -1;
-  return 0;
-});
+  // « Autre » en dernier, pour qu’il ne devienne pas le choix par défaut du formulaire
+  return services.sort((a, b) => {
+    if (a.nom === NOM_AUTRE) return 1;
+    if (b.nom === NOM_AUTRE) return -1;
+    return 0;
+  });
 }
 
 export async function creerService(donnees, modele = Service) {
