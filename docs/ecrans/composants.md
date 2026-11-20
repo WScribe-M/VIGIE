@@ -19,7 +19,7 @@ Couleurs : uniquement les tokens de `client/src/styles/tokens.css`.
 | DuplicatePanel                                             | À faire  | `composants-03-suggestion-de-doublon.png`         |
 | TicketRow                                                  | À faire  | `composants-03-ligne-de-ticket.png`               |
 | TicketCard                                                 | À faire  | `composants-03-carte-de-ticket.png`               |
-| ProgressTracker                                            | À faire  | `composants-03-suivi-davancement.png`             |
+| ProgressTracker                                            | **Fait** | `composants-03-suivi-davancement.png`             |
 | TimelineItem                                               | À faire  | `composants-03-frise.png`                         |
 | CommentBubble, TypingIndicator, PresenceAvatars            | À faire  | `composants-03-echanges.png`                      |
 | NotificationBell, NotificationPanel                        | À faire  | `composants-03-notifications.png`                 |
@@ -27,7 +27,7 @@ Couleurs : uniquement les tokens de `client/src/styles/tokens.css`.
 | Tabs, FilterBar, Pagination                                | À faire  | `composants-03-onglets-filtres-pagination.png`    |
 | KpiCard                                                    | À faire  | `composants-03-chiffres-cles.png`                 |
 | Charts                                                     | À faire  | `composants-03-graphiques.png`                    |
-| Modal                                                      | À faire  | `composants-03-modales.png`                       |
+| Modal (et menu « Changer le statut » : MenuStatut)         | **Fait** | `composants-03-modales.png`                       |
 | EmptyState, ErrorState, Skeleton                           | **Fait** | `composants-03-etats-vides-erreur-chargement.png` |
 | PageHeader (retour + avatar ; recherche, cloche : à faire) | **Fait** | `composants-03-barre-laterale-et-en-tete.png`     |
 

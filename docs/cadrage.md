@@ -48,7 +48,7 @@ Libellés affichés dans l'interface : **Client** (`CLIENT`), **Gestionnaire** (
 | `TERMINE`              | Terminé                 | Solution apportée ; le demandeur peut contester pendant 15 jours |
 | `ABANDONNE`            | Abandonné               | Annulé ou doublon                                                |
 
-- **Transitions de statut** (proposition à valider dans la story des transitions ; déduite de ce cadrage et du menu « Changer le statut » des maquettes) :
+- **Transitions de statut** (validées et codées par VIGIE-7 le 20/11, table `TRANSITIONS` de `server/src/services/statutService.js` ; tout `GESTIONNAIRE` ou `ADMIN` peut les déclencher, une seule équipe support) :
 
 | Depuis                 | Vers                                           | Condition                                                                                       |
 | ---------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |

@@ -21,7 +21,10 @@ import { TextArea, TextField } from '../composants/Champs.jsx';
 import { ChoiceGroup } from '../composants/ChoiceCard.jsx';
 import { DelayEstimate } from '../composants/DelayEstimate.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
+import { MenuStatut } from '../composants/MenuStatut.jsx';
+import { Modal } from '../composants/Modal.jsx';
 import { PriorityBadge } from '../composants/PriorityBadge.jsx';
+import { ProgressTracker } from '../composants/ProgressTracker.jsx';
 import { Sidebar } from '../composants/Sidebar.jsx';
 import { SlaBadge } from '../composants/SlaBadge.jsx';
 import { StatusBadge } from '../composants/StatusBadge.jsx';
@@ -229,6 +232,57 @@ const ESTIMATION_DEMO = {
 };
 
 // Les cartes de choix ont besoin d'un état pour montrer la sélection et les flèches du clavier
+const JALONS_DEMO = [
+  { libelle: 'Reçu', detail: '17 nov., 10:24', etat: 'fait' },
+  { libelle: 'Vu par le support', detail: '17 nov., 10:40', etat: 'fait' },
+  {
+    libelle: 'Pris en charge',
+    detail: 'Mamadou Koné, 11:02',
+    etat: 'courant',
+    mention: 'En attente de votre réponse',
+  },
+  { libelle: 'Terminé', detail: 'prévu avant le 20/11 à 11 h', etat: 'aVenir' },
+];
+
+// Le menu et la modale ont besoin d'un état pour être manipulés sur la page
+function DemoStatut() {
+  const [statut, setStatut] = useState('EN_COURS');
+  const [modale, setModale] = useState(false);
+  return (
+    <div className={styles.colonneDemo}>
+      <div className={styles.ligneOutils}>
+        <MenuStatut
+          statut={statut}
+          possibles={['EN_ATTENTE_DEMANDEUR', 'TERMINE', 'ABANDONNE']}
+          onChoisir={setStatut}
+        />
+        <StatusBadge statut={statut} taille={28} />
+        <Button variante="secondaire" onClick={() => setModale(true)}>
+          Ouvrir une modale
+        </Button>
+      </div>
+      <Modal
+        ouverte={modale}
+        titre="Abandonner le ticket"
+        onFermer={() => setModale(false)}
+        actions={
+          <>
+            <Button variante="secondaire" onClick={() => setModale(false)}>
+              Annuler
+            </Button>
+            <Button variante="danger" onClick={() => setModale(false)}>
+              Abandonner
+            </Button>
+          </>
+        }
+      >
+        <p>Le ticket sera clos sans résolution. Le demandeur verra le motif.</p>
+        <TextArea libelle="Motif" obligatoire erreur="Ce champ est obligatoire." />
+      </Modal>
+    </div>
+  );
+}
+
 function DemoChoix() {
   const [impact, setImpact] = useState('MOYEN');
   const [service, setService] = useState(null);
@@ -432,6 +486,20 @@ export function Styleguide() {
         note="role=radio · flèches au clavier · variante compacte pour le service"
       >
         <DemoChoix />
+      </Bloc>
+
+      <Bloc titre="Suivi de la demande" note="4 jalons (décision 9.11) · fait, en cours, à venir">
+        <ProgressTracker
+          jalons={JALONS_DEMO}
+          message="Le support attend votre réponse. Le délai reprendra dès que vous aurez répondu."
+        />
+      </Bloc>
+
+      <Bloc
+        titre="Changer le statut et fenêtre modale"
+        note="Statuts possibles fournis par l'API · <dialog> natif : focus piégé, Échap ferme"
+      >
+        <DemoStatut />
       </Bloc>
 
       <Bloc titre="États vide, erreur, chargement" note="Icône 32 sans illustration · une action">

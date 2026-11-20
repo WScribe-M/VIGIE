@@ -125,6 +125,22 @@ describe('droits sur /api/tickets (sans base : les middlewares répondent avant)
     assert.equal(status, 403);
   });
 
+  it('seul le support change le statut ou prend en charge (403 pour CLIENT et LECTEUR)', async () => {
+    for (const role of ['CLIENT', 'LECTEUR']) {
+      const statut = await appeler(`/tickets/${ID}/statut`, {
+        method: 'PATCH',
+        headers: await entetes(role),
+        body: JSON.stringify({ statut: 'ABANDONNE', motif: 'test' }),
+      });
+      const prise = await appeler(`/tickets/${ID}/prise-en-charge`, {
+        method: 'POST',
+        headers: await entetes(role),
+      });
+      assert.equal(statut.status, 403, role);
+      assert.equal(prise.status, 403, role);
+    }
+  });
+
   it('une création invalide répond 400 sans toucher à la base', async () => {
     const { status, corps } = await appeler('/tickets', {
       method: 'POST',
