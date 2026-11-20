@@ -1,6 +1,5 @@
 import { Clock } from 'lucide-react';
 import { TRAIT_ICONE } from '../styles/icones.js';
-import { LIBELLES_PRIORITE } from '../styles/libelles.js';
 import { formaterEcheance } from '../utils/dates.js';
 import styles from './DelayEstimate.module.css';
 
@@ -33,10 +32,6 @@ export function DelayEstimate({ estimation }) {
         <span className={styles.libelle}>Délai de traitement estimé</span>
         <span className={styles.valeur}>
           Résolution prévue avant {formaterEcheance(estimation.echeanceSla)}
-        </span>
-        <span className={styles.explication}>
-          Calculé à partir de vos réponses : priorité{' '}
-          {LIBELLES_PRIORITE[estimation.prioriteCalculee]}. Le support peut l’ajuster.
         </span>
       </div>
     </div>

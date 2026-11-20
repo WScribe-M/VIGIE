@@ -33,12 +33,6 @@
   color: var(--color-brand-900);
 }
 
-.explication {
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--color-brand-700);
-}
-
 /* En attente des deux réponses */
 .enAttente {
   border: 1px dashed var(--color-neutral-300);

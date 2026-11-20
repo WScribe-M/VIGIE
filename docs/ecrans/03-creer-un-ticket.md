@@ -59,7 +59,7 @@ Contenu, colonne, écart 24 :
   blanche. Sinon : bordure 1 px Sable, icône Taupe, rond bordé `1.5px --color-neutral-400`.
 - **Délai de traitement estimé** (DelayEstimate) : fond `--color-brand-100`, rayon 14, marges 18 × 20,
   écart 14, icône `clock` 22 Pétrole ; libellé 13/600 `--color-brand-700` ; valeur 18/26/600
-  `--color-brand-900` ; explication 13/18 `--color-brand-700`.
+  `--color-brand-900`. Pas de phrase d'explication sous la valeur (décision du 20/11).
 - Pied : filet haut, `space-between` : Secondaire « Retour » (`arrow-left`), Primaire « Créer le ticket ».
 - **Récapitulatif** : carte blanche, marges 20, écart 14 ; titre 16/600 + lien « Modifier » (`pen-line` 15,
   13/600 Pétrole) ; rubriques libellé 12/600 Taupe + valeur (titre 15/600 ; service avec icône 16 ;
@@ -73,7 +73,7 @@ Contenu, colonne, écart 24 :
 - Panneau : « Ce problème est peut-être déjà signalé » · « 2 tickets ouverts ressemblent à « vpn ne marche plus ». Rejoignez-en un : chaque avancée vous sera signalée. » · « Je suis aussi concerné » · « Ce n’est pas le même problème ? Continuez votre déclaration. »
 - Encart : « N’indiquez jamais de mot de passe dans un ticket. Le support ne vous le demandera pas. »
 - Questions : « Qui est touché ? » (Moi seul / Mon équipe / Toute l’entreprise) · « Pouvez-vous continuer à travailler ? » (Je peux continuer / Mode dégradé / Je suis bloqué) ; descriptions dans `libelles.js` et [composants.md](composants.md).
-- Délai : « Délai de traitement estimé » · valeur = **échéance SLA** : « Résolution prévue avant le 20/11 à 11 h » · explication « Calculé à partir de vos réponses : priorité Haute. Le support peut l’ajuster. »
+- Délai : « Délai de traitement estimé » · valeur = **échéance SLA** : « Résolution prévue avant le 20/11 à 11 h » (la phrase « Calculé à partir de vos réponses… » de la maquette est retirée, décision du 20/11)
 - Récapitulatif : « Récapitulatif » · « Modifier » · « Titre » · « Service » · « Description » · note « La priorité n’est pas à choisir : elle est calculée à partir de l’impact et de l’urgence. »
 - Boutons : « Annuler » · « Continuer » · « Retour » · « Créer le ticket » → « Création… »
 - Erreurs : bandeau « **2 champs à compléter** avant de continuer. » ; « Le titre est obligatoire. » ; « Choisissez un service, ou « Autre / je ne sais pas ». » ; placeholder du service vide « Aucun service choisi ».
