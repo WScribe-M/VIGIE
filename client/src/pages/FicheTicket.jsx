@@ -20,6 +20,7 @@ import { Avatar } from '../composants/Avatar.jsx';
 import { Button } from '../composants/Button.jsx';
 import { Select, TextArea } from '../composants/Champs.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
+import { HistoriqueTicket } from '../composants/HistoriqueTicket.jsx';
 import { MenuStatut } from '../composants/MenuStatut.jsx';
 import { Modal } from '../composants/Modal.jsx';
 import { PageHeader } from '../composants/PageHeader.jsx';
@@ -33,16 +34,21 @@ import { formaterDateHeure, formaterEcheance } from '../utils/dates.js';
 import styles from './FicheTicket.module.css';
 
 // Fiche d'un ticket (VIGIE-7) : docs/ecrans/05-fiche-ticket-client.md pour le demandeur,
-// 06-fiche-ticket-gestionnaire.md pour le support. Échanges et historique : VIGIE-29 et VIGIE-9.
+// 06-fiche-ticket-gestionnaire.md pour le support. Historique : VIGIE-9 ; échanges : VIGIE-29.
 
 const ROLES_SUPPORT = ['GESTIONNAIRE', 'ADMIN'];
 const TEXTE_MAX = 500;
+// Requalification (VIGIE-5) : mêmes règles que le serveur (prioriteService), vérifiées ici pour
+// répondre tout de suite ; le serveur reste celui qui décide
 const MOTIF_MIN = 10;
+// Commentaires (VIGIE-29) : même limite que le serveur (ticketInteractionService)
+const COMMENTAIRE_MAX = 2000;
 const STATUTS_CLOS = ['TERMINE', 'ABANDONNE'];
 const ICONE_16 = { size: 16, strokeWidth: TRAIT_ICONE, 'aria-hidden': true };
 
 const nomComplet = (personne) => (personne ? `${personne.prenom} ${personne.nom}` : '');
 
+// `icone` : l'icône déjà construite (<User size={16} … />)
 function Information({ icone, libelle, children }) {
   return (
     <div className={styles.ligne}>
@@ -57,7 +63,6 @@ function Information({ icone, libelle, children }) {
 
 function Personne({ personne }) {
   if (!personne) return 'Non assigné';
-
   return (
     <span className={styles.personne}>
       <Avatar id={personne._id} prenom={personne.prenom} nom={personne.nom} taille={24} />
@@ -77,32 +82,23 @@ function Chargement() {
   );
 }
 
+// Frise des 4 jalons (cadrage 9.8, décision 9.11) et phrase de suivi, calculées depuis le ticket
 function suiviDuTicket(ticket) {
   const heure = (date) => formaterDateHeure(date);
   const termine = ticket.statut === 'TERMINE';
-
   const faits = [
     true,
     Boolean(ticket.vuParSupportLe || ticket.datePriseEnCharge),
     Boolean(ticket.datePriseEnCharge),
     termine,
   ];
-
   const courant = faits.indexOf(false);
-
   const etat = (index) => (faits[index] ? 'fait' : index === courant ? 'courant' : 'aVenir');
-
   const enAttente = ticket.statut === 'EN_ATTENTE_DEMANDEUR';
 
   const jalons = [
-    {
-      libelle: 'Reçu',
-      detail: heure(ticket.createdAt),
-    },
-    {
-      libelle: 'Vu par le support',
-      detail: ticket.vuParSupportLe && heure(ticket.vuParSupportLe),
-    },
+    { libelle: 'Reçu', detail: heure(ticket.createdAt) },
+    { libelle: 'Vu par le support', detail: ticket.vuParSupportLe && heure(ticket.vuParSupportLe) },
     {
       libelle: 'Pris en charge',
       detail:
@@ -116,39 +112,28 @@ function suiviDuTicket(ticket) {
         ? heure(ticket.dateCloture)
         : ticket.echeanceSla && `prévu avant ${formaterEcheance(ticket.echeanceSla)}`,
     },
-  ].map((jalon, index) => ({
-    ...jalon,
-    etat: etat(index),
-  }));
+  ].map((jalon, index) => ({ ...jalon, etat: etat(index) }));
 
   const echeance = ticket.echeanceSla && formaterEcheance(ticket.echeanceSla);
-
   let message;
-
-  if (termine) {
-    message = `Résolu le ${heure(ticket.dateCloture)}.`;
-  } else if (enAttente) {
+  if (termine) message = `Résolu le ${heure(ticket.dateCloture)}.`;
+  else if (enAttente)
     message = 'Le support attend votre réponse. Le délai reprendra dès que vous aurez répondu.';
-  } else if (ticket.datePriseEnCharge) {
-    message = `${nomComplet(ticket.technicien)} s’en occupe depuis le ${heure(
-      ticket.datePriseEnCharge,
-    )}. Prochaine étape : résolution prévue avant ${echeance}.`;
-  } else {
-    message = `Votre demande est arrivée. Résolution prévue avant ${echeance}.`;
-  }
+  else if (ticket.datePriseEnCharge)
+    message = `${nomComplet(ticket.technicien)} s’en occupe depuis le ${heure(ticket.datePriseEnCharge)}. Prochaine étape : résolution prévue avant ${echeance}.`;
+  else message = `Votre demande est arrivée. Résolution prévue avant ${echeance}.`;
 
   return { jalons, message };
 }
 
+// Barre d'actions du support (fiche 06) : prise en charge et changement de statut
 function ActionsSupport({ ticket, utilisateur, onAction, enCours }) {
   const prisParMoi = ticket.technicien?._id === utilisateur.id;
-
   return (
     <div className={styles.actions}>
       {ticket.statut === 'NOUVEAU' ? (
         <Button
           chargement={enCours === 'prise' && 'Prise en charge…'}
-          disabled={Boolean(enCours)}
           onClick={() => onAction('prise')}
         >
           Prendre en charge
@@ -161,7 +146,6 @@ function ActionsSupport({ ticket, utilisateur, onAction, enCours }) {
           </span>
         )
       )}
-
       {ticket.transitionsPossibles?.length > 0 && (
         <MenuStatut
           statut={ticket.statut}
@@ -170,7 +154,6 @@ function ActionsSupport({ ticket, utilisateur, onAction, enCours }) {
           onChoisir={(statut) => onAction('statut', statut)}
         />
       )}
-
       {!STATUTS_CLOS.includes(ticket.statut) && (
         <Button
           variante="secondaire"
@@ -189,69 +172,50 @@ export function FicheTicket() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { utilisateur } = useAuth();
-
   const [ticket, setTicket] = useState(null);
-
-  // VIGIE-29 : commentaires
+  const [erreur, setErreur] = useState(null); // 'introuvable' | 'reseau'
+  const [erreurAction, setErreurAction] = useState(null);
+  const [enCours, setEnCours] = useState(null); // action en cours : 'prise' | 'statut' | 'priorite'
+  const [modale, setModale] = useState(null); // 'TERMINE' | 'ABANDONNE' | 'PRIORITE'
+  const [saisie, setSaisie] = useState({ cause: '', solution: '', motif: '', priorite: '' });
+  const [erreursSaisie, setErreursSaisie] = useState({});
+  // VIGIE-29 : commentaire en cours de saisie, et attribution à un technicien
   const [nouveauCommentaire, setNouveauCommentaire] = useState('');
-
-  // VIGIE-29 : attribution
+  const [erreurCommentaire, setErreurCommentaire] = useState(null);
   const [gestionnaires, setGestionnaires] = useState([]);
   const [technicienChoisi, setTechnicienChoisi] = useState('');
 
-  const [erreur, setErreur] = useState(null);
-  const [erreurAction, setErreurAction] = useState(null);
-  const [enCours, setEnCours] = useState(null);
-  const [modale, setModale] = useState(null);
-
-  const [saisie, setSaisie] = useState({
-    cause: '',
-    solution: '',
-    motif: '',
-    priorite: '',
-  });
-
-  const [erreursSaisie, setErreursSaisie] = useState({});
-
   const support = ROLES_SUPPORT.includes(utilisateur.role);
+  // Retour vers l'accueil du rôle : « Mes demandes » pour un client, « À traiter » pour le support
   const accueil = MENU_PAR_ROLE[utilisateur.role]?.[0];
 
-  // Charger les gestionnaires actifs pour le responsable DSI.
+  // Gestionnaires proposés pour l'attribution : tout le support peut attribuer (le responsable DSI
+  // a le rôle GESTIONNAIRE, cadrage §2)
   useEffect(() => {
-    if (utilisateur.role !== 'ADMIN') return;
-
+    if (!support) return;
     appelerApi('/tickets/gestionnaires')
       .then(setGestionnaires)
-      .catch(() => {
-        setErreurAction('Impossible de charger la liste des techniciens.');
-      });
-  }, [utilisateur.role]);
+      .catch(() => setErreurAction('Impossible de charger la liste des techniciens.'));
+  }, [support]);
 
+  // Les états ne changent que dans la réponse de l'API, jamais directement dans l'effet
   const charger = useCallback(() => {
     appelerApi(`/tickets/${id}`)
       .then(setTicket)
-      .catch((err) => {
-        setErreur(err.status === 404 ? 'introuvable' : 'reseau');
-      });
+      .catch((err) => setErreur(err.status === 404 ? 'introuvable' : 'reseau'));
   }, [id]);
-
   useEffect(() => {
     charger();
   }, [charger]);
 
-  // Recharger la fiche lorsqu'un ticket est modifié en temps réel.
+  // Temps réel (VIGIE-12) : on rejoint la room du ticket ; à chaque modification annoncée par le
+  // serveur, on recharge le ticket par l'API, qui reste la source de vérité
   useEffect(() => {
     const rejoindre = () => socket.emit('ticket:rejoindre', id, () => {});
-
-    const surModification = (evenement) => {
-      if (evenement._id === id) charger();
-    };
-
+    const surModification = (evenement) => evenement._id === id && charger();
     rejoindre();
-
     socket.on('connect', rejoindre);
     socket.on('ticket:modifie', surModification);
-
     return () => {
       socket.emit('ticket:quitter', id, () => {});
       socket.off('connect', rejoindre);
@@ -265,162 +229,109 @@ export function FicheTicket() {
     charger();
   }
 
-  // Exécuter une action puis afficher la fiche mise à jour.
+  // Appel d'une action ; la fiche renvoyée par l'API remplace l'ancienne. L'erreur d'un commentaire
+  // s'affiche sous son formulaire, celle des autres actions dans le bandeau du haut (une seule fois)
   async function executer(type, chemin, options) {
+    const afficherErreur = type === 'commentaire' ? setErreurCommentaire : setErreurAction;
     setEnCours(type);
-    setErreurAction(null);
-
+    afficherErreur(null);
     try {
       setTicket(await appelerApi(chemin, options));
       return true;
     } catch (err) {
+      // 409 : un collègue a agi entre-temps, on recharge pour montrer l'état réel
       if (err.status === 409) charger();
-
-      setErreurAction(err.message);
+      afficherErreur(err.message);
       return false;
     } finally {
       setEnCours(null);
     }
   }
 
-  // VIGIE-29 : envoyer un commentaire.
+  // VIGIE-29 : commentaire visible du demandeur, des suiveurs et du support
   async function envoyerCommentaire(event) {
     event.preventDefault();
-
     const texte = nouveauCommentaire.trim();
     if (!texte || enCours) return;
-
     const reussi = await executer('commentaire', `/tickets/${id}/commentaires`, {
       methode: 'POST',
       corps: { texte },
     });
-
-    if (reussi) {
-      setNouveauCommentaire('');
-    }
+    if (reussi) setNouveauCommentaire('');
   }
 
-  // VIGIE-29 : attribuer ou réattribuer un technicien.
+  // VIGIE-29 : attribuer ou réattribuer le ticket à un gestionnaire
   async function confirmerAttribution(event) {
     event.preventDefault();
-
     if (!technicienChoisi || enCours) return;
-
     const reussi = await executer('attribution', `/tickets/${id}/technicien`, {
       methode: 'PATCH',
       corps: { technicienId: technicienChoisi },
     });
-
-    if (reussi) {
-      setTechnicienChoisi('');
-    }
+    if (reussi) setTechnicienChoisi('');
   }
 
   function surAction(type, statut) {
     if (type === 'prise') {
-      executer('prise', `/tickets/${id}/prise-en-charge`, {
-        methode: 'POST',
-      });
+      executer('prise', `/tickets/${id}/prise-en-charge`, { methode: 'POST' });
     } else if (type === 'priorite') {
-      setSaisie({
-        cause: '',
-        solution: '',
-        motif: '',
-        priorite: ticket.prioriteFinale,
-      });
-
+      // La liste part de la priorité actuelle, comme sur la capture
+      setSaisie({ cause: '', solution: '', motif: '', priorite: ticket.prioriteFinale });
       setErreursSaisie({});
       setErreurAction(null);
       setModale('PRIORITE');
     } else if (statut === 'TERMINE' || statut === 'ABANDONNE') {
-      setSaisie({
-        cause: '',
-        solution: '',
-        motif: '',
-      });
-
+      // Clôture et abandon demandent une saisie : on ouvre la fenêtre correspondante
+      setSaisie({ cause: '', solution: '', motif: '' });
       setErreursSaisie({});
       setModale(statut);
     } else {
-      executer('statut', `/tickets/${id}/statut`, {
-        methode: 'PATCH',
-        corps: { statut },
-      });
+      executer('statut', `/tickets/${id}/statut`, { methode: 'PATCH', corps: { statut } });
     }
   }
 
   async function confirmerModale() {
     const champs = modale === 'TERMINE' ? ['cause', 'solution'] : ['motif'];
-
     const manquants = {};
-
     for (const champ of champs) {
-      if (!saisie[champ].trim()) {
-        manquants[champ] = 'Ce champ est obligatoire.';
-      }
+      if (!saisie[champ].trim()) manquants[champ] = 'Ce champ est obligatoire.';
     }
-
     setErreursSaisie(manquants);
-
     if (Object.keys(manquants).length) return;
 
     const corps = { statut: modale };
-
-    for (const champ of champs) {
-      corps[champ] = saisie[champ];
-    }
-
-    const reussi = await executer('statut', `/tickets/${id}/statut`, {
-      methode: 'PATCH',
-      corps,
-    });
-
+    for (const champ of champs) corps[champ] = saisie[champ];
+    const reussi = await executer('statut', `/tickets/${id}/statut`, { methode: 'PATCH', corps });
     if (reussi) setModale(null);
   }
 
   async function confirmerRequalification() {
     const manquants = {};
-
     if (saisie.priorite === ticket.prioriteFinale) {
       manquants.priorite = 'Le ticket a déjà cette priorité.';
     }
-
     if (saisie.motif.trim().length < MOTIF_MIN) {
       manquants.motif = `Indiquez un motif (${MOTIF_MIN} caractères minimum).`;
     }
-
     setErreursSaisie(manquants);
-
     if (Object.keys(manquants).length) return;
 
-    const corps = {
-      priorite: saisie.priorite,
-      motif: saisie.motif,
-    };
-
+    const corps = { priorite: saisie.priorite, motif: saisie.motif };
     const reussi = await executer('priorite', `/tickets/${id}/priorite`, {
       methode: 'PATCH',
       corps,
     });
-
     if (reussi) setModale(null);
   }
 
   const modifierSaisie = (champ) => (event) => {
-    setSaisie({
-      ...saisie,
-      [champ]: event.target.value,
-    });
-
-    setErreursSaisie({
-      ...erreursSaisie,
-      [champ]: undefined,
-    });
+    setSaisie({ ...saisie, [champ]: event.target.value });
+    setErreursSaisie({ ...erreursSaisie, [champ]: undefined });
   };
 
   let contenu;
-
   if (erreur === 'introuvable') {
+    // Introuvable ou non autorisé : même message, on ne révèle pas l'existence du ticket
     contenu = (
       <EmptyState
         icone={Ticket}
@@ -428,6 +339,8 @@ export function FicheTicket() {
         texte="Il a peut-être été fusionné avec un autre ticket. Retrouvez vos demandes depuis l’accueil."
         action={
           accueil && (
+            // Texte de la fiche 05 pour le client ; « Retour à l’accueil » pour les autres rôles
+            // (« Retour à à traiter » ne se dit pas)
             <Button onClick={() => navigate(accueil.chemin)}>
               {utilisateur.role === 'CLIENT' ? 'Retour à mes demandes' : 'Retour à l’accueil'}
             </Button>
@@ -448,29 +361,32 @@ export function FicheTicket() {
   } else {
     const parMoi = ticket.demandeur?._id === utilisateur.id;
     const abandonne = ticket.statut === 'ABANDONNE';
-
     contenu = (
       <div className={styles.page}>
         <div className={styles.entete}>
           <p className={`${styles.meta} chiffres`}>
-            {ticket.reference} · signalé {parMoi ? 'par vous ' : ''}
-            le {formaterDateHeure(ticket.createdAt)}
+            {ticket.reference} · signalé {parMoi ? 'par vous ' : ''}le{' '}
+            {formaterDateHeure(ticket.createdAt)}
           </p>
-
           <h1 className="text-display-lg">{ticket.titre}</h1>
-
           <div className={styles.badges}>
             <StatusBadge statut={ticket.statut} taille={28} />
-
             {support && <PriorityBadge priorite={ticket.prioriteFinale} />}
           </div>
         </div>
 
-        {/* VIGIE-29 : attribution réservée à l'ADMIN */}
-        {utilisateur.role === 'ADMIN' && !STATUTS_CLOS.includes(ticket.statut) && (
+        {support && (
+          <ActionsSupport
+            ticket={ticket}
+            utilisateur={utilisateur}
+            onAction={surAction}
+            enCours={enCours}
+          />
+        )}
+        {/* Attribution (VIGIE-29) : tout le support, tant que le ticket n'est pas clos */}
+        {support && !STATUTS_CLOS.includes(ticket.statut) && (
           <section className={styles.carte} aria-label="Attribution du technicien">
             <h2 className={styles.titreCommentaires}>Attribuer un technicien</h2>
-
             <form onSubmit={confirmerAttribution} className={styles.formulaireCommentaire}>
               <Select
                 libelle="Technicien responsable"
@@ -479,7 +395,6 @@ export function FicheTicket() {
                 onChange={(event) => setTechnicienChoisi(event.target.value)}
               >
                 <option value="">Sélectionner un technicien</option>
-
                 {gestionnaires.map((gestionnaire) => (
                   <option
                     key={gestionnaire._id}
@@ -491,29 +406,15 @@ export function FicheTicket() {
                   </option>
                 ))}
               </Select>
-
               <Button
                 type="submit"
-                disabled={
-                  !technicienChoisi ||
-                  Boolean(enCours) ||
-                  technicienChoisi === ticket.technicien?._id
-                }
+                disabled={!technicienChoisi || Boolean(enCours)}
                 chargement={enCours === 'attribution' && 'Attribution…'}
               >
                 {ticket.technicien ? 'Réattribuer le ticket' : 'Attribuer le ticket'}
               </Button>
             </form>
           </section>
-        )}
-
-        {support && (
-          <ActionsSupport
-            ticket={ticket}
-            utilisateur={utilisateur}
-            onAction={surAction}
-            enCours={enCours}
-          />
         )}
 
         {erreurAction && !modale && (
@@ -523,105 +424,107 @@ export function FicheTicket() {
           </p>
         )}
 
+        {/* Abandonné : pas de frise, un message avec le motif (fiche 05) */}
         {abandonne ? (
           <p className={styles.messageAbandon}>
-            Abandonné
-            {ticket.motifAbandon ? ` : ${ticket.motifAbandon}` : '.'}
+            Abandonné{ticket.motifAbandon ? ` : ${ticket.motifAbandon}` : '.'}
           </p>
         ) : (
           !support && <ProgressTracker {...suiviDuTicket(ticket)} />
         )}
 
-        {/* Informations du ticket */}
-        <section className={styles.carte} aria-label="Informations">
-          <dl className={styles.informations}>
-            <Information
-              icone={<IconeService nom={ticket.service?.nom} size={16} />}
-              libelle="Service"
-            >
-              {ticket.service?.nom}
-            </Information>
-
-            {support && (
-              <>
-                <Information icone={<Layers {...ICONE_16} />} libelle="Domaine">
-                  {LIBELLES_DOMAINE[ticket.domaine]}
-                </Information>
-
-                <Information icone={<UserRound {...ICONE_16} />} libelle="Demandeur">
-                  <Personne personne={ticket.demandeur} />
-                </Information>
-              </>
-            )}
-
-            <Information icone={<User {...ICONE_16} />} libelle="Technicien">
-              <Personne personne={ticket.technicien} />
-            </Information>
-
-            <Information icone={<Calendar {...ICONE_16} />} libelle="Signalé le">
-              {formaterDateHeure(ticket.createdAt)}
-            </Information>
-
-            {ticket.echeanceSla && (
-              <Information icone={<Clock {...ICONE_16} />} libelle="Échéance">
-                {formaterDateHeure(ticket.echeanceSla)}
+        {/* Deux colonnes (fiches 05 et 06) : Informations à gauche pour le demandeur, historique
+            à gauche pour le support */}
+        <div className={support ? styles.colonnesSupport : styles.colonnesClient}>
+          <section className={styles.carte} aria-label="Informations">
+            <dl className={styles.informations}>
+              <Information
+                icone={<IconeService nom={ticket.service?.nom} size={16} />}
+                libelle="Service"
+              >
+                {ticket.service?.nom}
               </Information>
-            )}
-
-            <Information icone={<History {...ICONE_16} />} libelle="Dernière modification">
-              {formaterDateHeure(ticket.updatedAt)}
-            </Information>
-
-            {ticket.dateCloture && (
-              <Information icone={<CalendarCheck {...ICONE_16} />} libelle="Clôturé le">
-                {formaterDateHeure(ticket.dateCloture)}
-              </Information>
-            )}
-          </dl>
-
-          {/* Résolution du ticket */}
-          {ticket.resolution && (
-            <div className={styles.bloc}>
-              <h2 className={styles.libelleBloc}>Résolution</h2>
-
-              <p className={styles.texteResolution}>
-                <strong>Cause :</strong> {ticket.resolution.cause}
-              </p>
-
-              <p className={styles.texteResolution}>
-                <strong>Solution :</strong> {ticket.resolution.solution}
-              </p>
-
-              {ticket.resolution.auteur && (
-                <p className={styles.auteurResolution}>
-                  {nomComplet(ticket.resolution.auteur)} a clos le ticket le{' '}
-                  {formaterDateHeure(ticket.resolution.date)}.
-                </p>
+              {support && (
+                <>
+                  <Information icone={<Layers {...ICONE_16} />} libelle="Domaine">
+                    {LIBELLES_DOMAINE[ticket.domaine]}
+                  </Information>
+                  <Information icone={<UserRound {...ICONE_16} />} libelle="Demandeur">
+                    <Personne personne={ticket.demandeur} />
+                  </Information>
+                </>
               )}
+              <Information icone={<User {...ICONE_16} />} libelle="Technicien">
+                <Personne personne={ticket.technicien} />
+              </Information>
+              <Information icone={<Calendar {...ICONE_16} />} libelle="Signalé le">
+                {formaterDateHeure(ticket.createdAt)}
+              </Information>
+              {ticket.echeanceSla && (
+                <Information icone={<Clock {...ICONE_16} />} libelle="Échéance">
+                  {formaterDateHeure(ticket.echeanceSla)}
+                </Information>
+              )}
+              <Information icone={<History {...ICONE_16} />} libelle="Dernière modification">
+                {formaterDateHeure(ticket.updatedAt)}
+              </Information>
+              {ticket.dateCloture && (
+                <Information icone={<CalendarCheck {...ICONE_16} />} libelle="Clôturé le">
+                  {formaterDateHeure(ticket.dateCloture)}
+                </Information>
+              )}
+            </dl>
+
+            {/* Résolution structurée (VIGIE-44), visible du demandeur et du support */}
+            {ticket.resolution && (
+              <div className={styles.bloc}>
+                <h2 className={styles.libelleBloc}>Résolution</h2>
+                <p className={styles.texteResolution}>
+                  <strong>Cause :</strong> {ticket.resolution.cause}
+                </p>
+                <p className={styles.texteResolution}>
+                  <strong>Solution :</strong> {ticket.resolution.solution}
+                </p>
+                {ticket.resolution.auteur && (
+                  <p className={styles.auteurResolution}>
+                    {nomComplet(ticket.resolution.auteur)} a clos le ticket le{' '}
+                    {formaterDateHeure(ticket.resolution.date)}.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className={styles.bloc}>
+              <h2 className={styles.libelleBloc}>Description</h2>
+              <p className={styles.description}>{ticket.description}</p>
             </div>
-          )}
+          </section>
 
-          <div className={styles.bloc}>
-            <h2 className={styles.libelleBloc}>Description</h2>
+          {/* Historique (VIGIE-9) : rechargé avec la fiche à chaque ticket:modifie. Il ira dans
+            l'onglet « Historique » quand les échanges et les onglets (VIGIE-50) seront là. */}
+          <section
+            className={`${styles.carte} ${styles.historique}`}
+            aria-labelledby="titre-historique"
+          >
+            <h2 id="titre-historique" className="text-heading-md">
+              Historique
+            </h2>
+            <HistoriqueTicket historique={ticket.historique} demandeur={ticket.demandeur} />
+          </section>
+        </div>
 
-            <p className={styles.description}>{ticket.description}</p>
-          </div>
-        </section>
-
-        {/* VIGIE-29 : commentaires publics */}
+        {/* Commentaires (VIGIE-29). Mise en forme des fiches 05 et 06 (onglets Échanges /
+            Commentaires · Historique, bulles) : story de suite, avec le composant Tabs (VIGIE-50) */}
         <section className={styles.carte} aria-label="Commentaires">
           <h2 className={styles.titreCommentaires}>Commentaires</h2>
-
           {ticket.commentaires?.length ? (
             <div className={styles.listeCommentaires}>
               {ticket.commentaires.map((commentaire) => (
                 <article key={commentaire._id} className={styles.commentaire}>
                   <div className={styles.enteteCommentaire}>
                     <strong>{nomComplet(commentaire.auteur) || 'Utilisateur'}</strong>
-
                     <time dateTime={commentaire.date}>{formaterDateHeure(commentaire.date)}</time>
                   </div>
-
                   <p className={styles.texteCommentaire}>{commentaire.texte}</p>
                 </article>
               ))}
@@ -630,21 +533,19 @@ export function FicheTicket() {
             <p className={styles.aucunCommentaire}>Aucun commentaire pour le moment.</p>
           )}
 
+          {/* Le LECTEUR consulte seulement */}
           {utilisateur.role !== 'LECTEUR' && (
             <form onSubmit={envoyerCommentaire} className={styles.formulaireCommentaire}>
               <TextArea
                 libelle="Votre commentaire"
                 obligatoire
-                maxLength={2000}
+                maxLength={COMMENTAIRE_MAX}
                 value={nouveauCommentaire}
                 onChange={(event) => setNouveauCommentaire(event.target.value)}
                 placeholder="Écrivez votre message au sujet de ce ticket…"
-                compteur={{
-                  valeur: nouveauCommentaire.length,
-                  max: 2000,
-                }}
+                compteur={{ valeur: nouveauCommentaire.length, max: COMMENTAIRE_MAX }}
+                erreur={erreurCommentaire}
               />
-
               <Button
                 type="submit"
                 disabled={!nouveauCommentaire.trim() || Boolean(enCours)}
@@ -652,12 +553,6 @@ export function FicheTicket() {
               >
                 Envoyer le commentaire
               </Button>
-
-              {erreurAction && (
-                <p className={styles.erreurModale} role="alert">
-                  {erreurAction}
-                </p>
-              )}
             </form>
           )}
         </section>
@@ -667,18 +562,9 @@ export function FicheTicket() {
 
   return (
     <>
-      <PageHeader
-        retour={
-          accueil && {
-            chemin: accueil.chemin,
-            libelle: accueil.libelle,
-          }
-        }
-      />
-
+      <PageHeader retour={accueil && { chemin: accueil.chemin, libelle: accueil.libelle }} />
       <div className={styles.conteneur}>{contenu}</div>
 
-      {/* Modale de résolution */}
       <Modal
         ouverte={modale === 'TERMINE'}
         titre="Terminer le ticket"
@@ -688,7 +574,6 @@ export function FicheTicket() {
             <Button variante="secondaire" onClick={() => setModale(null)}>
               Annuler
             </Button>
-
             <Button chargement={enCours && 'Clôture…'} onClick={confirmerModale}>
               Terminer le ticket
             </Button>
@@ -699,37 +584,27 @@ export function FicheTicket() {
           Décrivez la cause et la solution : elles serviront pour les incidents similaires.
           N’indiquez aucune donnée personnelle.
         </p>
-
         <TextArea
           libelle="Cause"
           obligatoire
           maxLength={TEXTE_MAX}
           value={saisie.cause}
           onChange={modifierSaisie('cause')}
-          compteur={{
-            valeur: saisie.cause.length,
-            max: TEXTE_MAX,
-          }}
+          compteur={{ valeur: saisie.cause.length, max: TEXTE_MAX }}
           erreur={erreursSaisie.cause}
         />
-
         <TextArea
           libelle="Solution"
           obligatoire
           maxLength={TEXTE_MAX}
           value={saisie.solution}
           onChange={modifierSaisie('solution')}
-          compteur={{
-            valeur: saisie.solution.length,
-            max: TEXTE_MAX,
-          }}
+          compteur={{ valeur: saisie.solution.length, max: TEXTE_MAX }}
           erreur={erreursSaisie.solution}
         />
-
         {erreurAction && <p className={styles.erreurModale}>{erreurAction}</p>}
       </Modal>
 
-      {/* Modale d'abandon */}
       <Modal
         ouverte={modale === 'ABANDONNE'}
         titre="Abandonner le ticket"
@@ -739,7 +614,6 @@ export function FicheTicket() {
             <Button variante="secondaire" onClick={() => setModale(null)}>
               Annuler
             </Button>
-
             <Button variante="danger" chargement={enCours && 'Abandon…'} onClick={confirmerModale}>
               Abandonner
             </Button>
@@ -747,7 +621,6 @@ export function FicheTicket() {
         }
       >
         <p>Le ticket sera clos sans résolution. Le demandeur verra le motif.</p>
-
         <TextArea
           libelle="Motif"
           obligatoire
@@ -757,11 +630,10 @@ export function FicheTicket() {
           onChange={modifierSaisie('motif')}
           erreur={erreursSaisie.motif}
         />
-
         {erreurAction && <p className={styles.erreurModale}>{erreurAction}</p>}
       </Modal>
 
-      {/* Modale de requalification */}
+      {/* Requalification (VIGIE-5, fiche 06 et capture composants-03-modales) */}
       <Modal
         ouverte={modale === 'PRIORITE'}
         titre="Requalifier la priorité"
@@ -771,7 +643,6 @@ export function FicheTicket() {
             <Button variante="secondaire" onClick={() => setModale(null)}>
               Annuler
             </Button>
-
             <Button chargement={enCours && 'Requalification…'} onClick={confirmerRequalification}>
               Requalifier
             </Button>
@@ -781,7 +652,6 @@ export function FicheTicket() {
         <p className={styles.calculee}>
           Calculée : <PriorityBadge priorite={ticket?.prioriteCalculee} />
         </p>
-
         <Select
           libelle="Nouvelle priorité"
           obligatoire
@@ -796,7 +666,6 @@ export function FicheTicket() {
             </option>
           ))}
         </Select>
-
         <TextArea
           libelle="Motif"
           obligatoire
@@ -806,7 +675,6 @@ export function FicheTicket() {
           onChange={modifierSaisie('motif')}
           erreur={erreursSaisie.motif}
         />
-
         {erreurAction && <p className={styles.erreurModale}>{erreurAction}</p>}
       </Modal>
     </>

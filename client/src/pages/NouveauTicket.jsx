@@ -8,12 +8,13 @@ import {
   PenLine,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { appelerApi } from '../api.js';
 import { Button } from '../composants/Button.jsx';
 import { TextArea, TextField } from '../composants/Champs.jsx';
 import { ChoiceGroup } from '../composants/ChoiceCard.jsx';
 import { DelayEstimate } from '../composants/DelayEstimate.jsx';
+import { DuplicatePanel } from '../composants/DuplicatePanel.jsx';
 import { ErrorState, Skeleton } from '../composants/Etats.jsx';
 import { PageHeader } from '../composants/PageHeader.jsx';
 import {
@@ -34,9 +35,12 @@ import styles from './NouveauTicket.module.css';
 
 // Création d'un ticket en deux étapes (docs/ecrans/03-creer-un-ticket.md, VIGIE-3).
 // Le client ne choisit ni la priorité ni le délai : il répond à deux questions, le serveur calcule.
-// Hors de cette story : suggestions de doublons (VIGIE-15) et pièces jointes (VIGIE-35).
+// Suggestions de doublons pendant la saisie du titre : VIGIE-15. Pièces jointes : VIGIE-35.
 
 const TITRE_MAX = 120;
+// Suggestions de doublons (fiche 03) : dès 3 caractères, 300 ms après la dernière frappe
+const RECHERCHE_MIN = 3;
+const DELAI_RECHERCHE = 300;
 const ETAPES = ['Décrire le problème', 'Évaluer la situation'];
 
 // Les clés viennent de constantes.js via libelles.js : on ne réécrit pas les valeurs
@@ -117,6 +121,27 @@ function NomService({ nom }) {
   );
 }
 
+// « Je suis aussi concerné » réussi (parcours 1, étape 3) : le client suit le ticket, sans en créer
+function RattachementReussi({ ticket }) {
+  return (
+    <div className={styles.succes} role="status">
+      <CircleCheck size={20} strokeWidth={TRAIT_ICONE} aria-hidden="true" />
+      <div>
+        <p className={styles.succesTitre}>Vous suivez maintenant {ticket.reference}</p>
+        <p>
+          Pas besoin de créer un nouveau ticket : chaque avancée vous sera notifiée.{' '}
+          {ticket.concernes > 1
+            ? `${ticket.concernes} personnes sont concernées.`
+            : '1 personne est concernée.'}
+        </p>
+        <Link className={styles.lienSucces} to={`/tickets/${ticket._id}`}>
+          Voir le ticket
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function Confirmation({ ticket }) {
   const navigate = useNavigate();
   return (
@@ -150,6 +175,12 @@ export function NouveauTicket() {
   const [envoi, setEnvoi] = useState(false);
   const [erreurServeur, setErreurServeur] = useState(null);
   const [ticketCree, setTicketCree] = useState(null);
+  // Doublons : dernière réponse de la recherche, tickets rejoints et rattachement en cours
+  const [similaires, setSimilaires] = useState(null); // { cle, suggestions } ou { cle, erreur }
+  const [essaiRecherche, setEssaiRecherche] = useState(0);
+  const [rejoints, setRejoints] = useState({});
+  const [dernierRejoint, setDernierRejoint] = useState(null);
+  const [rattachement, setRattachement] = useState(null); // { id, enCours } ou { id, erreur }
 
   // Les états ne changent que dans la réponse de l'API, jamais directement dans l'effet
   const chargerServices = () =>
@@ -178,6 +209,47 @@ export function NouveauTicket() {
       .catch(() => setEstimation(null));
   }, [cleEstimation]);
   const estimationAffichee = estimation?.cle === cleEstimation ? estimation.resultat : null;
+
+  // Suggestions de doublons (VIGIE-15) : appel REST à chaque pause de 300 ms dans la frappe.
+  // Une réponse arrivée après une frappe plus récente est ignorée (annulee) : elle ne remplace
+  // jamais les suggestions du titre actuel.
+  const titreRecherche = champs.titre.trim();
+  const recherche = titreRecherche.length >= RECHERCHE_MIN ? titreRecherche : null;
+  const cleRecherche = recherche && `${essaiRecherche}:${recherche}`;
+  useEffect(() => {
+    if (!cleRecherche) return;
+    const titre = cleRecherche.slice(cleRecherche.indexOf(':') + 1);
+    let annulee = false;
+    const minuteur = setTimeout(() => {
+      appelerApi(`/tickets/similaires?${new URLSearchParams({ titre })}`)
+        .then((suggestions) => !annulee && setSimilaires({ cle: cleRecherche, titre, suggestions }))
+        .catch(() => !annulee && setSimilaires({ cle: cleRecherche, titre, erreur: true }));
+    }, DELAI_RECHERCHE);
+    return () => {
+      annulee = true;
+      clearTimeout(minuteur);
+    };
+  }, [cleRecherche]);
+
+  // Pendant la frappe, les suggestions précédentes restent affichées jusqu'à la réponse suivante
+  // (pas de clignotement) ; squelettes seulement s'il n'y a encore rien à montrer
+  const similairesAJour = similaires?.cle === cleRecherche;
+  let etatDoublons = 'resultats';
+  if (!recherche) etatDoublons = 'attente';
+  else if (similaires?.erreur) etatDoublons = similairesAJour ? 'erreur' : 'chargement';
+  else if (!similaires) etatDoublons = 'chargement';
+
+  async function rejoindre(suggestion) {
+    setRattachement({ id: suggestion._id, enCours: true });
+    try {
+      const ticket = await appelerApi(`/tickets/${suggestion._id}/suiveurs`, { methode: 'POST' });
+      setRejoints((actuels) => ({ ...actuels, [ticket._id]: ticket }));
+      setDernierRejoint(ticket);
+      setRattachement(null);
+    } catch (err) {
+      setRattachement({ id: suggestion._id, erreur: err.message });
+    }
+  }
 
   // Après chaque envoi refusé, le bandeau d'erreurs prend le focus : le lecteur d'écran l'annonce
   // et la page y remonte. Seulement à l'envoi (envois), pas pendant la frappe.
@@ -275,6 +347,7 @@ export function NouveauTicket() {
                   compteur={{ valeur: champs.titre.length, max: TITRE_MAX }}
                   erreur={erreurs.titre}
                 />
+                {dernierRejoint && <RattachementReussi ticket={dernierRejoint} />}
                 {/* Description guidée (cadrage 9.9) : trois questions au lieu d'un champ libre */}
                 <TextArea
                   libelle="Que se passe-t-il ?"
@@ -385,15 +458,27 @@ export function NouveauTicket() {
 
             <aside className={styles.colonneDroite}>
               {etape === 1 ? (
-                <div className={styles.encart}>
-                  <Info size={18} strokeWidth={TRAIT_ICONE} aria-hidden="true" />
-                  {/* Texte de la fiche complété pour les données personnelles (cadrage 9.9), à valider */}
-                  <p>
-                    N’indiquez jamais de mot de passe dans un ticket. Le support ne vous le
-                    demandera pas. Évitez aussi les données personnelles (santé, coordonnées d’un
-                    tiers…) dans le titre et la description.
-                  </p>
-                </div>
+                <>
+                  <DuplicatePanel
+                    recherche={similaires?.titre}
+                    etat={etatDoublons}
+                    suggestions={similaires?.suggestions}
+                    rejoints={rejoints}
+                    rattachement={rattachement}
+                    onRejoindre={rejoindre}
+                    onReessayer={() => setEssaiRecherche((n) => n + 1)}
+                  />
+                  <div className={styles.encart}>
+                    <Info size={18} strokeWidth={TRAIT_ICONE} aria-hidden="true" />
+                    {/* Texte de la fiche complété pour les données personnelles (cadrage 9.3 et 9.9,
+                      VIGIE-15 : le titre peut être proposé à d'autres demandeurs), à valider */}
+                    <p>
+                      N’indiquez jamais de mot de passe dans un ticket. Le support ne vous le
+                      demandera pas. Évitez aussi les données personnelles (santé, coordonnées d’un
+                      tiers…) dans le titre et la description.
+                    </p>
+                  </div>
+                </>
               ) : (
                 <section className={styles.recapitulatif} aria-labelledby="recapitulatif">
                   <div className={styles.recapEntete}>

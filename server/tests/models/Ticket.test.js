@@ -90,6 +90,75 @@ describe('schéma Ticket', () => {
   });
 });
 
+// Historique (VIGIE-9) : des entrées de même forme, qu'on ajoute mais qu'on ne modifie jamais
+describe('historique du ticket', () => {
+  const id = () => new mongoose.Types.ObjectId();
+  const DATE = new Date('2026-11-17T10:24:00Z');
+
+  function entree(champs = {}) {
+    return {
+      _id: id(),
+      auteur: id(),
+      champ: 'priorite',
+      ancienneValeur: 'MOYENNE',
+      nouvelleValeur: 'HAUTE',
+      motif: 'Deux sites touchés',
+      date: DATE,
+      ...champs,
+    };
+  }
+
+  it('refuse un champ qui n’est pas tracé', async () => {
+    const ticket = ticketValide({ historique: [entree({ champ: 'titre' })] });
+    await assert.rejects(ticket.validate(), /champ/);
+  });
+
+  it('exige un auteur', async () => {
+    const ticket = ticketValide({ historique: [entree({ auteur: undefined })] });
+    await assert.rejects(ticket.validate(), /auteur/);
+  });
+
+  it('ignore la modification d’une entrée déjà enregistrée', () => {
+    // hydrate : un ticket tel qu'il est lu depuis la base
+    const ticket = Ticket.hydrate({ _id: id(), historique: [entree()] });
+    const enregistree = ticket.historique[0];
+    enregistree.motif = 'Motif réécrit';
+    enregistree.nouvelleValeur = 'BASSE';
+    enregistree.auteur = id();
+    enregistree.date = new Date();
+    assert.equal(enregistree.motif, 'Deux sites touchés');
+    assert.equal(enregistree.nouvelleValeur, 'HAUTE');
+    assert.deepEqual(enregistree.date, DATE);
+    assert.equal(ticket.isModified(), false);
+  });
+
+  it('accepte l’ajout d’une entrée à un ticket enregistré', async () => {
+    const ticket = Ticket.hydrate({ _id: id(), historique: [entree()] });
+    ticket.historique.push(entree({ champ: 'domaine', ancienneValeur: 'APPLICATIF' }));
+    assert.equal(ticket.historique[1].ancienneValeur, 'APPLICATIF');
+    assert.equal(ticket.isModified('historique'), true);
+  });
+
+  // VIGIE-15 : la correction du domaine fait un save() complet ; il échouait (500) sur un ticket
+  // déjà rejoint par « Je suis aussi concerné » tant que « concerne » n'était pas un champ autorisé
+  it('reste valide avec une entrée « concerne » quand on ajoute une entrée', async () => {
+    const client = id();
+    const ticket = ticketValide({
+      historique: [
+        entree({
+          champ: 'concerne',
+          auteur: client,
+          ancienneValeur: null,
+          nouvelleValeur: client,
+          motif: undefined,
+        }),
+      ],
+    });
+    ticket.historique.push(entree({ champ: 'domaine', ancienneValeur: 'APPLICATIF' }));
+    await ticket.validate();
+  });
+});
+
 describe('schéma Notification', () => {
   it('supprime seulement les notifications lues, après 90 jours', () => {
     const ttl = index(Notification).find(([, options]) => options.expireAfterSeconds);

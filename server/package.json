@@ -8,6 +8,7 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "test": "node --test",
+    "seed": "node src/scripts/seedDemo.js",
     "seed:services": "node src/scripts/seedServices.js",
     "utilisateur": "node src/scripts/creerUtilisateur.js"
   },

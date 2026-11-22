@@ -82,9 +82,29 @@
   font-weight: 600;
 }
 
+/* Deux colonnes alignées en haut : Informations 5/12 et historique 7/12 pour le demandeur (fiche 05),
+   historique 7/12 à gauche et Informations 5/12 à droite pour le support (fiche 06) */
+.colonnesClient,
+.colonnesSupport {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.colonnesClient {
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+}
+
+.colonnesSupport {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+}
+
+.colonnesSupport .historique {
+  order: -1;
+}
+
 /* Carte « Informations » */
 .carte {
-  max-width: 640px;
   padding: var(--space-2) var(--space-6) var(--space-6);
   border-radius: var(--radius-lg);
   background: var(--color-neutral-0);
@@ -167,6 +187,30 @@
   margin: 0;
   font-size: 13px;
   color: var(--color-neutral-600);
+}
+
+/* Carte « Historique » : fil avec marges de 20 px (fiches 05 et 06) */
+.historique {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.historique h2 {
+  margin: 0;
+}
+
+/* Une seule colonne quand la place manque : Informations d'abord, puis l'historique */
+@media (max-width: 1024px) {
+  .colonnesClient,
+  .colonnesSupport {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .colonnesSupport .historique {
+    order: 0;
+  }
 }
 
 @media (max-width: 768px) {

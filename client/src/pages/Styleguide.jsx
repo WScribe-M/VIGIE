@@ -20,7 +20,9 @@ import { Button, IconButton } from '../composants/Button.jsx';
 import { Select, TextArea, TextField } from '../composants/Champs.jsx';
 import { ChoiceGroup } from '../composants/ChoiceCard.jsx';
 import { DelayEstimate } from '../composants/DelayEstimate.jsx';
+import { DuplicatePanel } from '../composants/DuplicatePanel.jsx';
 import { EmptyState, ErrorState, Skeleton } from '../composants/Etats.jsx';
+import { HistoriqueTicket } from '../composants/HistoriqueTicket.jsx';
 import { MenuStatut } from '../composants/MenuStatut.jsx';
 import { Modal } from '../composants/Modal.jsx';
 import { PriorityBadge } from '../composants/PriorityBadge.jsx';
@@ -28,7 +30,8 @@ import { ProgressTracker } from '../composants/ProgressTracker.jsx';
 import { Sidebar } from '../composants/Sidebar.jsx';
 import { SlaBadge } from '../composants/SlaBadge.jsx';
 import { StatusBadge } from '../composants/StatusBadge.jsx';
-import { ICONES_IMPACT, iconeService } from '../styles/icones.js';
+import { Tabs } from '../composants/Tabs.jsx';
+import { ICONES_IMPACT, ICONES_STATUT, iconeService } from '../styles/icones.js';
 import {
   DESCRIPTIONS_IMPACT,
   LIBELLES_IMPACT,
@@ -202,6 +205,70 @@ const AVATARS = [
   ['Claire', 'Fontaine'],
 ];
 
+// Historique de la capture composants-03-frise.png, au format de GET /api/tickets/:id
+const AWA = { _id: 'awa', prenom: 'Awa', nom: 'Diallo' };
+const MAMADOU = { _id: 'mamadou', prenom: 'Mamadou', nom: 'Koné' };
+const HISTORIQUE_DEMO = [
+  {
+    _id: '1',
+    auteur: AWA,
+    champ: 'statut',
+    ancienneValeur: null,
+    nouvelleValeur: 'NOUVEAU',
+    date: '2026-11-17T09:24:00Z',
+  },
+  {
+    _id: '2',
+    auteur: MAMADOU,
+    champ: 'statut',
+    ancienneValeur: 'NOUVEAU',
+    nouvelleValeur: 'EN_COURS',
+    date: '2026-11-17T10:02:00Z',
+  },
+  {
+    _id: '3',
+    auteur: MAMADOU,
+    champ: 'technicien',
+    ancienneValeur: null,
+    nouvelleValeur: MAMADOU,
+    date: '2026-11-17T10:02:00Z',
+  },
+  {
+    _id: '4',
+    auteur: MAMADOU,
+    champ: 'priorite',
+    ancienneValeur: 'MOYENNE',
+    nouvelleValeur: 'HAUTE',
+    motif: 'Deux sites touchés, l’équipe commerciale ne peut plus accéder au CRM.',
+    date: '2026-11-17T10:05:00Z',
+  },
+  {
+    _id: '5',
+    auteur: MAMADOU,
+    champ: 'domaine',
+    ancienneValeur: 'APPLICATIF',
+    nouvelleValeur: 'RESEAU',
+    date: '2026-11-17T10:42:00Z',
+  },
+  {
+    _id: '6',
+    auteur: MAMADOU,
+    champ: 'statut',
+    ancienneValeur: 'EN_COURS',
+    nouvelleValeur: 'TERMINE',
+    date: '2026-11-17T14:10:00Z',
+  },
+  {
+    _id: '7',
+    auteur: AWA,
+    champ: 'statut',
+    ancienneValeur: 'TERMINE',
+    nouvelleValeur: 'EN_COURS',
+    motif: 'Le CRM est de nouveau inaccessible depuis Lyon.',
+    date: '2026-11-17T15:38:00Z',
+  },
+];
+
 function Bloc({ titre, note, children }) {
   return (
     <section className={styles.bloc}>
@@ -306,6 +373,89 @@ function DemoChoix() {
       />
       <DelayEstimate estimation={null} />
       <DelayEstimate estimation={ESTIMATION_DEMO} />
+    </div>
+  );
+}
+
+// Onglets de « À traiter » (VIGIE-50) et de la fiche ticket : un état pour les manipuler
+const ONGLETS_FILE = [
+  {
+    valeur: 'aPrendre',
+    libelle: 'À prendre',
+    icone: ICONES_STATUT.NOUVEAU,
+    compteur: 3,
+    signal: true,
+    texteSignal: 'nouveau ticket',
+  },
+  {
+    valeur: 'enCours',
+    libelle: 'Mes tickets en cours',
+    icone: ICONES_STATUT.EN_COURS,
+    compteur: 4,
+  },
+  {
+    valeur: 'enAttente',
+    libelle: 'En attente du demandeur',
+    icone: ICONES_STATUT.EN_ATTENTE_DEMANDEUR,
+    compteur: 2,
+  },
+];
+const ONGLETS_FICHE = [
+  { valeur: 'echanges', libelle: 'Échanges', compteur: 5 },
+  { valeur: 'historique', libelle: 'Historique' },
+];
+
+function DemoOnglets() {
+  const [file, setFile] = useState('enCours');
+  const [fiche, setFiche] = useState('echanges');
+  return (
+    <div className={styles.colonneDemo}>
+      <Tabs libelle="Parties de la file" onglets={ONGLETS_FILE} valeur={file} onChange={setFile}>
+        <p className="text-body-sm texte-secondaire">
+          Panneau « {ONGLETS_FILE.find((o) => o.valeur === file).libelle} » · point sur « À prendre
+          » : nouveau ticket arrivé pendant qu’on regarde un autre onglet
+        </p>
+      </Tabs>
+      <Tabs libelle="Fiche ticket" onglets={ONGLETS_FICHE} valeur={fiche} onChange={setFiche}>
+        <p className="text-body-sm texte-secondaire">Sans icône : fiche ticket</p>
+      </Tabs>
+    </div>
+  );
+}
+
+// Suggestions de doublons de la démo : titre, service, statut, date d'ouverture (cadrage 9.3)
+const SUGGESTIONS_DEMO = [
+  {
+    _id: 'demo-1027',
+    titre: 'Coupure VPN sur le site de Lyon',
+    service: { nom: 'VPN' },
+    statut: 'EN_COURS',
+    createdAt: new Date(Date.now() - 12 * 60000).toISOString(),
+  },
+  {
+    _id: 'demo-1024',
+    titre: 'VPN inaccessible',
+    service: { nom: 'VPN' },
+    statut: 'EN_COURS',
+    createdAt: new Date(Date.now() - 3 * 3600000).toISOString(),
+  },
+];
+
+function DoublonsDemo() {
+  const [rejoints, setRejoints] = useState({ 'demo-1024': { concernes: 4 } });
+  return (
+    <div className={styles.colonneDemo}>
+      <DuplicatePanel
+        recherche="vpn ne marche plus"
+        etat="resultats"
+        suggestions={SUGGESTIONS_DEMO}
+        rejoints={rejoints}
+        onRejoindre={({ _id }) => setRejoints({ ...rejoints, [_id]: { concernes: 10 } })}
+      />
+      <DuplicatePanel etat="attente" />
+      <DuplicatePanel etat="chargement" />
+      <DuplicatePanel etat="resultats" suggestions={[]} />
+      <DuplicatePanel etat="erreur" onReessayer={() => {}} />
     </div>
   );
 }
@@ -465,6 +615,13 @@ export function Styleguide() {
         </div>
       </Bloc>
 
+      <Bloc
+        titre="Onglets"
+        note="Style souligné · seul l’actif est surligné · ← → Début Fin au clavier"
+      >
+        <DemoOnglets />
+      </Bloc>
+
       <Bloc titre="Champs" note="Libellé au-dessus · 40 px (44 dans les formulaires de création)">
         <div className={styles.colonneDemo}>
           <TextField
@@ -508,6 +665,15 @@ export function Styleguide() {
       </Bloc>
 
       <Bloc
+        titre="Historique"
+        note="TimelineItem · qui, quoi, quand · ordre chronologique · avant → après"
+      >
+        <div className={styles.carteDemo}>
+          <HistoriqueTicket historique={HISTORIQUE_DEMO} demandeur={AWA} />
+        </div>
+      </Bloc>
+
+      <Bloc
         titre="Changer le statut et fenêtre modale"
         note="Statuts possibles fournis par l'API · <dialog> natif : focus piégé, Échap ferme"
       >
@@ -530,6 +696,13 @@ export function Styleguide() {
           <Skeleton largeur="60%" />
           <Skeleton largeur={80} hauteur={26} rond />
         </div>
+      </Bloc>
+
+      <Bloc
+        titre="Panneau « Ce problème est peut-être déjà signalé »"
+        note="Dès 3 caractères, 300 ms après la dernière frappe · 1 à 3 tickets"
+      >
+        <DoublonsDemo />
       </Bloc>
 
       <Bloc titre="Avatars" note="24 · 32 · 36 · 40 px · une paire de couleurs par personne">

@@ -30,6 +30,10 @@ export const DOMAINES = [
 // Canal d'origine : APPLICATION quand le demandeur crée lui-même le ticket
 export const CANAUX = ['APPLICATION', 'TELEPHONE', 'EMAIL', 'DIRECT'];
 
+// Champs tracés dans l'historique d'un ticket (VIGIE-9) : statut, assignation, priorité, domaine
+// concerne : un client s'est déclaré concerné par un doublon à la saisie (VIGIE-15)
+export const CHAMPS_HISTORIQUE = ['statut', 'technicien', 'priorite', 'domaine', 'concerne'];
+
 export const TYPES_NOTIFICATION = [
   'NOUVEAU_TICKET',
   'TICKET_MIS_A_JOUR',
