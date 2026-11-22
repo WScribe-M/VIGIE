@@ -41,6 +41,8 @@ const TEXTE_MAX = 500;
 // Requalification (VIGIE-5) : mêmes règles que le serveur (prioriteService), vérifiées ici pour
 // répondre tout de suite ; le serveur reste celui qui décide
 const MOTIF_MIN = 10;
+// Commentaires (VIGIE-29) : même limite que le serveur (ticketInteractionService)
+const COMMENTAIRE_MAX = 2000;
 const STATUTS_CLOS = ['TERMINE', 'ABANDONNE'];
 const ICONE_16 = { size: 16, strokeWidth: TRAIT_ICONE, 'aria-hidden': true };
 
@@ -177,10 +179,24 @@ export function FicheTicket() {
   const [modale, setModale] = useState(null); // 'TERMINE' | 'ABANDONNE' | 'PRIORITE'
   const [saisie, setSaisie] = useState({ cause: '', solution: '', motif: '', priorite: '' });
   const [erreursSaisie, setErreursSaisie] = useState({});
+  // VIGIE-29 : commentaire en cours de saisie, et attribution à un technicien
+  const [nouveauCommentaire, setNouveauCommentaire] = useState('');
+  const [erreurCommentaire, setErreurCommentaire] = useState(null);
+  const [gestionnaires, setGestionnaires] = useState([]);
+  const [technicienChoisi, setTechnicienChoisi] = useState('');
 
   const support = ROLES_SUPPORT.includes(utilisateur.role);
   // Retour vers l'accueil du rôle : « Mes demandes » pour un client, « À traiter » pour le support
   const accueil = MENU_PAR_ROLE[utilisateur.role]?.[0];
+
+  // Gestionnaires proposés pour l'attribution : tout le support peut attribuer (le responsable DSI
+  // a le rôle GESTIONNAIRE, cadrage §2)
+  useEffect(() => {
+    if (!support) return;
+    appelerApi('/tickets/gestionnaires')
+      .then(setGestionnaires)
+      .catch(() => setErreurAction('Impossible de charger la liste des techniciens.'));
+  }, [support]);
 
   // Les états ne changent que dans la réponse de l'API, jamais directement dans l'effet
   const charger = useCallback(() => {
@@ -213,21 +229,46 @@ export function FicheTicket() {
     charger();
   }
 
-  // Appel d'une action ; la fiche renvoyée par l'API remplace l'ancienne
+  // Appel d'une action ; la fiche renvoyée par l'API remplace l'ancienne. L'erreur d'un commentaire
+  // s'affiche sous son formulaire, celle des autres actions dans le bandeau du haut (une seule fois)
   async function executer(type, chemin, options) {
+    const afficherErreur = type === 'commentaire' ? setErreurCommentaire : setErreurAction;
     setEnCours(type);
-    setErreurAction(null);
+    afficherErreur(null);
     try {
       setTicket(await appelerApi(chemin, options));
       return true;
     } catch (err) {
       // 409 : un collègue a agi entre-temps, on recharge pour montrer l'état réel
       if (err.status === 409) charger();
-      setErreurAction(err.message);
+      afficherErreur(err.message);
       return false;
     } finally {
       setEnCours(null);
     }
+  }
+
+  // VIGIE-29 : commentaire visible du demandeur, des suiveurs et du support
+  async function envoyerCommentaire(event) {
+    event.preventDefault();
+    const texte = nouveauCommentaire.trim();
+    if (!texte || enCours) return;
+    const reussi = await executer('commentaire', `/tickets/${id}/commentaires`, {
+      methode: 'POST',
+      corps: { texte },
+    });
+    if (reussi) setNouveauCommentaire('');
+  }
+
+  // VIGIE-29 : attribuer ou réattribuer le ticket à un gestionnaire
+  async function confirmerAttribution(event) {
+    event.preventDefault();
+    if (!technicienChoisi || enCours) return;
+    const reussi = await executer('attribution', `/tickets/${id}/technicien`, {
+      methode: 'PATCH',
+      corps: { technicienId: technicienChoisi },
+    });
+    if (reussi) setTechnicienChoisi('');
   }
 
   function surAction(type, statut) {
@@ -342,6 +383,40 @@ export function FicheTicket() {
             enCours={enCours}
           />
         )}
+        {/* Attribution (VIGIE-29) : tout le support, tant que le ticket n'est pas clos */}
+        {support && !STATUTS_CLOS.includes(ticket.statut) && (
+          <section className={styles.carte} aria-label="Attribution du technicien">
+            <h2 className={styles.titreCommentaires}>Attribuer un technicien</h2>
+            <form onSubmit={confirmerAttribution} className={styles.formulaireCommentaire}>
+              <Select
+                libelle="Technicien responsable"
+                obligatoire
+                value={technicienChoisi}
+                onChange={(event) => setTechnicienChoisi(event.target.value)}
+              >
+                <option value="">Sélectionner un technicien</option>
+                {gestionnaires.map((gestionnaire) => (
+                  <option
+                    key={gestionnaire._id}
+                    value={gestionnaire._id}
+                    disabled={gestionnaire._id === ticket.technicien?._id}
+                  >
+                    {nomComplet(gestionnaire)}
+                    {gestionnaire._id === ticket.technicien?._id ? ' (actuel)' : ''}
+                  </option>
+                ))}
+              </Select>
+              <Button
+                type="submit"
+                disabled={!technicienChoisi || Boolean(enCours)}
+                chargement={enCours === 'attribution' && 'Attribution…'}
+              >
+                {ticket.technicien ? 'Réattribuer le ticket' : 'Attribuer le ticket'}
+              </Button>
+            </form>
+          </section>
+        )}
+
         {erreurAction && !modale && (
           <p className={styles.bandeau} role="alert">
             <CircleAlert size={18} strokeWidth={TRAIT_ICONE} aria-hidden="true" />
@@ -437,6 +512,50 @@ export function FicheTicket() {
             <HistoriqueTicket historique={ticket.historique} demandeur={ticket.demandeur} />
           </section>
         </div>
+
+        {/* Commentaires (VIGIE-29). Mise en forme des fiches 05 et 06 (onglets Échanges /
+            Commentaires · Historique, bulles) : story de suite, avec le composant Tabs (VIGIE-50) */}
+        <section className={styles.carte} aria-label="Commentaires">
+          <h2 className={styles.titreCommentaires}>Commentaires</h2>
+          {ticket.commentaires?.length ? (
+            <div className={styles.listeCommentaires}>
+              {ticket.commentaires.map((commentaire) => (
+                <article key={commentaire._id} className={styles.commentaire}>
+                  <div className={styles.enteteCommentaire}>
+                    <strong>{nomComplet(commentaire.auteur) || 'Utilisateur'}</strong>
+                    <time dateTime={commentaire.date}>{formaterDateHeure(commentaire.date)}</time>
+                  </div>
+                  <p className={styles.texteCommentaire}>{commentaire.texte}</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.aucunCommentaire}>Aucun commentaire pour le moment.</p>
+          )}
+
+          {/* Le LECTEUR consulte seulement */}
+          {utilisateur.role !== 'LECTEUR' && (
+            <form onSubmit={envoyerCommentaire} className={styles.formulaireCommentaire}>
+              <TextArea
+                libelle="Votre commentaire"
+                obligatoire
+                maxLength={COMMENTAIRE_MAX}
+                value={nouveauCommentaire}
+                onChange={(event) => setNouveauCommentaire(event.target.value)}
+                placeholder="Écrivez votre message au sujet de ce ticket…"
+                compteur={{ valeur: nouveauCommentaire.length, max: COMMENTAIRE_MAX }}
+                erreur={erreurCommentaire}
+              />
+              <Button
+                type="submit"
+                disabled={!nouveauCommentaire.trim() || Boolean(enCours)}
+                chargement={enCours === 'commentaire' && 'Envoi…'}
+              >
+                Envoyer le commentaire
+              </Button>
+            </form>
+          )}
+        </section>
       </div>
     );
   }

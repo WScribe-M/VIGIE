@@ -532,6 +532,27 @@ paths:
         '403':
           $ref: '#/components/responses/Interdit'
 
+  /tickets/gestionnaires:
+    get:
+      tags: [Tickets]
+      summary: Gestionnaires actifs, pour l'attribution (GESTIONNAIRE, ADMIN)
+      description: >-
+        Liste proposée dans « Technicien responsable » sur la fiche (VIGIE-29), triée par nom puis
+        prénom. Seuls les comptes `GESTIONNAIRE` actifs peuvent recevoir un ticket.
+      responses:
+        '200':
+          description: Gestionnaires actifs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Personne'
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+
   /tickets/{id}:
     get:
       tags: [Tickets]
@@ -808,6 +829,111 @@ paths:
                 $ref: '#/components/schemas/Erreur'
               example:
                 message: 'Ticket clos : la priorité ne peut plus être requalifiée'
+
+  /tickets/{id}/technicien:
+    patch:
+      tags: [Tickets]
+      summary: Attribuer ou réattribuer le ticket à un technicien (GESTIONNAIRE, ADMIN)
+      description: >-
+        Le responsable DSI (rôle `GESTIONNAIRE`, cadrage §2) et tout le support peuvent attribuer
+        un ticket à un gestionnaire actif. Un ticket `NOUVEAU` passe `EN_COURS` (être attribué
+        vaut prise en charge). Tracé dans l'historique : changement de statut éventuel, puis
+        technicien (ancien et nouveau). Écriture conditionnelle sur l'état lu : si un collègue a
+        pris le ticket ou changé son statut entre-temps, rien n'est écrit (409). Émet
+        `ticket:modifie`.
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [technicienId]
+              properties:
+                technicienId:
+                  type: string
+                  description: Identifiant du gestionnaire choisi (pas celui de l'auteur, lu dans le jeton).
+      responses:
+        '200':
+          description: Ticket attribué.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Identifiant invalide, personne qui n'est pas un gestionnaire actif, ou technicien déjà affecté.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Le technicien doit être un gestionnaire actif
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          $ref: '#/components/responses/Introuvable'
+        '409':
+          description: Ticket clos, ou modifié entre la lecture et l'écriture.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: 'Le ticket a été modifié entre-temps : rechargez-le'
+
+  /tickets/{id}/commentaires:
+    post:
+      tags: [Tickets]
+      summary: Ajouter un commentaire (CLIENT, GESTIONNAIRE, ADMIN)
+      description: >-
+        Tous ceux qui voient le ticket peuvent commenter : le demandeur, les suiveurs, les personnes
+        en copie et le support. Le `LECTEUR` est en lecture seule. Les commentaires sont visibles de
+        tous ceux qui voient le ticket. Auteur lu dans le jeton. Émet `ticket:modifie`.
+      parameters:
+        - $ref: '#/components/parameters/IdTicket'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [texte]
+              properties:
+                texte:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+                  example: Le VPN fonctionne de nouveau depuis 10 h.
+      responses:
+        '200':
+          description: Commentaire ajouté ; fiche du ticket avec ses commentaires.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Commentaire vide ou de plus de 2000 caractères.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Le commentaire ne peut pas être vide
+        '401':
+          $ref: '#/components/responses/NonAuthentifie'
+        '403':
+          $ref: '#/components/responses/Interdit'
+        '404':
+          description: Ticket inexistant ou invisible pour cet utilisateur (même réponse).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+              example:
+                message: Ticket introuvable
 
 components:
   securitySchemes:
@@ -1206,6 +1332,19 @@ components:
           format: date-time
           description: Date d'ouverture.
 
+    Commentaire:
+      type: object
+      properties:
+        _id:
+          type: string
+        auteur:
+          $ref: '#/components/schemas/Personne'
+        texte:
+          type: string
+        date:
+          type: string
+          format: date-time
+
     Ticket:
       allOf:
         - $ref: '#/components/schemas/TicketResume'
@@ -1277,6 +1416,13 @@ components:
                 quoi et quand. Lecture seule : aucune route ne permet de le modifier.
               items:
                 $ref: '#/components/schemas/EntreeHistorique'
+            commentaires:
+              type: array
+              description: >-
+                Commentaires (VIGIE-29), par ordre d'ajout, visibles de tous ceux qui voient le
+                ticket.
+              items:
+                $ref: '#/components/schemas/Commentaire'
             transitionsPossibles:
               type: array
               description: >-

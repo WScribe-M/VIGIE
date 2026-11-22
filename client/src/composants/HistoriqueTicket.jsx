@@ -13,20 +13,35 @@ import { Changement, Timeline, TimelineItem } from './TimelineItem.jsx';
 const nomComplet = (personne) => (personne ? `${personne.prenom} ${personne.nom}` : '');
 const memeId = (a, b) => Boolean(a && b) && String(a._id ?? a) === String(b._id ?? b);
 
-// La prise en charge écrit deux entrées au même instant (statut NOUVEAU → EN_COURS, puis le
-// technicien) : on n'en affiche qu'une, « a pris en charge le ticket »
-function estPartieDUnePriseEnCharge(entree, historique) {
-  return (
-    entree.champ === 'technicien' &&
-    historique.some(
-      (autre) =>
-        autre.champ === 'statut' &&
-        autre.ancienneValeur === 'NOUVEAU' &&
-        autre.nouvelleValeur === 'EN_COURS' &&
-        autre.date === entree.date &&
-        memeId(autre.auteur, entree.auteur),
-    )
+// Une prise en charge ou une attribution d'un ticket NOUVEAU écrit deux entrées au même instant,
+// par le même auteur : statut NOUVEAU → EN_COURS, puis technicien. On n'en affiche qu'une.
+function compagnon(entree, historique, champ) {
+  return historique.find(
+    (autre) =>
+      autre !== entree &&
+      autre.champ === champ &&
+      autre.date === entree.date &&
+      memeId(autre.auteur, entree.auteur) &&
+      (champ === 'technicien' ||
+        (autre.ancienneValeur === 'NOUVEAU' && autre.nouvelleValeur === 'EN_COURS')),
   );
+}
+
+// Le technicien choisi est-il l'auteur lui-même ? Oui : il s'est assigné (« a pris en charge »).
+// Non : quelqu'un d'autre le lui a attribué (VIGIE-29, responsable DSI)
+const sAssigne = (entree) => memeId(entree.nouvelleValeur, entree.auteur);
+
+// Entrée doublée, à ne pas afficher : le technicien d'une prise en charge (la ligne de statut dit
+// « a pris en charge »), ou le statut d'une attribution (la ligne du technicien dit « a attribué »)
+function estDoublon(entree, historique) {
+  if (entree.champ === 'technicien') {
+    return sAssigne(entree) && Boolean(compagnon(entree, historique, 'statut'));
+  }
+  if (entree.champ === 'statut' && entree.ancienneValeur === 'NOUVEAU') {
+    const technicien = compagnon(entree, historique, 'technicien');
+    return Boolean(technicien) && !sAssigne(technicien);
+  }
+  return false;
 }
 
 function statuts(entree) {
@@ -39,7 +54,7 @@ function statuts(entree) {
 }
 
 // Icône, phrase et changement affichés pour une entrée
-function decrire(entree, demandeur) {
+function decrire(entree, demandeur, historique) {
   const { champ, ancienneValeur: avant, nouvelleValeur: apres } = entree;
   if (champ === 'statut') {
     if (!avant) return { icone: Plus, action: 'a signalé l’incident' };
@@ -77,10 +92,21 @@ function decrire(entree, demandeur) {
     };
   }
   if (champ === 'technicien') {
+    if (!avant && apres) {
+      // Attribution d'un ticket qui n'avait pas de technicien (s'il était NOUVEAU, il passe En cours)
+      const statut = compagnon(entree, historique, 'statut');
+      return {
+        icone: User,
+        action: sAssigne(entree)
+          ? 'a pris en charge le ticket'
+          : `a attribué le ticket à ${nomComplet(apres)}`,
+        changement: statut && statuts(statut),
+      };
+    }
     // « Non assigné » : texte du design system pour une personne absente
     return {
       icone: User,
-      action: 'a modifié l’assignation',
+      action: 'a réattribué le ticket',
       changement: (
         <Changement
           avant={nomComplet(avant) || 'Non assigné'}
@@ -99,8 +125,8 @@ function decrire(entree, demandeur) {
  */
 export function HistoriqueTicket({ historique = [], demandeur }) {
   const elements = historique
-    .filter((entree) => !estPartieDUnePriseEnCharge(entree, historique))
-    .map((entree) => ({ entree, description: decrire(entree, demandeur) }))
+    .filter((entree) => !estDoublon(entree, historique))
+    .map((entree) => ({ entree, description: decrire(entree, demandeur, historique) }))
     .filter(({ description }) => description);
 
   // Personnes déclarées concernées (VIGIE-15) : une seule ligne, « 3 personnes se sont déclarées

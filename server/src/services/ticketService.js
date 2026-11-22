@@ -198,8 +198,10 @@ export async function lireTicket(id, utilisateur) {
     throw new ErreurHttp(404, 'Ticket introuvable');
   }
   const ticket = await Ticket.findById(id)
-    .select(`${CHAMPS_FICHE} suiveurs enCopie historique`)
+    // Commentaires publics (VIGIE-29) : les notes internes (VIGIE-47) devront être retirées pour un CLIENT
+    .select(`${CHAMPS_FICHE} suiveurs enCopie historique commentaires`)
     .populate('service', 'nom')
+    .populate('commentaires.auteur', 'nom prenom')
     .populate('demandeur', 'nom prenom')
     .populate('technicien', 'nom prenom')
     .populate('resolution.auteur', 'nom prenom')

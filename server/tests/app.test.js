@@ -187,6 +187,34 @@ describe('droits sur /api/tickets (sans base : les middlewares répondent avant)
     assert.equal(status, 404);
   });
 
+  it('seul le support attribue un ticket et liste les gestionnaires (403 pour CLIENT et LECTEUR)', async () => {
+    for (const role of ['CLIENT', 'LECTEUR']) {
+      const attribution = await appeler(`/tickets/${ID}/technicien`, {
+        method: 'PATCH',
+        headers: await entetes(role),
+        body: JSON.stringify({ technicienId: ID }),
+      });
+      const liste = await appeler('/tickets/gestionnaires', { headers: await entetes(role) });
+      assert.equal(attribution.status, 403, role);
+      assert.equal(liste.status, 403, role);
+    }
+  });
+
+  it('le LECTEUR ne commente pas (403) ; un commentaire vide répond 400 sans toucher à la base', async () => {
+    const lecteur = await appeler(`/tickets/${ID}/commentaires`, {
+      method: 'POST',
+      headers: await entetes('LECTEUR'),
+      body: JSON.stringify({ texte: 'Bonjour' }),
+    });
+    assert.equal(lecteur.status, 403);
+    const vide = await appeler(`/tickets/${ID}/commentaires`, {
+      method: 'POST',
+      headers: await entetes('CLIENT'),
+      body: JSON.stringify({ texte: '   ' }),
+    });
+    assert.equal(vide.status, 400);
+  });
+
   it('une création invalide répond 400 sans toucher à la base', async () => {
     const { status, corps } = await appeler('/tickets', {
       method: 'POST',

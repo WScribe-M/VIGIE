@@ -10,6 +10,11 @@ import {
   prendreEnCharge,
   requalifierPriorite,
 } from '../services/ticketService.js';
+import {
+  ajouterCommentaire,
+  attribuerTechnicien,
+  listerGestionnaires,
+} from '../services/ticketInteractionService.js';
 
 // L'utilisateur vient toujours du jeton (req.utilisateur), jamais du corps de la requête
 
@@ -56,4 +61,17 @@ export async function similaires(req, res) {
 
 export async function rejoindre(req, res) {
   res.json(await rejoindreTicket(req.params.id, req.utilisateur));
+}
+
+// Attribution d'un technicien (VIGIE-29) : technicienId désigne la personne choisie, pas l'auteur
+export async function attribuer(req, res) {
+  res.json(await attribuerTechnicien(req.params.id, req.body?.technicienId, req.utilisateur));
+}
+
+export async function commenter(req, res) {
+  res.json(await ajouterCommentaire(req.params.id, req.body, req.utilisateur));
+}
+
+export async function gestionnaires(req, res) {
+  res.json(await listerGestionnaires());
 }
